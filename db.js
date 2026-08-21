@@ -28,7 +28,7 @@ const DEFAULT_DATA = {
         pix_key: "86999999999",
         pix_bank: "Banco Inter / Nubank",
         pix_name: "Araújo Detail",
-        whatsapp_number: "5586900000000"
+        whatsapp_number: "559984937614"
     },
     services: [
         { id: 1, name: "Lavagem Detalhada", description: "Higienização interna e externa minuciosa", category: "Lavagem", icon: "spray", active: true },

@@ -1105,7 +1105,7 @@
 
     <script>
         // ================= CONFIGURAÇÕES DINÂMICAS ================= //
-        let WHATSAPP_NUMBER = "5586900000000";
+        let WHATSAPP_NUMBER = "559984937614";
 
         let PIX_CONFIG = {
             key: "86999999999",
@@ -1469,6 +1469,13 @@
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
             document.getElementById('step-done').classList.add('active');
             document.getElementById('step-5').classList.remove('active');
+            
+            // Oculta rodapé (about/desenvolvedor) e barra superior na tela final
+            const footerEl = document.querySelector('footer');
+            if (footerEl) footerEl.style.display = 'none';
+            const spineEl = document.querySelector('.spine-wrap');
+            if (spineEl) spineEl.style.display = 'none';
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1485,6 +1492,13 @@
             document.getElementById('toStep5').disabled = true;
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
             document.getElementById('step-hero').classList.add('active');
+            
+            // Restaura rodapé e barra
+            const footerEl = document.querySelector('footer');
+            if (footerEl) footerEl.style.display = 'block';
+            const spineEl = document.querySelector('.spine-wrap');
+            if (spineEl) spineEl.style.display = 'block';
+
             updateProgress('hero');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
