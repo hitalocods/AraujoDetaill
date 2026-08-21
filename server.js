@@ -54,6 +54,12 @@ const requireAdminAuth = (req, res, next) => {
 // ==========================================
 
 app.get('/api/public/config', async (req, res) => {
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+    });
     try {
         const config = await db.getConfig();
         const services = (await db.getServices()).filter(s => s.active);
@@ -74,6 +80,12 @@ app.get('/api/public/config', async (req, res) => {
 });
 
 app.get('/api/public/available-slots', async (req, res) => {
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+    });
     try {
         const { date } = req.query;
         if (!date) return res.status(400).json({ success: false, error: 'Data não informada' });
@@ -116,6 +128,13 @@ app.post('/api/public/bookings', async (req, res) => {
 
         if (!client_name || !client_phone || !booking_date || !booking_time) {
             return res.status(400).json({ success: false, error: 'Campos obrigatórios ausentes' });
+        }
+
+        // Validação anti-colisão de agendamento em tempo real
+        const existingBookings = await db.getBookings();
+        const isAlreadyBooked = existingBookings.some(b => b.booking_date === booking_date && b.booking_time === booking_time && b.status !== 'cancelado');
+        if (isAlreadyBooked) {
+            return res.status(409).json({ success: false, error: 'Este horário acabou de ser agendado por outro cliente. Por favor, escolha outro horário.' });
         }
 
         const newBooking = await db.createBooking({

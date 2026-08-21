@@ -1157,13 +1157,10 @@
             }
             if (service.prices.passeio !== undefined) return parseFloat(service.prices.passeio);
             const vals = Object.values(service.prices);
-            return vals.length > 0 ? parseFloat(vals[0]) : 0;
-        }
-
-        // Carrega dados dinâmicos do backend
+            // Carrega dados dinâmicos do backend sempre com garantia de frescor (sem cache)
         async function loadServerConfig() {
             try {
-                const res = await fetch('/api/public/config');
+                const res = await fetch(`/api/public/config?_t=${Date.now()}`, { cache: 'no-store' });
                 const data = await res.json();
                 if (!data.success) return;
 
@@ -1183,7 +1180,7 @@
                             id: s.id,
                             name: s.name,
                             desc: s.description,
-                            prices: s.prices || { passeio: 50, suv: 60, pickup: 70 }
+                            prices: s.prices || { moto: 35, passeio: 50, suv: 60, pickup: 70 }
                         });
                     });
                     CATALOG = Object.keys(groups).map(cat => ({ cat, items: groups[cat] }));
@@ -1207,17 +1204,26 @@
             }
         }
 
-        function goTo(key) {
+        async function goTo(key) {
             key = String(key);
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
             const el = document.getElementById(key === 'hero' ? 'step-hero' : 'step-' + key);
             el.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             updateProgress(key);
+
             if (key === '0') renderCatalog();
             if (key === '1') renderVehicles();
-            if (key === '2') renderCalendar();
-            if (key === '3') renderTimes();
+            if (key === '2') {
+                await loadServerConfig();
+                renderCalendar();
+            }
+            if (key === '3') {
+                if (state.date) {
+                    await fetchLatestSlots(state.date);
+                }
+                renderTimes();
+            }
             if (key === '5') renderSummary();
         }
 
@@ -1344,22 +1350,34 @@
 
         function shiftMonth(dir) { calRef.setMonth(calRef.getMonth() + dir); renderCalendar(); }
 
+        async function fetchLatestSlots(iso) {
+            try {
+                const res = await fetch(`/api/public/available-slots?date=${iso}&_t=${Date.now()}`, { cache: 'no-store' });
+                const data = await res.json();
+                if (data.success && data.slots) {
+                    SERVER_SLOTS = data.slots;
+                    
+                    // Se o horário selecionado anteriormente acabou de ser ocupado, desmarca
+                    if (state.time) {
+                        const currentSlot = data.slots.find(s => s.time === state.time);
+                        if (currentSlot && !currentSlot.available) {
+                            state.time = null;
+                            const toStep4Btn = document.getElementById('toStep4');
+                            if (toStep4Btn) toStep4Btn.disabled = true;
+                        }
+                    }
+                }
+            } catch (e) {
+                SERVER_SLOTS = [];
+            }
+        }
+
         async function pickDate(iso) {
             state.date = iso; 
             state.time = null;
             renderCalendar();
 
-            // Busca slots disponíveis no backend
-            try {
-                const res = await fetch(`/api/public/available-slots?date=${iso}`);
-                const data = await res.json();
-                if (data.success && data.slots) {
-                    SERVER_SLOTS = data.slots;
-                }
-            } catch (e) {
-                SERVER_SLOTS = [];
-            }
-
+            await fetchLatestSlots(iso);
             document.getElementById('toStep3').disabled = false;
         }
 
@@ -1469,9 +1487,9 @@
                 return `- ${s.name}: R$ ${p.toFixed(2).replace('.', ',')}`;
             }).join('%0A');
 
-            // Salva no banco de dados (Neon / Backend)
+            // Salva no banco de dados (Neon / Backend com verificação anti-colisão)
             try {
-                await fetch('/api/public/bookings', {
+                const res = await fetch('/api/public/bookings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1488,6 +1506,13 @@
                         deposit_price: total / 2
                     })
                 });
+                
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    alert(data.error || 'Ops! Este horário acabou de ser preenchido. Por favor, escolha outro horário.');
+                    goTo(3); // Volta para a escolha de horário com slots atualizados
+                    return;
+                }
             } catch (e) {
                 console.error('Erro ao registrar agendamento no servidor:', e);
             }
@@ -1539,6 +1564,41 @@
             updateProgress('hero');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        // ================= RE-SINCRONIZAÇÃO EM TEMPO REAL =================
+        async function autoRefreshAvailability() {
+            await loadServerConfig();
+            const activeStep = document.querySelector('.step.active');
+            if (!activeStep) return;
+
+            if (activeStep.id === 'step-2') {
+                renderCalendar();
+            } else if (activeStep.id === 'step-3' && state.date) {
+                await fetchLatestSlots(state.date);
+                renderTimes();
+            }
+        }
+
+        // Ao retornar para a aba / reabrir página do celular que estava parada
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) autoRefreshAvailability();
+        });
+
+        window.addEventListener('focus', () => {
+            autoRefreshAvailability();
+        });
+
+        window.addEventListener('pageshow', (e) => {
+            autoRefreshAvailability();
+        });
+
+        // Polling suave a cada 20 segundos em etapas de data/hora
+        setInterval(() => {
+            const activeStep = document.querySelector('.step.active');
+            if (activeStep && (activeStep.id === 'step-2' || activeStep.id === 'step-3')) {
+                autoRefreshAvailability();
+            }
+        }, 20000);
 
         // Inicialização
         loadServerConfig();
