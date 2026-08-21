@@ -30,14 +30,15 @@ const DEFAULT_DATA = {
         whatsapp_number: "559984937614"
     },
     services: [
-        { id: 1, name: "Lavagem Detalhada", description: "Higienização interna e externa minuciosa", category: "Lavagem", icon: "spray", prices: { passeio: 50, suv: 60, pickup: 70 }, active: true },
-        { id: 2, name: "Lavagem de Motor", description: "Limpeza técnica com verniz protetor", category: "Motor", icon: "wrench", prices: { passeio: 40, suv: 50, pickup: 60 }, active: true },
-        { id: 3, name: "Higienização Completa", description: "Bancos, teto, carpetes e revitalização", category: "Interior", icon: "sparkle", prices: { passeio: 180, suv: 220, pickup: 260 }, active: true },
-        { id: 4, name: "Polimento Técnico", description: "Correção de pintura e brilho espelhado", category: "Polimento", icon: "polish", prices: { passeio: 350, suv: 450, pickup: 550 }, active: true },
-        { id: 5, name: "Vitrificação", description: "Proteção cerâmica duradoura", category: "Proteção", icon: "shield", prices: { passeio: 700, suv: 900, pickup: 1100 }, active: true },
-        { id: 6, name: "Descontaminação Ferrosa", description: "Remoção de chuva ácida, piche e cola", category: "Pintura", icon: "magnet", prices: { passeio: 80, suv: 100, pickup: 120 }, active: true }
+        { id: 1, name: "Lavagem Detalhada", description: "Higienização interna e externa minuciosa", category: "Lavagem", icon: "spray", prices: { moto: 35, passeio: 50, suv: 60, pickup: 70 }, active: true },
+        { id: 2, name: "Lavagem de Motor", description: "Limpeza técnica com verniz protetor", category: "Motor", icon: "wrench", prices: { moto: 30, passeio: 40, suv: 50, pickup: 60 }, active: true },
+        { id: 3, name: "Higienização Completa", description: "Bancos, teto, carpetes e revitalização", category: "Interior", icon: "sparkle", prices: { moto: 100, passeio: 180, suv: 220, pickup: 260 }, active: true },
+        { id: 4, name: "Polimento Técnico", description: "Correção de pintura e brilho espelhado", category: "Polimento", icon: "polish", prices: { moto: 200, passeio: 350, suv: 450, pickup: 550 }, active: true },
+        { id: 5, name: "Vitrificação", description: "Proteção cerâmica duradoura", category: "Proteção", icon: "shield", prices: { moto: 400, passeio: 700, suv: 900, pickup: 1100 }, active: true },
+        { id: 6, name: "Descontaminação Ferrosa", description: "Remoção de chuva ácida, piche e cola", category: "Pintura", icon: "magnet", prices: { moto: 50, passeio: 80, suv: 100, pickup: 120 }, active: true }
     ],
     vehicles: [
+        { id: "moto", name: "Moto", description: "Motocicletas e scooters", price: 35.00, icon: "bike", active: true },
         { id: "passeio", name: "Passeio", description: "Hatchs e sedans", price: 50.00, icon: "car", active: true },
         { id: "suv", name: "SUV", description: "SUVs e crossovers", price: 60.00, icon: "suv", active: true },
         { id: "pickup", name: "Pickup", description: "Pickups e caminhonetes", price: 70.00, icon: "truck", active: true }

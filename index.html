@@ -1114,6 +1114,7 @@
         };
 
         const ICONS = {
+            bike: '<circle cx="5.5" cy="17.5" r="3.5" stroke-width="1.6" fill="none"/><circle cx="18.5" cy="17.5" r="3.5" stroke-width="1.6" fill="none"/><path d="M15 6a1 1 0 0 0-1-1h-4l-3 7h8.5l-2.5-4h2.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M5.5 17.5l4-7.5h5l4 7.5" stroke-width="1.6" fill="none"/><path d="M12 12.5l-2-6h-3" stroke-width="1.6" stroke-linecap="round" fill="none"/>',
             car: '<path d="M3 12h1.5a2 2 0 0 1 1.8-1.2h11.4A2 2 0 0 1 19.5 12H21a2 2 0 0 0 2-2V8.5c0-.6-.3-1.1-.8-1.4L18 4.2A3 3 0 0 0 16.3 3.5H7.7a3 3 0 0 0-2.2.9L2.8 7.1H1a1 1 0 0 0-1 1V11a1 1 0 0 0 1 1Z" stroke-width="1.6" stroke-linejoin="round" fill="none"/><circle cx="6.5" cy="13.5" r="2" stroke-width="1.6" fill="none"/><circle cx="17.5" cy="13.5" r="2" stroke-width="1.6" fill="none"/>',
             suv: '<path d="M2 13h1.8a2 2 0 0 1 1.8-1.2h12.8a2 2 0 0 1 1.8 1.2H22a2 2 0 0 0 2-2V7.5a2 2 0 0 0-.8-1.6L19 3.5H5L1.8 6.5A2 2 0 0 0 1 8v3a2 2 0 0 0 1 2Z" stroke-width="1.6" stroke-linejoin="round" fill="none"/><circle cx="6.5" cy="14" r="2.2" stroke-width="1.6" fill="none"/><circle cx="17.5" cy="14" r="2.2" stroke-width="1.6" fill="none"/>',
             truck: '<path d="M1 13h1.8a2 2 0 0 1 1.8-1.2h12.8a2 2 0 0 1 1.8 1.2H23V8a2 2 0 0 0-2-2h-5V3.5H9L6 6.5H1v4.5a2 2 0 0 0 1 2Z" stroke-width="1.6" stroke-linejoin="round" fill="none"/><circle cx="6.5" cy="14" r="2.2" stroke-width="1.6" fill="none"/><circle cx="18" cy="14" r="2.2" stroke-width="1.6" fill="none"/>'
@@ -1125,17 +1126,18 @@
         let CATALOG = [
             {
                 cat: 'Serviços', items: [
-                    { id: 1, name: "Lavagem Detalhada", desc: "Higienização interna e externa minuciosa.", prices: { passeio: 50, suv: 60, pickup: 70 } },
-                    { id: 2, name: "Lavagem de Motor", desc: "Limpeza técnica com verniz protetor.", prices: { passeio: 40, suv: 50, pickup: 60 } },
-                    { id: 3, name: "Higienização Completa", desc: "Bancos, teto, carpetes e revitalização.", prices: { passeio: 180, suv: 220, pickup: 260 } },
-                    { id: 4, name: "Polimento Técnico", desc: "Correção de pintura e brilho espelhado.", prices: { passeio: 350, suv: 450, pickup: 550 } },
-                    { id: 5, name: "Vitrificação", desc: "Proteção cerâmica duradoura.", prices: { passeio: 700, suv: 900, pickup: 1100 } },
-                    { id: 6, name: "Descontaminação Ferrosa", desc: "Remoção de chuva ácida, piche e cola.", prices: { passeio: 80, suv: 100, pickup: 120 } },
+                    { id: 1, name: "Lavagem Detalhada", desc: "Higienização interna e externa minuciosa.", prices: { moto: 35, passeio: 50, suv: 60, pickup: 70 } },
+                    { id: 2, name: "Lavagem de Motor", desc: "Limpeza técnica com verniz protetor.", prices: { moto: 30, passeio: 40, suv: 50, pickup: 60 } },
+                    { id: 3, name: "Higienização Completa", desc: "Bancos, teto, carpetes e revitalização.", prices: { moto: 100, passeio: 180, suv: 220, pickup: 260 } },
+                    { id: 4, name: "Polimento Técnico", desc: "Correção de pintura e brilho espelhado.", prices: { moto: 200, passeio: 350, suv: 450, pickup: 550 } },
+                    { id: 5, name: "Vitrificação", desc: "Proteção cerâmica duradoura.", prices: { moto: 400, passeio: 700, suv: 900, pickup: 1100 } },
+                    { id: 6, name: "Descontaminação Ferrosa", desc: "Remoção de chuva ácida, piche e cola.", prices: { moto: 50, passeio: 80, suv: 100, pickup: 120 } },
                 ]
             }
         ];
 
         let VEHICLES = [
+            { id: 'moto', name: 'Moto', desc: 'Motocicletas e scooters', price: 35, icon: 'bike' },
             { id: 'passeio', name: 'Passeio', desc: 'Hatchs e sedans', price: 50, icon: 'car' },
             { id: 'suv', name: 'SUV', desc: 'SUVs e crossovers', price: 60, icon: 'suv' },
             { id: 'pickup', name: 'Pickup', desc: 'Pickups e caminhonetes', price: 70, icon: 'truck' }
