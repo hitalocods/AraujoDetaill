@@ -1157,7 +1157,10 @@
             }
             if (service.prices.passeio !== undefined) return parseFloat(service.prices.passeio);
             const vals = Object.values(service.prices);
-            // Carrega dados dinâmicos do backend sempre com garantia de frescor (sem cache)
+            return vals.length > 0 ? parseFloat(vals[0]) : 0;
+        }
+
+        // Carrega dados dinâmicos do backend sempre com garantia de frescor (sem cache)
         async function loadServerConfig() {
             try {
                 const res = await fetch(`/api/public/config?_t=${Date.now()}`, { cache: 'no-store' });
