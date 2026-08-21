@@ -685,6 +685,120 @@
             color: #c0392b;
         }
 
+        /* Employee Commission Payout Cards */
+        .emp-payout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .emp-payout-card {
+            background: var(--paper);
+            border: 1.5px solid var(--line);
+            border-radius: 18px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s var(--ease), border-color 0.2s;
+        }
+
+        .emp-payout-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--spark);
+        }
+
+        .emp-payout-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .emp-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--ink);
+            color: var(--spark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .emp-info .emp-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--ink);
+        }
+
+        .emp-info .emp-role {
+            font-size: 12px;
+            color: var(--slate);
+        }
+
+        .emp-metrics {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .emp-metric-item .lbl {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--slate);
+        }
+
+        .emp-metric-item .val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-top: 2px;
+        }
+
+        .emp-payout-box {
+            background: rgba(18, 25, 27, 0.04);
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .emp-payout-box .payout-lbl {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--slate);
+        }
+
+        .emp-payout-box .payout-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .status-badge.cancelado {
+            background: rgba(231, 76, 60, 0.15);
+            color: #c0392b;
+        }
+
         /* Forms */
         .form-grid {
             display: grid;
@@ -1293,15 +1407,39 @@
             <section id="tab-funcionarios" class="tab-pane" style="display:none;">
                 <div class="top-bar">
                     <div>
-                        <h1>Funcionários & Regras de Comissão</h1>
-                        <p>Cadastre e edite funcionários com comissão personalizada (% ou R$ fixo).</p>
+                        <h1>Funcionários & Repasse de Comissões</h1>
+                        <p>Controle de valores a receber por cada profissional e cadastro da equipe.</p>
                     </div>
                     <button class="btn-act" onclick="openEmployeeModal()">+ Novo Funcionário</button>
                 </div>
 
+                <!-- FILTRO DE PERÍODO PARA COMISSÕES -->
+                <div class="filter-row" style="margin-bottom:18px;">
+                    <div class="filter-pills">
+                        <button class="pill-btn" onclick="setEmpPayoutPeriod('day')">Hoje</button>
+                        <button class="pill-btn" onclick="setEmpPayoutPeriod('week')">Últimos 7 Dias</button>
+                        <button class="pill-btn active" onclick="setEmpPayoutPeriod('month')">Este Mês</button>
+                        <button class="pill-btn" onclick="setEmpPayoutPeriod('all')">Todo o Período</button>
+                    </div>
+                </div>
+
+                <!-- CARDS DE QUANTO CADA FUNCIONÁRIO VAI RECEBER -->
                 <div class="panel">
                     <div class="panel-head">
-                        <span class="panel-title">Equipe Cadastrada</span>
+                        <div>
+                            <span class="panel-title">💰 Comissões a Pagar (Valores a Receber)</span>
+                            <p style="font-size:12px; color:var(--slate); margin-top:2px;">Calculado automaticamente com base nos agendamentos concluídos pelo profissional.</p>
+                        </div>
+                    </div>
+                    <div class="emp-payout-grid" id="empPayoutGrid">
+                        <!-- Gerado dinamicamente via JS -->
+                        <div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--slate);">Carregando valores a receber...</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Equipe Cadastrada & Regras</span>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -1714,6 +1852,44 @@
                 </div>
                 <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Funcionário</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Extrato de Comissões do Funcionário -->
+    <div class="modal-overlay" id="modalEmpStatement">
+        <div class="modal-box" style="max-width:680px;">
+            <div class="modal-head">
+                <div>
+                    <span class="modal-title" id="empStatementTitle">Extrato de Serviços</span>
+                    <p style="font-size:12px; color:var(--slate); margin-top:2px;" id="empStatementSub">Detalhamento dos atendimentos e comissões</p>
+                </div>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            
+            <div class="table-responsive" style="max-height:360px; overflow-y:auto; margin-bottom:14px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data / Hora</th>
+                            <th>Cliente</th>
+                            <th>Veículo / Serviços</th>
+                            <th>Valor Total</th>
+                            <th>Comissão</th>
+                        </tr>
+                    </thead>
+                    <tbody id="empStatementTable">
+                        <!-- Linhas via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <span style="font-size:12px; color:var(--slate); font-weight:700; text-transform:uppercase;">Total a Pagar / Repassar</span>
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:#27ae60;" id="empStatementTotalPayout">R$ 0,00</div>
+                </div>
+                <button class="btn-act btn-sm" onclick="closeModals()">Fechar Extrato</button>
+            </div>
         </div>
     </div>
 
@@ -2571,19 +2747,109 @@
         }
 
         // ================= FUNCIONÁRIOS =================
-        async function loadEmployees() {
-            const res = await authFetch('/api/admin/employees');
-            const data = await res.json();
-            if (!data.success) return;
-            cachedEmployees = data.employees;
+        let currentEmpPayoutPeriod = 'month';
 
+        function setEmpPayoutPeriod(period) {
+            currentEmpPayoutPeriod = period;
+            document.querySelectorAll('#tab-funcionarios .filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            loadEmployees();
+        }
+
+        // ================= FUNCIONÁRIOS & REPASSE DE COMISSÕES =================
+        async function loadEmployees() {
+            const [empRes, bookRes] = await Promise.all([
+                authFetch('/api/admin/employees'),
+                authFetch('/api/admin/bookings')
+            ]);
+            const empData = await empRes.json();
+            const bookData = await bookRes.json();
+            if (!empData.success) return;
+            cachedEmployees = empData.employees;
+            if (bookData.success) cachedBookings = bookData.bookings;
+
+            const allBookings = cachedBookings || [];
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const currentMonthStr = todayStr.slice(0, 7);
+
+            // Filtra bookings de acordo com o período selecionado
+            let periodBookings = allBookings;
+            if (currentEmpPayoutPeriod === 'day') {
+                periodBookings = allBookings.filter(b => b.booking_date === todayStr);
+            } else if (currentEmpPayoutPeriod === 'week') {
+                const limitDate = new Date();
+                limitDate.setDate(limitDate.getDate() - 6);
+                const limitStr = limitDate.toISOString().slice(0, 10);
+                periodBookings = allBookings.filter(b => b.booking_date >= limitStr && b.booking_date <= todayStr);
+            } else if (currentEmpPayoutPeriod === 'month') {
+                periodBookings = allBookings.filter(b => b.booking_date.startsWith(currentMonthStr));
+            }
+
+            // Renderiza Cards de Repasse / Quanto vai receber
+            const payoutGrid = document.getElementById('empPayoutGrid');
+            if (cachedEmployees.length === 0) {
+                payoutGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--slate);">Nenhum funcionário cadastrado.</div>`;
+            } else {
+                payoutGrid.innerHTML = cachedEmployees.map(emp => {
+                    const empBookings = periodBookings.filter(b => b.employee_id === emp.id && b.status === 'concluido');
+                    const totalRevenue = empBookings.reduce((sum, b) => sum + parseFloat(b.total_price || 0), 0);
+                    
+                    const totalCommission = empBookings.reduce((sum, b) => {
+                        let comm = parseFloat(b.commission_amount || 0);
+                        if (!comm || comm === 0) {
+                            comm = emp.commission_type === 'percentage' 
+                                ? (parseFloat(b.total_price || 0) * (parseFloat(emp.commission_value) / 100))
+                                : parseFloat(emp.commission_value);
+                        }
+                        return sum + comm;
+                    }, 0);
+
+                    const initials = emp.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                    const ruleLabel = emp.commission_type === 'percentage' ? `${emp.commission_value}% por serviço` : `R$ ${parseFloat(emp.commission_value).toFixed(2)} fixo por serviço`;
+
+                    return `
+                    <div class="emp-payout-card">
+                        <div>
+                            <div class="emp-payout-head">
+                                <div class="emp-avatar">${initials}</div>
+                                <div class="emp-info">
+                                    <div class="emp-name">${emp.name}</div>
+                                    <div class="emp-role">${emp.role || 'Detailer'} · <span style="color:var(--spark); font-weight:600;">${ruleLabel}</span></div>
+                                </div>
+                            </div>
+
+                            <div class="emp-metrics">
+                                <div class="emp-metric-item">
+                                    <div class="lbl">Atendimentos</div>
+                                    <div class="val">${empBookings.length} concluídos</div>
+                                </div>
+                                <div class="emp-metric-item">
+                                    <div class="lbl">Faturamento</div>
+                                    <div class="val">R$ ${totalRevenue.toFixed(2).replace('.', ',')}</div>
+                                </div>
+                            </div>
+
+                            <div class="emp-payout-box">
+                                <span class="payout-lbl">A Receber:</span>
+                                <span class="payout-val">R$ ${totalCommission.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+
+                        <button class="btn-act btn-sm" style="width:100%; justify-content:center; margin-top:6px;" onclick="openEmpStatement(${emp.id})">
+                            📄 Ver Extrato de Serviços (${empBookings.length})
+                        </button>
+                    </div>`;
+                }).join('');
+            }
+
+            // Renderiza Tabela de Funcionários
             const tbody = document.getElementById('employeesTable');
-            if (data.employees.length === 0) {
+            if (cachedEmployees.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--slate); padding:20px;">Nenhum funcionário cadastrado.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = data.employees.map(emp => `
+            tbody.innerHTML = cachedEmployees.map(emp => `
                 <tr>
                     <td><strong>${emp.name}</strong></td>
                     <td>${emp.role}</td>
@@ -2598,6 +2864,63 @@
                     </td>
                 </tr>
             `).join('');
+        }
+
+        // Extrato Detalhado de Serviços do Funcionário
+        function openEmpStatement(empId) {
+            const emp = cachedEmployees.find(e => e.id === empId);
+            if (!emp) return;
+
+            const allBookings = cachedBookings || [];
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const currentMonthStr = todayStr.slice(0, 7);
+
+            let periodBookings = allBookings;
+            if (currentEmpPayoutPeriod === 'day') {
+                periodBookings = allBookings.filter(b => b.booking_date === todayStr);
+            } else if (currentEmpPayoutPeriod === 'week') {
+                const limitDate = new Date();
+                limitDate.setDate(limitDate.getDate() - 6);
+                const limitStr = limitDate.toISOString().slice(0, 10);
+                periodBookings = allBookings.filter(b => b.booking_date >= limitStr && b.booking_date <= todayStr);
+            } else if (currentEmpPayoutPeriod === 'month') {
+                periodBookings = allBookings.filter(b => b.booking_date.startsWith(currentMonthStr));
+            }
+
+            const empBookings = periodBookings.filter(b => b.employee_id === emp.id && b.status === 'concluido');
+
+            document.getElementById('empStatementTitle').textContent = `Extrato — ${emp.name}`;
+            document.getElementById('empStatementSub').textContent = `${emp.role} · Período: ${currentEmpPayoutPeriod === 'month' ? 'Este Mês' : (currentEmpPayoutPeriod === 'week' ? 'Últimos 7 dias' : (currentEmpPayoutPeriod === 'day' ? 'Hoje' : 'Todos os agendamentos'))}`;
+
+            const tbody = document.getElementById('empStatementTable');
+            if (empBookings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--slate); padding:20px;">Nenhum atendimento concluído por este profissional no período.</td></tr>`;
+                document.getElementById('empStatementTotalPayout').textContent = 'R$ 0,00';
+            } else {
+                let totalPayout = 0;
+                tbody.innerHTML = empBookings.map(b => {
+                    let comm = parseFloat(b.commission_amount || 0);
+                    if (!comm || comm === 0) {
+                        comm = emp.commission_type === 'percentage' 
+                            ? (parseFloat(b.total_price || 0) * (parseFloat(emp.commission_value) / 100))
+                            : parseFloat(emp.commission_value);
+                    }
+                    totalPayout += comm;
+
+                    return `
+                    <tr>
+                        <td class="mono">${b.booking_date}<br>${b.booking_time}</td>
+                        <td><strong>${b.client_name}</strong></td>
+                        <td>${b.vehicle_name || '-'}<br><small style="color:var(--slate);">${b.services_names || '-'}</small></td>
+                        <td class="mono">R$ ${parseFloat(b.total_price).toFixed(2).replace('.', ',')}</td>
+                        <td class="mono" style="font-weight:700; color:#27ae60;">R$ ${comm.toFixed(2).replace('.', ',')}</td>
+                    </tr>`;
+                }).join('');
+
+                document.getElementById('empStatementTotalPayout').textContent = `R$ ${totalPayout.toFixed(2).replace('.', ',')}`;
+            }
+
+            document.getElementById('modalEmpStatement').classList.add('active');
         }
 
         function openEmployeeModal() {
