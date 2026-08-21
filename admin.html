@@ -1,0 +1,2834 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araújo Detail — Painel Administrativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ink: #12191b;
+            --deep: #1b2b30;
+            --mid: #33484f;
+            --soft: #6c828b;
+            --mist: #b3b8bb;
+            --slate: #5a6368;
+            --paper: #f2f0ea;
+            --white: #fffdf9;
+            --spark: #d98a3d;
+            --green: #2ecc71;
+            --red: #e74c3c;
+            --line: rgba(18, 25, 27, 0.12);
+            --shadow: 0 15px 35px -15px rgba(18, 25, 27, 0.25);
+            --ease: cubic-bezier(.22, 1, .36, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .disp {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Tela de Login */
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #24383f 0%, #12191b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+            transition: opacity 0.4s var(--ease), visibility 0.4s;
+        }
+
+        .login-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 36px 30px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            animation: zoomIn 0.35s var(--ease);
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .login-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--ink);
+            color: var(--spark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+
+        .login-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .login-sub {
+            font-size: 12.5px;
+            color: var(--slate);
+            margin-bottom: 22px;
+        }
+
+        .login-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .login-input-wrap input {
+            width: 100%;
+            padding: 13px 44px 13px 14px;
+            border-radius: 12px;
+            border: 1.5px solid var(--line);
+            background: var(--paper);
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .login-input-wrap input:focus {
+            border-color: var(--spark);
+            background: #fff;
+        }
+
+        .login-eye {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            color: var(--slate);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 999px;
+            background: var(--ink);
+            color: var(--paper);
+            font-weight: 700;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .login-btn:hover {
+            background: var(--deep);
+            transform: translateY(-1px);
+        }
+
+        .login-error {
+            color: var(--red);
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 12px;
+            display: none;
+        }
+
+        /* Top Mobile Header */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--white);
+            border-bottom: 1.5px solid var(--line);
+            padding: 14px 18px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-hamburger {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--paper);
+            border: 1.5px solid var(--line);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+        }
+
+        .btn-hamburger span {
+            width: 20px;
+            height: 2px;
+            background: var(--ink);
+            border-radius: 2px;
+            transition: all 0.25s var(--ease);
+        }
+
+        .btn-hamburger.active span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .btn-hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .btn-hamburger.active span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Layout */
+        .admin-shell {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(18, 25, 27, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 95;
+            opacity: 0;
+            transition: opacity 0.3s var(--ease);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--white);
+            border-right: 1.5px solid var(--line);
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: transform 0.3s var(--ease);
+            z-index: 100;
+        }
+
+        .side-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 24px;
+            border-bottom: 1.5px solid var(--line);
+            margin-bottom: 20px;
+        }
+
+        .side-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: var(--ink);
+            color: var(--spark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .side-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .side-sub {
+            font-size: 11px;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--slate);
+            background: transparent;
+            text-align: left;
+            transition: all 0.2s var(--ease);
+            user-select: none;
+        }
+
+        .nav-btn:hover {
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .nav-btn.active {
+            background: var(--ink);
+            color: var(--spark);
+            box-shadow: 0 4px 12px rgba(18, 25, 27, 0.15);
+        }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            flex-shrink: 0;
+        }
+
+        .side-foot {
+            padding-top: 18px;
+            border-top: 1.5px solid var(--line);
+            font-size: 12px;
+            color: var(--slate);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .side-foot a, .side-foot button {
+            color: var(--ink);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .side-foot button.logout-btn {
+            color: var(--red);
+            margin-top: 4px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 32px 36px 60px;
+            max-width: 1200px;
+            min-width: 0;
+            overflow-y: auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .top-bar h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .top-bar p {
+            font-size: 13.5px;
+            color: var(--slate);
+            margin-top: 2px;
+        }
+
+        .db-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mid);
+        }
+
+        .db-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        /* KPIs */
+        .grid-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: 20px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .kpi-card .lbl {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .kpi-card .val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 23px;
+            font-weight: 700;
+            color: var(--ink);
+            word-break: break-word;
+        }
+
+        .kpi-card.highlight .val {
+            color: var(--spark);
+        }
+
+        .kpi-card .sub {
+            font-size: 11px;
+            color: var(--soft);
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        /* Filter Row */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 14px;
+            flex-wrap: wrap;
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: 18px;
+            padding: 14px 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            padding: 8px 15px;
+            border-radius: 999px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--slate);
+            background: var(--paper);
+            border: 1px solid var(--line);
+            transition: all 0.2s;
+        }
+
+        .pill-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .custom-date-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--slate);
+            flex-wrap: wrap;
+        }
+
+        .custom-date-box input[type="date"] {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--paper);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--ink);
+            outline: none;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px dashed var(--line);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .panel-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        /* Buttons */
+        .btn-act {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            background: var(--ink);
+            color: var(--paper);
+            transition: 0.2s var(--ease);
+            white-space: nowrap;
+        }
+
+        .btn-act:hover {
+            background: var(--deep);
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 7px 12px;
+            font-size: 11.5px;
+            border-radius: 8px;
+        }
+
+        .btn-del {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--red);
+            border: 1px solid rgba(231, 76, 60, 0.25);
+        }
+
+        .btn-del:hover {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-edit {
+            background: rgba(18, 25, 27, 0.06);
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .btn-edit:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        /* Tables & Responsive Table Wrapper */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 600px;
+        }
+
+        .data-table th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--slate);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1.5px solid var(--line);
+            background: rgba(18, 25, 27, 0.015);
+        }
+
+        .data-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid rgba(18, 25, 27, 0.06);
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(18, 25, 27, 0.015);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pendente {
+            background: rgba(217, 138, 61, 0.15);
+            color: #b36b1d;
+        }
+
+        .status-badge.confirmado {
+            background: rgba(52, 152, 219, 0.15);
+            color: #2980b9;
+        }
+
+        .status-badge.concluido {
+            background: rgba(46, 204, 113, 0.15);
+            color: #27ae60;
+        }
+
+        .status-badge.cancelado {
+            background: rgba(231, 76, 60, 0.15);
+            color: #c0392b;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--slate);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            min-height: 42px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            background: var(--paper);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--spark);
+            background: #fff;
+        }
+
+        /* Checkbox grid */
+        .check-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1.5px solid var(--line);
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--paper);
+        }
+
+        .check-grid label {
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            text-transform: none;
+            font-weight: 500;
+            color: var(--ink);
+            padding: 4px 0;
+        }
+
+        .check-grid input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--spark);
+            min-height: auto;
+        }
+
+        /* Modais */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(18, 25, 27, 0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.25s var(--ease);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-box {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 26px 24px;
+            width: 100%;
+            max-width: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
+            border: 1.5px solid var(--line);
+            transform: translateY(16px);
+            transition: transform 0.25s var(--ease);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--line);
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--paper);
+            font-size: 16px;
+            color: var(--slate);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.18s;
+        }
+
+        .modal-close:hover {
+            background: var(--line);
+            color: var(--ink);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1100;
+            animation: slideUp 0.3s var(--ease);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ================= MOBILE RESPONSIVENESS ================= */
+        @media (max-width: 900px) {
+            .mobile-header {
+                display: flex;
+            }
+
+            .admin-shell {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 280px;
+                transform: translateX(-100%);
+                box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                padding: 18px 16px 60px;
+            }
+
+            .top-bar {
+                margin-bottom: 20px;
+            }
+
+            .top-bar h1 {
+                font-size: 22px;
+            }
+
+            .grid-kpis {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .kpi-card {
+                padding: 14px 16px;
+            }
+
+            .kpi-card .val {
+                font-size: 20px;
+            }
+
+            .panel {
+                padding: 16px;
+                border-radius: 18px;
+            }
+
+            .filter-row {
+                padding: 12px 14px;
+            }
+
+            .custom-date-box {
+                width: 100%;
+                margin-top: 4px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .grid-kpis {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: span 1;
+            }
+
+            .check-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-box {
+                padding: 20px 16px;
+                border-radius: 20px;
+            }
+
+            .filter-pills {
+                width: 100%;
+            }
+
+            .pill-btn {
+                flex: 1;
+                text-align: center;
+                padding: 8px 6px;
+                font-size: 11.5px;
+            }
+
+            .btn-act {
+                width: 100%;
+                padding: 12px 18px;
+            }
+
+            .panel-head {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .panel-head .btn-act {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TELA DE LOGIN DO ADMIN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-badge">AD</div>
+            <h2 class="login-title">Acesso Restrito</h2>
+            <p class="login-sub">Digite a senha de administrador da Araújo Detail</p>
+            <form onsubmit="handleLogin(event)">
+                <div class="login-input-wrap">
+                    <input type="password" id="adminPasswordInput" placeholder="Senha do Administrador" required autofocus>
+                    <button type="button" class="login-eye" onclick="togglePasswordVisibility()">
+                        <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                <button type="submit" class="login-btn" id="loginSubmitBtn">Entrar no Painel</button>
+                <div class="login-error" id="loginError">Senha incorreta. Tente novamente.</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOP MOBILE BAR (COM HAMBÚRGUER) -->
+    <header class="mobile-header">
+        <div class="mobile-brand">
+            <div class="side-badge">AD</div>
+            <strong class="disp" style="font-size:16px;">Araújo Detail</strong>
+        </div>
+        <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Abrir Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <!-- OVERLAY MASK -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="mainSidebar">
+            <div class="side-brand">
+                <div class="side-badge">AD</div>
+                <div>
+                    <div class="side-title">Araújo Detail</div>
+                    <div class="side-sub">Painel Administrativo</div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" onclick="switchTab('financeiro')">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                    Financeiro & Visão Geral
+                </button>
+                <button class="nav-btn" onclick="switchTab('agendamentos')">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+                    Agendamentos
+                </button>
+                <button class="nav-btn" onclick="switchTab('servicos')">
+                    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2Z" /></svg>
+                    Serviços & Veículos
+                </button>
+                <button class="nav-btn" onclick="switchTab('horarios')">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                    Agenda & Bloqueios
+                </button>
+                <button class="nav-btn" onclick="switchTab('funcionarios')">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                    Funcionários & Comissões
+                </button>
+                <button class="nav-btn" onclick="switchTab('estoque')">
+                    <svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /></svg>
+                    Estoque & Despesas
+                </button>
+                <button class="nav-btn" onclick="switchTab('config')">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                    Chave PIX & Dados
+                </button>
+            </nav>
+
+            <div class="side-foot">
+                <a href="/" target="_blank">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                    Abrir Página do Cliente
+                </a>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sair do Painel
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- TAB 1: FINANCEIRO -->
+            <section id="tab-financeiro" class="tab-pane">
+                <div class="top-bar">
+                    <div>
+                        <h1>Financeiro & Visão Geral</h1>
+                        <p>Controle de receitas, despesas, comissões e lucro líquido.</p>
+                    </div>
+                    <div class="db-badge"><span class="db-dot"></span> Neon PostgreSQL</div>
+                </div>
+
+                <!-- FILTRO INTELIGENTE DE DATAS -->
+                <div class="filter-row">
+                    <div class="filter-pills">
+                        <button class="pill-btn" onclick="setFinPeriod('day')">Hoje</button>
+                        <button class="pill-btn" onclick="setFinPeriod('week')">7 Dias</button>
+                        <button class="pill-btn active" onclick="setFinPeriod('month')">Este Mês</button>
+                    </div>
+                    
+                    <div class="custom-date-box">
+                        <span>Dia:</span>
+                        <input type="date" id="finSpecificDate" onchange="filterBySpecificDate()">
+                        
+                        <span>Período:</span>
+                        <input type="date" id="finStartDate">
+                        <span>à</span>
+                        <input type="date" id="finEndDate">
+                        <button class="btn-act btn-sm" onclick="filterByCustomRange()">Filtrar</button>
+                    </div>
+                </div>
+
+                <div class="grid-kpis">
+                    <div class="kpi-card highlight">
+                        <span class="lbl">Faturamento Bruto</span>
+                        <div class="val" id="kpiGross">R$ 0,00</div>
+                        <div class="sub" id="kpiGrossCount">0 concluídos</div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="lbl">Comissões da Equipe</span>
+                        <div class="val" id="kpiCommissions" style="color:var(--mid);">R$ 0,00</div>
+                        <div class="sub">Total de repasses</div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="lbl">Despesas & Produtos</span>
+                        <div class="val" id="kpiExpenses" style="color:var(--red);">R$ 0,00</div>
+                        <div class="sub" id="kpiExpCount">0 lançamentos</div>
+                    </div>
+                    <div class="kpi-card" style="background:var(--ink); color:var(--paper);">
+                        <span class="lbl" style="color:var(--mist);">Lucro Líquido Real</span>
+                        <div class="val" id="kpiNet" style="color:var(--spark);">R$ 0,00</div>
+                        <div class="sub" style="color:var(--mist);">Bruto - Comissões - Despesas</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Atendimentos Concluídos no Período</span>
+                        <button class="btn-act btn-sm" onclick="switchTab('agendamentos')">Ver Todos os Agendamentos</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Veículo / Serviços</th>
+                                    <th>Profissional</th>
+                                    <th>Valor Total</th>
+                                    <th>Comissão</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finCompletedTable">
+                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: AGENDAMENTOS -->
+            <section id="tab-agendamentos" class="tab-pane" style="display:none;">
+                <div class="top-bar">
+                    <div>
+                        <h1>Gerenciador de Agendamentos</h1>
+                        <p>Acompanhe solicitações de clientes ou crie agendamentos manuais.</p>
+                    </div>
+                    <button class="btn-act" onclick="openNewBookingModal()">+ Novo Agendamento Manual</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Fila de Agendamentos</span>
+                        <select id="bookingStatusFilter" onchange="renderBookingsTable()" style="padding:7px 12px; border-radius:8px; border:1px solid var(--line); font-size:12.5px; background:var(--paper);">
+                            <option value="todos">Todos os Status</option>
+                            <option value="pendente">Pendentes</option>
+                            <option value="confirmado">Confirmados</option>
+                            <option value="concluido">Concluídos</option>
+                            <option value="cancelado">Cancelados</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data / Hora</th>
+                                    <th>Cliente / WhatsApp</th>
+                                    <th>Veículo</th>
+                                    <th>Serviços</th>
+                                    <th>Total / Sinal</th>
+                                    <th>Profissional</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTable">
+                                <tr><td colspan="8" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: SERVIÇOS & VEÍCULOS -->
+            <section id="tab-servicos" class="tab-pane" style="display:none;">
+                <div class="top-bar">
+                    <div>
+                        <h1>Serviços & Portes de Veículo</h1>
+                        <p>Cadastre, edite valores, nomes e gerencie categorias livremente.</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%; max-width:400px;">
+                        <button class="btn-act" style="flex:1;" onclick="openServiceModal()">+ Adicionar Serviço</button>
+                        <button class="btn-act" style="flex:1; background:var(--mid);" onclick="openVehicleModal()">+ Adicionar Veículo</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Catálogo de Serviços</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome do Serviço</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesTable">
+                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Portes de Veículos & Preços</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Identificador</th>
+                                    <th>Nome</th>
+                                    <th>Descrição</th>
+                                    <th>Preço Base</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehiclesTable">
+                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: AGENDA & BLOQUEIOS -->
+            <section id="tab-horarios" class="tab-pane" style="display:none;">
+                <div class="top-bar">
+                    <div>
+                        <h1>Agenda & Bloqueios de Horários</h1>
+                        <p>Bloqueie dias inteiros, horários específicos ou dias da semana recorrentes.</p>
+                    </div>
+                    <button class="btn-act" onclick="openBlockModal()">+ Novo Bloqueio</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Bloqueios Ativos na Agenda</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Bloqueio</th>
+                                    <th>Detalhes</th>
+                                    <th>Horário</th>
+                                    <th>Motivo / Observação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="blockedTable">
+                                <tr><td colspan="5" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: FUNCIONÁRIOS & COMISSÕES -->
+            <section id="tab-funcionarios" class="tab-pane" style="display:none;">
+                <div class="top-bar">
+                    <div>
+                        <h1>Funcionários & Regras de Comissão</h1>
+                        <p>Cadastre e edite funcionários com comissão personalizada (% ou R$ fixo).</p>
+                    </div>
+                    <button class="btn-act" onclick="openEmployeeModal()">+ Novo Funcionário</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Equipe Cadastrada</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Cargo</th>
+                                    <th>Telefone</th>
+                                    <th>Regra de Comissão</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTable">
+                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: ESTOQUE & DESPESAS -->
+            <section id="tab-estoque" class="tab-pane" style="display:none;">
+                <div class="top-bar">
+                    <div>
+                        <h1>Estoque de Produtos & Despesas</h1>
+                        <p>Cadastre produtos, dê entrada rápida e controle despesas financeiras.</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%; max-width:400px;">
+                        <button class="btn-act" style="flex:1;" onclick="openInventoryModal()">+ Novo Produto</button>
+                        <button class="btn-act" style="flex:1; background:var(--red);" onclick="openExpenseModal()">+ Lançar Despesa</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Inventário de Produtos / Insumos</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Categoria</th>
+                                    <th>Qtd. Atual</th>
+                                    <th>Mínimo</th>
+                                    <th>Custo Unit.</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable">
+                                <tr><td colspan="7" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Histórico de Despesas</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Valor</th>
+                                    <th>Observações</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesTable">
+                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: CONFIGURAÇÕES -->
+            <section id="tab-config" class="tab-pane" style="display:none;">
+                <div class="top-bar">
+                    <div>
+                        <h1>Chave PIX & Dados da Empresa</h1>
+                        <p>Altere a Chave PIX, Banco, Nome do Titular e WhatsApp a qualquer momento.</p>
+                    </div>
+                </div>
+
+                <div class="panel" style="max-width:600px;">
+                    <form onsubmit="saveBusinessConfig(event)">
+                        <div class="form-group">
+                            <label>Chave PIX</label>
+                            <input type="text" id="cfgPixKey" required placeholder="Ex: 86999999999 ou seu CPF/CNPJ/E-mail">
+                        </div>
+                        <div class="form-group">
+                            <label>Banco</label>
+                            <input type="text" id="cfgPixBank" required placeholder="Ex: Banco Inter / Nubank">
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Titular da Conta</label>
+                            <input type="text" id="cfgPixName" required placeholder="Ex: Araújo Detail">
+                        </div>
+                        <div class="form-group">
+                            <label>Número do WhatsApp Comercial (com DDD, somente números)</label>
+                            <input type="text" id="cfgWhatsapp" required placeholder="Ex: 5586900000000">
+                        </div>
+                        <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:10px;">
+                            Salvar Alterações
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ================= MODAIS ULTRA RESPONSIVOS ================= -->
+
+    <!-- Modal Novo Agendamento Manual -->
+    <div class="modal-overlay" id="modalNewBooking">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title">Novo Agendamento Manual</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveNewBooking(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nome do Cliente</label>
+                        <input type="text" id="nbClientName" required placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone / WhatsApp</label>
+                        <input type="text" id="nbClientPhone" required placeholder="(86) 9####-####">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Porte do Veículo</label>
+                        <select id="nbVehicle" onchange="updateBookingTotalCalculation()">
+                            <!-- Preenchido via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Profissional Responsável</label>
+                        <select id="nbEmployee">
+                            <!-- Preenchido via JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Serviços Solicitados</label>
+                    <div class="check-grid" id="nbServicesList">
+                        <!-- Checkboxes via JS -->
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="nbDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Horário</label>
+                        <select id="nbTime" required>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Valor Total (R$)</label>
+                        <input type="number" step="0.5" id="nbTotal" required placeholder="60.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Status Inicial</label>
+                        <select id="nbStatus">
+                            <option value="pendente">Pendente</option>
+                            <option value="confirmado">Confirmado</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Observações</label>
+                    <input type="text" id="nbNotes" placeholder="Detalhes opcionais do atendimento">
+                </div>
+
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Cadastrar Agendamento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Serviço (Criar / Editar) -->
+    <div class="modal-overlay" id="modalService">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title" id="modalServiceTitle">Adicionar / Editar Serviço</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveService(event)">
+                <input type="hidden" id="svcId">
+                <div class="form-group">
+                    <label>Nome do Serviço</label>
+                    <input type="text" id="svcName" required placeholder="Ex: Lavagem Detalhada">
+                </div>
+                <div class="form-group">
+                    <label>Descrição Curta</label>
+                    <input type="text" id="svcDesc" required placeholder="Ex: Externa e interna minuciosa">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <input type="text" id="svcCat" placeholder="Ex: Lavagem, Polimento">
+                    </div>
+                    <div class="form-group">
+                        <label>Ícone</label>
+                        <select id="svcIcon">
+                            <option value="spray">Spray / Lavagem</option>
+                            <option value="wrench">Chave / Motor</option>
+                            <option value="sparkle">Brilho / Higienização</option>
+                            <option value="polish">Polimento</option>
+                            <option value="shield">Proteção / Vitrificação</option>
+                            <option value="magnet">Descontaminação</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:8px; text-transform:none; cursor:pointer;">
+                        <input type="checkbox" id="svcActive" checked style="width:16px; height:16px; min-height:auto;">
+                        Serviço Ativo para Clientes
+                    </label>
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Serviço</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Veículo (Criar / Editar) -->
+    <div class="modal-overlay" id="modalVehicle">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title" id="modalVehTitle">Adicionar / Editar Veículo</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveVehicle(event)">
+                <input type="hidden" id="vehEditMode">
+                <div class="form-group">
+                    <label>Identificador Único (slug sem espaços)</label>
+                    <input type="text" id="vehId" required placeholder="Ex: passeio, suv, pickup, moto">
+                </div>
+                <div class="form-group">
+                    <label>Nome Exibido</label>
+                    <input type="text" id="vehName" required placeholder="Ex: Passeio, SUV, Pickup">
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="vehDesc" required placeholder="Ex: Hatchs e sedans compactos">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Preço Base (R$)</label>
+                        <input type="number" step="0.50" id="vehPrice" required placeholder="50.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Ícone</label>
+                        <select id="vehIcon">
+                            <option value="car">Carro / Passeio</option>
+                            <option value="suv">SUV / Crossover</option>
+                            <option value="truck">Pickup / Caminhonete</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:8px; text-transform:none; cursor:pointer;">
+                        <input type="checkbox" id="vehActive" checked style="width:16px; height:16px; min-height:auto;">
+                        Categoria Ativa
+                    </label>
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Categoria</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Bloqueio Agenda (Com Dia da Semana Recorrente!) -->
+    <div class="modal-overlay" id="modalBlock">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title">Bloquear Agenda</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveScheduleBlock(event)">
+                <div class="form-group">
+                    <label>Tipo de Bloqueio</label>
+                    <select id="blockTypeSelect" onchange="toggleBlockTypeFields()">
+                        <option value="date">Data Específica</option>
+                        <option value="dow">Dia da Semana Recorrente (Toda semana)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="blockDateFieldGroup">
+                    <label>Data para Bloqueio</label>
+                    <input type="date" id="blockDate">
+                </div>
+
+                <div class="form-group" id="blockDowFieldGroup" style="display:none;">
+                    <label>Selecione o Dia da Semana Recorrente</label>
+                    <select id="blockDow">
+                        <option value="1">Toda Segunda-feira</option>
+                        <option value="2">Toda Terça-feira</option>
+                        <option value="3">Toda Quarta-feira</option>
+                        <option value="4">Toda Quinta-feira</option>
+                        <option value="5">Toda Sexta-feira</option>
+                        <option value="6">Todo Sábado</option>
+                        <option value="0">Todo Domingo</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="blockTimeFieldGroup">
+                    <label>Horário Específico (deixe vazio para o dia inteiro)</label>
+                    <select id="blockTime">
+                        <option value="">O dia inteiro</option>
+                        <option value="08:00">08:00</option>
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="13:00">13:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Motivo</label>
+                    <input type="text" id="blockReason" placeholder="Ex: Folga semanal, manutenção, feriado">
+                </div>
+
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Confirmar Bloqueio</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Funcionário (Criar / Editar) -->
+    <div class="modal-overlay" id="modalEmployee">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title" id="modalEmpTitle">Cadastrar / Editar Funcionário</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveEmployee(event)">
+                <input type="hidden" id="empId">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="empName" required placeholder="Ex: Carlos Araújo">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Função / Cargo</label>
+                        <input type="text" id="empRole" placeholder="Ex: Detailer, Polidor">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone / WhatsApp</label>
+                        <input type="text" id="empPhone" placeholder="(86) 9####-####">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tipo de Comissão</label>
+                        <select id="empCommType">
+                            <option value="percentage">Porcentagem (%)</option>
+                            <option value="fixed">Valor Fixo (R$ por serviço)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor da Comissão</label>
+                        <input type="number" step="0.1" id="empCommValue" required placeholder="Ex: 30 para 30% ou 20.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:8px; text-transform:none; cursor:pointer;">
+                        <input type="checkbox" id="empActive" checked style="width:16px; height:16px; min-height:auto;">
+                        Funcionário Ativo
+                    </label>
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Funcionário</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Estoque (Criar / Editar) -->
+    <div class="modal-overlay" id="modalInventory">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title" id="modalInvTitle">Cadastrar / Editar Produto</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveInventory(event)">
+                <input type="hidden" id="invId">
+                <div class="form-group">
+                    <label>Nome do Produto / Insumo</label>
+                    <input type="text" id="invName" required placeholder="Ex: Shampoo Neutro 1.5L">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <input type="text" id="invCat" placeholder="Ex: Shampoos, Ceras, Panos">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidade de Medida</label>
+                        <select id="invUnit">
+                            <option value="un">Unidade (un)</option>
+                            <option value="L">Litros (L)</option>
+                            <option value="ml">Mililitros (ml)</option>
+                            <option value="kg">Quilogramas (kg)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Quantidade Atual</label>
+                        <input type="number" step="0.1" id="invQty" required placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Estoque Mínimo de Alerta</label>
+                        <input type="number" step="0.1" id="invMinQty" required placeholder="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Custo Unitário de Compra (R$)</label>
+                    <input type="number" step="0.1" id="invCost" required placeholder="45.00">
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar no Estoque</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Entrada Rápida de Estoque -->
+    <div class="modal-overlay" id="modalStockAdd">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title">Entrada de Estoque</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="confirmStockAdd(event)">
+                <input type="hidden" id="stockAddInvId">
+                <p style="font-size:14px; margin-bottom:14px;">Produto: <strong id="stockAddInvName">-</strong></p>
+                <div class="form-group">
+                    <label>Quantidade Comprada / Adicionada</label>
+                    <input type="number" step="0.5" id="stockAddQty" required placeholder="Ex: 5">
+                </div>
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:8px; text-transform:none; cursor:pointer;">
+                        <input type="checkbox" id="stockAddLogExpense" checked style="width:16px; height:16px; min-height:auto;">
+                        Registrar automaticamente como despesa no financeiro
+                    </label>
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Confirmar Entrada</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Despesa -->
+    <div class="modal-overlay" id="modalExpense">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title">Lançar Despesa</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveExpense(event)">
+                <div class="form-group">
+                    <label>Descrição da Despesa</label>
+                    <input type="text" id="expDesc" required placeholder="Ex: Conta de Luz, Compra de Pano, Aluguel">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="expCat">
+                            <option value="Produto">Produto / Insumo</option>
+                            <option value="Equipamento">Equipamento</option>
+                            <option value="Aluguel">Aluguel / Espaço</option>
+                            <option value="Água/Luz">Água / Luz / Internet</option>
+                            <option value="Comissão">Comissão / Salário</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" step="0.1" id="expAmount" required placeholder="150.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="expDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <input type="text" id="expNotes" placeholder="Detalhes opcionais">
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Registrar Despesa</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Status / Editar Agendamento -->
+    <div class="modal-overlay" id="modalBooking">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span class="modal-title">Atualizar Agendamento</span>
+                <button class="modal-close" onclick="closeModals()">✕</button>
+            </div>
+            <form onsubmit="saveBookingStatus(event)">
+                <input type="hidden" id="bookId">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" id="bookClientNameInput" required>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <input type="text" id="bookClientPhoneInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total (R$)</label>
+                        <input type="number" step="0.5" id="bookTotalInput" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="bookDateInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Horário</label>
+                        <input type="text" id="bookTimeInput" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status do Atendimento</label>
+                    <select id="bookStatus">
+                        <option value="pendente">Pendente</option>
+                        <option value="confirmado">Confirmado (Sinal Pago)</option>
+                        <option value="concluido">Concluído (Entra no Faturamento)</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Atribuir Profissional (Gera comissão automática)</label>
+                    <select id="bookEmployee">
+                        <option value="">Nenhum profissional vinculado</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Alterações salvas com sucesso!</div>
+
+    <script>
+        let adminToken = localStorage.getItem('araujo_admin_token') || null;
+
+        let currentFinPeriod = 'month';
+        let currentFinDate = new Date().toISOString().slice(0, 10);
+        let customStartDate = null;
+        let customEndDate = null;
+
+        let cachedServices = [];
+        let cachedVehicles = [];
+        let cachedEmployees = [];
+        let cachedBookings = [];
+        let cachedInventory = [];
+
+        const DOW_NAMES = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+
+        // Helper para Requisições com Token
+        async function authFetch(url, options = {}) {
+            options.headers = options.headers || {};
+            if (adminToken) {
+                options.headers['Authorization'] = `Bearer ${adminToken}`;
+                options.headers['x-admin-token'] = adminToken;
+            }
+            const res = await fetch(url, options);
+            if (res.status === 401) {
+                handleLogout();
+                throw new Error('Não autorizado');
+            }
+            return res;
+        }
+
+        // Login Logic
+        function togglePasswordVisibility() {
+            const input = document.getElementById('adminPasswordInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPasswordInput').value.trim();
+            const btn = document.getElementById('loginSubmitBtn');
+            const err = document.getElementById('loginError');
+
+            btn.textContent = 'Verificando...';
+            err.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+
+                if (data.success && data.token) {
+                    adminToken = data.token;
+                    localStorage.setItem('araujo_admin_token', adminToken);
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    loadFinancial();
+                } else {
+                    err.style.display = 'block';
+                }
+            } catch (error) {
+                err.style.display = 'block';
+            } finally {
+                btn.textContent = 'Entrar no Painel';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('araujo_admin_token');
+            adminToken = null;
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function checkAuthInit() {
+            if (adminToken) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                loadFinancial();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+            }
+        }
+
+        // Drawer Menu Mobile
+        function toggleSidebar() {
+            const sb = document.getElementById('mainSidebar');
+            const btn = document.getElementById('btnHamburger');
+            const ov = document.getElementById('sidebarOverlay');
+            sb.classList.toggle('open');
+            btn.classList.toggle('active');
+            ov.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sb = document.getElementById('mainSidebar');
+            const btn = document.getElementById('btnHamburger');
+            const ov = document.getElementById('sidebarOverlay');
+            sb.classList.remove('open');
+            btn.classList.remove('active');
+            ov.classList.remove('active');
+        }
+
+        function switchTab(tabId) {
+            closeSidebar();
+            document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.style.display = 'block';
+
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (tabId === 'financeiro') loadFinancial();
+            if (tabId === 'agendamentos') loadBookings();
+            if (tabId === 'servicos') { loadServices(); loadVehicles(); }
+            if (tabId === 'horarios') loadBlockedSchedules();
+            if (tabId === 'funcionarios') loadEmployees();
+            if (tabId === 'estoque') { loadInventory(); loadExpenses(); }
+            if (tabId === 'config') loadConfig();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2600);
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        }
+
+        // ================= FINANCEIRO =================
+        function setFinPeriod(period) {
+            currentFinPeriod = period;
+            customStartDate = null;
+            customEndDate = null;
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            loadFinancial();
+        }
+
+        function filterBySpecificDate() {
+            const val = document.getElementById('finSpecificDate').value;
+            if (!val) return;
+            currentFinPeriod = 'day';
+            currentFinDate = val;
+            customStartDate = null;
+            customEndDate = null;
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            loadFinancial();
+        }
+
+        function filterByCustomRange() {
+            const start = document.getElementById('finStartDate').value;
+            const end = document.getElementById('finEndDate').value;
+            if (!start || !end) {
+                alert('Selecione as duas datas (de e até).');
+                return;
+            }
+            currentFinPeriod = 'custom';
+            customStartDate = start;
+            customEndDate = end;
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            loadFinancial();
+        }
+
+        async function loadFinancial() {
+            try {
+                let url = `/api/admin/financial?period=${currentFinPeriod}&refDate=${currentFinDate}`;
+                if (currentFinPeriod === 'custom' && customStartDate && customEndDate) {
+                    url += `&startDate=${customStartDate}&endDate=${customEndDate}`;
+                }
+
+                const res = await authFetch(url);
+                const data = await res.json();
+                if (!data.success) return;
+
+                const rep = data.report;
+                document.getElementById('kpiGross').textContent = `R$ ${rep.grossRevenue.toFixed(2).replace('.', ',')}`;
+                document.getElementById('kpiGrossCount').textContent = `${rep.completedBookingsCount} concluídos de ${rep.totalBookingsCount} agendamentos`;
+                document.getElementById('kpiCommissions').textContent = `R$ ${rep.totalCommissions.toFixed(2).replace('.', ',')}`;
+                document.getElementById('kpiExpenses').textContent = `R$ ${rep.totalExpenses.toFixed(2).replace('.', ',')}`;
+                document.getElementById('kpiExpCount').textContent = `${rep.expenses.length} despesas lançadas`;
+                document.getElementById('kpiNet').textContent = `R$ ${rep.netProfit.toFixed(2).replace('.', ',')}`;
+
+                const tbody = document.getElementById('finCompletedTable');
+                if (rep.completedBookings.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--slate); padding:20px;">Nenhum atendimento com status "Concluído" no período selecionado.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = rep.completedBookings.map(b => `
+                    <tr>
+                        <td class="mono">${b.booking_date} ${b.booking_time}</td>
+                        <td><strong>${b.client_name}</strong><br><small style="color:var(--slate);">${b.client_phone}</small></td>
+                        <td><span style="font-weight:600;">${b.vehicle_name || '-'}</span><br><small style="color:var(--slate);">${b.services_names || '-'}</small></td>
+                        <td>${b.employee_name || '<em style="color:var(--slate);">Não vinculado</em>'}</td>
+                        <td class="mono"><strong>R$ ${parseFloat(b.total_price).toFixed(2).replace('.', ',')}</strong></td>
+                        <td class="mono" style="color:var(--mid);">R$ ${parseFloat(b.commission_amount || 0).toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // ================= AGENDAMENTOS =================
+        async function loadBookings() {
+            await loadEmployees();
+            await loadServices();
+            await loadVehicles();
+            try {
+                const res = await authFetch('/api/admin/bookings');
+                const data = await res.json();
+                if (!data.success) return;
+                cachedBookings = data.bookings;
+                renderBookingsTable();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderBookingsTable() {
+            const filter = document.getElementById('bookingStatusFilter').value;
+            let list = cachedBookings;
+            if (filter !== 'todos') {
+                list = list.filter(b => b.status === filter);
+            }
+
+            const tbody = document.getElementById('bookingsTable');
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--slate); padding:20px;">Nenhum agendamento encontrado.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(b => `
+                <tr>
+                    <td class="mono"><strong>${b.booking_date}</strong><br>${b.booking_time}</td>
+                    <td><strong>${b.client_name}</strong><br><small style="color:var(--slate);">${b.client_phone}</small></td>
+                    <td>${b.vehicle_name || '-'}</td>
+                    <td style="max-width:180px; font-size:12px; color:var(--mid);">${b.services_names || '-'}</td>
+                    <td class="mono">Total: R$ ${parseFloat(b.total_price).toFixed(2)}<br><small style="color:var(--spark);">Sinal: R$ ${parseFloat(b.deposit_price).toFixed(2)}</small></td>
+                    <td>${b.employee_name || '<span style="color:var(--slate); font-size:12px;">Pendente</span>'}</td>
+                    <td><span class="status-badge ${b.status}">${b.status}</span></td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-act btn-sm btn-edit" onclick="openEditBookingModal(${b.id})">Editar</button>
+                            <button class="btn-act btn-sm btn-del" onclick="deleteBooking(${b.id})">Excluir</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Criar Agendamento Manual no Admin
+        function openNewBookingModal() {
+            document.getElementById('nbClientName').value = '';
+            document.getElementById('nbClientPhone').value = '';
+            document.getElementById('nbNotes').value = '';
+            document.getElementById('nbDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('nbTime').value = '09:00';
+            document.getElementById('nbStatus').value = 'confirmado';
+
+            const vehSelect = document.getElementById('nbVehicle');
+            vehSelect.innerHTML = cachedVehicles.map(v => `
+                <option value="${v.id}" data-price="${v.price}">${v.name} (R$ ${parseFloat(v.price).toFixed(2)})</option>
+            `).join('');
+
+            const empSelect = document.getElementById('nbEmployee');
+            empSelect.innerHTML = `<option value="">Nenhum profissional</option>` + cachedEmployees.map(e => `
+                <option value="${e.id}">${e.name} (${e.commission_type === 'percentage' ? e.commission_value + '%' : 'R$ ' + e.commission_value})</option>
+            `).join('');
+
+            const svcsList = document.getElementById('nbServicesList');
+            svcsList.innerHTML = cachedServices.map(s => `
+                <label>
+                    <input type="checkbox" name="nbServices" value="${s.id}" data-name="${s.name}" checked>
+                    ${s.name}
+                </label>
+            `).join('');
+
+            updateBookingTotalCalculation();
+            document.getElementById('modalNewBooking').classList.add('active');
+        }
+
+        function updateBookingTotalCalculation() {
+            const vehSelect = document.getElementById('nbVehicle');
+            const selectedOpt = vehSelect.options[vehSelect.selectedIndex];
+            if (selectedOpt) {
+                const price = selectedOpt.getAttribute('data-price') || 50;
+                document.getElementById('nbTotal').value = parseFloat(price).toFixed(2);
+            }
+        }
+
+        async function saveNewBooking(e) {
+            e.preventDefault();
+            const client_name = document.getElementById('nbClientName').value.trim();
+            const client_phone = document.getElementById('nbClientPhone').value.trim();
+            const client_notes = document.getElementById('nbNotes').value.trim();
+            const vehicle_id = document.getElementById('nbVehicle').value;
+            const veh = cachedVehicles.find(v => v.id === vehicle_id);
+            const employee_id = document.getElementById('nbEmployee').value || null;
+            const booking_date = document.getElementById('nbDate').value;
+            const booking_time = document.getElementById('nbTime').value;
+            const total_price = parseFloat(document.getElementById('nbTotal').value);
+            const status = document.getElementById('nbStatus').value;
+
+            const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="nbServices"]:checked'));
+            const services_ids = selectedCheckboxes.map(cb => parseInt(cb.value));
+            const services_names = selectedCheckboxes.map(cb => cb.getAttribute('data-name')).join(', ');
+
+            await authFetch('/api/admin/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_name,
+                    client_phone,
+                    client_notes,
+                    vehicle_id,
+                    vehicle_name: veh ? veh.name : '',
+                    services_ids,
+                    services_names,
+                    booking_date,
+                    booking_time,
+                    total_price,
+                    deposit_price: total_price / 2,
+                    status,
+                    employee_id
+                })
+            });
+
+            closeModals();
+            showToast('Agendamento cadastrado com sucesso!');
+            loadBookings();
+            loadFinancial();
+        }
+
+        function openEditBookingModal(id) {
+            const b = cachedBookings.find(item => item.id === id);
+            if (!b) return;
+
+            document.getElementById('bookId').value = b.id;
+            document.getElementById('bookClientNameInput').value = b.client_name;
+            document.getElementById('bookClientPhoneInput').value = b.client_phone;
+            document.getElementById('bookTotalInput').value = parseFloat(b.total_price).toFixed(2);
+            document.getElementById('bookDateInput').value = b.booking_date;
+            document.getElementById('bookTimeInput').value = b.booking_time;
+            document.getElementById('bookStatus').value = b.status;
+
+            const empSelect = document.getElementById('bookEmployee');
+            empSelect.innerHTML = `<option value="">Nenhum profissional vinculado</option>` + cachedEmployees.map(e => `
+                <option value="${e.id}" ${b.employee_id === e.id ? 'selected' : ''}>${e.name} (${e.commission_type === 'percentage' ? e.commission_value + '%' : 'R$ ' + e.commission_value})</option>
+            `).join('');
+
+            document.getElementById('modalBooking').classList.add('active');
+        }
+
+        async function saveBookingStatus(e) {
+            e.preventDefault();
+            const id = document.getElementById('bookId').value;
+            const client_name = document.getElementById('bookClientNameInput').value.trim();
+            const client_phone = document.getElementById('bookClientPhoneInput').value.trim();
+            const total_price = parseFloat(document.getElementById('bookTotalInput').value);
+            const booking_date = document.getElementById('bookDateInput').value;
+            const booking_time = document.getElementById('bookTimeInput').value;
+            const status = document.getElementById('bookStatus').value;
+            const employee_id = document.getElementById('bookEmployee').value || null;
+
+            await authFetch(`/api/admin/bookings/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client_name, client_phone, total_price, booking_date, booking_time, status, employee_id })
+            });
+
+            closeModals();
+            showToast('Agendamento atualizado com sucesso!');
+            loadBookings();
+            loadFinancial();
+        }
+
+        async function deleteBooking(id) {
+            if (!confirm('Deseja realmente excluir este agendamento?')) return;
+            await authFetch(`/api/admin/bookings/${id}`, { method: 'DELETE' });
+            showToast('Agendamento excluído!');
+            loadBookings();
+            loadFinancial();
+        }
+
+        // ================= SERVIÇOS =================
+        async function loadServices() {
+            const res = await authFetch('/api/admin/services');
+            const data = await res.json();
+            if (!data.success) return;
+            cachedServices = data.services;
+
+            document.getElementById('servicesTable').innerHTML = data.services.map(s => `
+                <tr>
+                    <td class="mono">${s.id}</td>
+                    <td><strong>${s.name}</strong></td>
+                    <td style="color:var(--slate);">${s.description}</td>
+                    <td><span style="background:var(--paper); padding:3px 8px; border-radius:6px; font-size:11.5px;">${s.category}</span></td>
+                    <td>${s.active ? '<span style="color:var(--green); font-weight:700;">Ativo</span>' : '<span style="color:var(--red);">Inativo</span>'}</td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-act btn-sm btn-edit" onclick="editService(${s.id})">Editar</button>
+                            <button class="btn-act btn-sm btn-del" onclick="deleteService(${s.id})">Excluir</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openServiceModal() {
+            document.getElementById('svcId').value = '';
+            document.getElementById('modalServiceTitle').textContent = 'Adicionar Serviço';
+            document.getElementById('svcName').value = '';
+            document.getElementById('svcDesc').value = '';
+            document.getElementById('svcCat').value = 'Lavagem';
+            document.getElementById('svcIcon').value = 'spray';
+            document.getElementById('svcActive').checked = true;
+            document.getElementById('modalService').classList.add('active');
+        }
+
+        function editService(id) {
+            const s = cachedServices.find(item => item.id === id);
+            if (!s) return;
+            document.getElementById('svcId').value = s.id;
+            document.getElementById('modalServiceTitle').textContent = 'Editar Serviço';
+            document.getElementById('svcName').value = s.name;
+            document.getElementById('svcDesc').value = s.description;
+            document.getElementById('svcCat').value = s.category || 'Geral';
+            document.getElementById('svcIcon').value = s.icon || 'spray';
+            document.getElementById('svcActive').checked = !!s.active;
+            document.getElementById('modalService').classList.add('active');
+        }
+
+        async function saveService(e) {
+            e.preventDefault();
+            const id = document.getElementById('svcId').value;
+            const body = {
+                name: document.getElementById('svcName').value,
+                description: document.getElementById('svcDesc').value,
+                category: document.getElementById('svcCat').value,
+                icon: document.getElementById('svcIcon').value,
+                active: document.getElementById('svcActive').checked
+            };
+
+            if (id) {
+                await authFetch(`/api/admin/services/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Serviço atualizado!');
+            } else {
+                await authFetch('/api/admin/services', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Serviço cadastrado!');
+            }
+            closeModals();
+            loadServices();
+        }
+
+        async function deleteService(id) {
+            if (!confirm('Deseja realmente excluir este serviço?')) return;
+            await authFetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+            showToast('Serviço excluído!');
+            loadServices();
+        }
+
+        // ================= VEÍCULOS =================
+        async function loadVehicles() {
+            const res = await authFetch('/api/admin/vehicles');
+            const data = await res.json();
+            if (!data.success) return;
+            cachedVehicles = data.vehicles;
+
+            document.getElementById('vehiclesTable').innerHTML = data.vehicles.map(v => `
+                <tr>
+                    <td class="mono"><strong>${v.id}</strong></td>
+                    <td><strong>${v.name}</strong></td>
+                    <td style="color:var(--slate);">${v.description}</td>
+                    <td class="mono" style="font-weight:700; color:var(--spark);">R$ ${parseFloat(v.price).toFixed(2).replace('.', ',')}</td>
+                    <td>${v.active ? '<span style="color:var(--green); font-weight:700;">Ativo</span>' : '<span style="color:var(--red);">Inativo</span>'}</td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-act btn-sm btn-edit" onclick="editVehicle('${v.id}')">Editar</button>
+                            <button class="btn-act btn-sm btn-del" onclick="deleteVehicle('${v.id}')">Excluir</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openVehicleModal() {
+            document.getElementById('vehEditMode').value = '';
+            document.getElementById('modalVehTitle').textContent = 'Adicionar Porte de Veículo';
+            document.getElementById('vehId').value = '';
+            document.getElementById('vehId').disabled = false;
+            document.getElementById('vehName').value = '';
+            document.getElementById('vehDesc').value = '';
+            document.getElementById('vehPrice').value = '';
+            document.getElementById('vehIcon').value = 'car';
+            document.getElementById('vehActive').checked = true;
+            document.getElementById('modalVehicle').classList.add('active');
+        }
+
+        function editVehicle(id) {
+            const v = cachedVehicles.find(item => item.id === id);
+            if (!v) return;
+            document.getElementById('vehEditMode').value = v.id;
+            document.getElementById('modalVehTitle').textContent = 'Editar Porte de Veículo';
+            document.getElementById('vehId').value = v.id;
+            document.getElementById('vehId').disabled = true;
+            document.getElementById('vehName').value = v.name;
+            document.getElementById('vehDesc').value = v.description;
+            document.getElementById('vehPrice').value = v.price;
+            document.getElementById('vehIcon').value = v.icon || 'car';
+            document.getElementById('vehActive').checked = !!v.active;
+            document.getElementById('modalVehicle').classList.add('active');
+        }
+
+        async function saveVehicle(e) {
+            e.preventDefault();
+            const editId = document.getElementById('vehEditMode').value;
+            const body = {
+                id: document.getElementById('vehId').value.trim().toLowerCase(),
+                name: document.getElementById('vehName').value,
+                description: document.getElementById('vehDesc').value,
+                price: parseFloat(document.getElementById('vehPrice').value),
+                icon: document.getElementById('vehIcon').value,
+                active: document.getElementById('vehActive').checked
+            };
+
+            if (editId) {
+                await authFetch(`/api/admin/vehicles/${editId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Veículo atualizado!');
+            } else {
+                await authFetch('/api/admin/vehicles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Veículo adicionado!');
+            }
+            closeModals();
+            loadVehicles();
+        }
+
+        async function deleteVehicle(id) {
+            if (!confirm('Deseja excluir este porte de veículo?')) return;
+            await authFetch(`/api/admin/vehicles/${id}`, { method: 'DELETE' });
+            showToast('Veículo excluído!');
+            loadVehicles();
+        }
+
+        // ================= AGENDA & BLOQUEIOS =================
+        async function loadBlockedSchedules() {
+            const res = await authFetch('/api/admin/schedules');
+            const data = await res.json();
+            if (!data.success) return;
+
+            const tbody = document.getElementById('blockedTable');
+            if (data.blocked.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--slate); padding:20px;">Nenhum bloqueio cadastrado. Toda a grade padrão está aberta.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.blocked.map(b => {
+                const isDow = b.block_type === 'dow';
+                const detailText = isDow ? `<strong>${DOW_NAMES[b.block_dow] || 'Dia da semana'} (Toda semana)</strong>` : `<span class="mono"><strong>${b.block_date}</strong></span>`;
+                return `
+                <tr>
+                    <td><span style="font-weight:700; background:rgba(18,25,27,0.06); padding:3px 8px; border-radius:6px; font-size:11.5px;">${isDow ? 'Dia da Semana' : 'Data Única'}</span></td>
+                    <td>${detailText}</td>
+                    <td class="mono">${b.block_time || '<span style="color:var(--red); font-weight:700;">Dia Inteiro</span>'}</td>
+                    <td>${b.reason || '-'}</td>
+                    <td>
+                        <button class="btn-act btn-sm btn-del" onclick="unblockSchedule(${b.id})">Desbloquear</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openBlockModal() {
+            document.getElementById('blockTypeSelect').value = 'date';
+            document.getElementById('blockDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('blockDow').value = '1';
+            document.getElementById('blockTime').value = '';
+            document.getElementById('blockReason').value = '';
+            toggleBlockTypeFields();
+            document.getElementById('modalBlock').classList.add('active');
+        }
+
+        function toggleBlockTypeFields() {
+            const type = document.getElementById('blockTypeSelect').value;
+            if (type === 'dow') {
+                document.getElementById('blockDateFieldGroup').style.display = 'none';
+                document.getElementById('blockDowFieldGroup').style.display = 'block';
+                document.getElementById('blockTimeFieldGroup').style.display = 'none';
+            } else {
+                document.getElementById('blockDateFieldGroup').style.display = 'block';
+                document.getElementById('blockDowFieldGroup').style.display = 'none';
+                document.getElementById('blockTimeFieldGroup').style.display = 'block';
+            }
+        }
+
+        async function saveScheduleBlock(e) {
+            e.preventDefault();
+            const block_type = document.getElementById('blockTypeSelect').value;
+            const body = {
+                block_type,
+                block_date: block_type === 'date' ? document.getElementById('blockDate').value : null,
+                block_dow: block_type === 'dow' ? parseInt(document.getElementById('blockDow').value) : null,
+                block_time: block_type === 'date' ? (document.getElementById('blockTime').value || null) : null,
+                reason: document.getElementById('blockReason').value || (block_type === 'dow' ? 'Dia fechado toda semana' : 'Bloqueado pelo administrador')
+            };
+
+            await authFetch('/api/admin/schedules', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            closeModals();
+            showToast('Bloqueio salvo com sucesso!');
+            loadBlockedSchedules();
+        }
+
+        async function unblockSchedule(id) {
+            await authFetch(`/api/admin/schedules/${id}`, { method: 'DELETE' });
+            showToast('Bloqueio removido!');
+            loadBlockedSchedules();
+        }
+
+        // ================= FUNCIONÁRIOS =================
+        async function loadEmployees() {
+            const res = await authFetch('/api/admin/employees');
+            const data = await res.json();
+            if (!data.success) return;
+            cachedEmployees = data.employees;
+
+            const tbody = document.getElementById('employeesTable');
+            if (data.employees.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--slate); padding:20px;">Nenhum funcionário cadastrado.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.employees.map(emp => `
+                <tr>
+                    <td><strong>${emp.name}</strong></td>
+                    <td>${emp.role}</td>
+                    <td class="mono">${emp.phone || '-'}</td>
+                    <td><strong class="mono" style="color:var(--spark);">${emp.commission_type === 'percentage' ? emp.commission_value + '%' : 'R$ ' + parseFloat(emp.commission_value).toFixed(2)}</strong></td>
+                    <td>${emp.active ? '<span style="color:var(--green); font-weight:700;">Ativo</span>' : '<span style="color:var(--red);">Inativo</span>'}</td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-act btn-sm btn-edit" onclick="editEmployee(${emp.id})">Editar</button>
+                            <button class="btn-act btn-sm btn-del" onclick="deleteEmployee(${emp.id})">Excluir</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openEmployeeModal() {
+            document.getElementById('empId').value = '';
+            document.getElementById('modalEmpTitle').textContent = 'Cadastrar Funcionário';
+            document.getElementById('empName').value = '';
+            document.getElementById('empRole').value = 'Detailer';
+            document.getElementById('empPhone').value = '';
+            document.getElementById('empCommType').value = 'percentage';
+            document.getElementById('empCommValue').value = '30';
+            document.getElementById('empActive').checked = true;
+            document.getElementById('modalEmployee').classList.add('active');
+        }
+
+        function editEmployee(id) {
+            const emp = cachedEmployees.find(e => e.id === id);
+            if (!emp) return;
+            document.getElementById('empId').value = emp.id;
+            document.getElementById('modalEmpTitle').textContent = 'Editar Funcionário';
+            document.getElementById('empName').value = emp.name;
+            document.getElementById('empRole').value = emp.role;
+            document.getElementById('empPhone').value = emp.phone || '';
+            document.getElementById('empCommType').value = emp.commission_type || 'percentage';
+            document.getElementById('empCommValue').value = emp.commission_value;
+            document.getElementById('empActive').checked = !!emp.active;
+            document.getElementById('modalEmployee').classList.add('active');
+        }
+
+        async function saveEmployee(e) {
+            e.preventDefault();
+            const id = document.getElementById('empId').value;
+            const body = {
+                name: document.getElementById('empName').value,
+                role: document.getElementById('empRole').value,
+                phone: document.getElementById('empPhone').value,
+                commission_type: document.getElementById('empCommType').value,
+                commission_value: parseFloat(document.getElementById('empCommValue').value),
+                active: document.getElementById('empActive').checked
+            };
+
+            if (id) {
+                await authFetch(`/api/admin/employees/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Funcionário atualizado!');
+            } else {
+                await authFetch('/api/admin/employees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Funcionário cadastrado!');
+            }
+            closeModals();
+            loadEmployees();
+        }
+
+        async function deleteEmployee(id) {
+            if (!confirm('Deseja excluir este funcionário?')) return;
+            await authFetch(`/api/admin/employees/${id}`, { method: 'DELETE' });
+            showToast('Funcionário removido!');
+            loadEmployees();
+        }
+
+        // ================= ESTOQUE & DESPESAS =================
+        async function loadInventory() {
+            const res = await authFetch('/api/admin/inventory');
+            const data = await res.json();
+            if (!data.success) return;
+            cachedInventory = data.inventory;
+
+            document.getElementById('inventoryTable').innerHTML = data.inventory.map(i => {
+                const isLow = parseFloat(i.quantity) <= parseFloat(i.min_quantity);
+                return `
+                <tr>
+                    <td><strong>${i.name}</strong></td>
+                    <td>${i.category}</td>
+                    <td class="mono"><strong>${i.quantity} ${i.unit}</strong></td>
+                    <td class="mono" style="color:var(--slate);">${i.min_quantity} ${i.unit}</td>
+                    <td class="mono">R$ ${parseFloat(i.unit_cost).toFixed(2)}</td>
+                    <td>${isLow ? '<span style="color:var(--red); font-weight:700; background:rgba(231,76,60,0.1); padding:2px 8px; border-radius:6px;">⚠️ Estoque Baixo</span>' : '<span style="color:var(--green); font-weight:700;">OK</span>'}</td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-act btn-sm btn-edit" onclick="openStockAddModal(${i.id})">+ Entrada</button>
+                            <button class="btn-act btn-sm btn-edit" onclick="editInventory(${i.id})">Editar</button>
+                            <button class="btn-act btn-sm btn-del" onclick="deleteInventory(${i.id})">Excluir</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openInventoryModal() {
+            document.getElementById('invId').value = '';
+            document.getElementById('modalInvTitle').textContent = 'Cadastrar Produto';
+            document.getElementById('invName').value = '';
+            document.getElementById('invCat').value = 'Shampoos';
+            document.getElementById('invQty').value = '0';
+            document.getElementById('invMinQty').value = '2';
+            document.getElementById('invCost').value = '0';
+            document.getElementById('modalInventory').classList.add('active');
+        }
+
+        function editInventory(id) {
+            const item = cachedInventory.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('invId').value = item.id;
+            document.getElementById('modalInvTitle').textContent = 'Editar Produto';
+            document.getElementById('invName').value = item.name;
+            document.getElementById('invCat').value = item.category;
+            document.getElementById('invUnit').value = item.unit || 'un';
+            document.getElementById('invQty').value = item.quantity;
+            document.getElementById('invMinQty').value = item.min_quantity;
+            document.getElementById('invCost').value = item.unit_cost;
+            document.getElementById('modalInventory').classList.add('active');
+        }
+
+        async function saveInventory(e) {
+            e.preventDefault();
+            const id = document.getElementById('invId').value;
+            const body = {
+                name: document.getElementById('invName').value,
+                category: document.getElementById('invCat').value,
+                quantity: parseFloat(document.getElementById('invQty').value),
+                min_quantity: parseFloat(document.getElementById('invMinQty').value),
+                unit: document.getElementById('invUnit').value,
+                unit_cost: parseFloat(document.getElementById('invCost').value)
+            };
+
+            if (id) {
+                await authFetch(`/api/admin/inventory/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Produto atualizado!');
+            } else {
+                await authFetch('/api/admin/inventory', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                showToast('Produto cadastrado!');
+            }
+            closeModals();
+            loadInventory();
+        }
+
+        function openStockAddModal(id) {
+            const item = cachedInventory.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('stockAddInvId').value = item.id;
+            document.getElementById('stockAddInvName').textContent = `${item.name} (Estoque atual: ${item.quantity} ${item.unit})`;
+            document.getElementById('stockAddQty').value = '1';
+            document.getElementById('modalStockAdd').classList.add('active');
+        }
+
+        async function confirmStockAdd(e) {
+            e.preventDefault();
+            const id = document.getElementById('stockAddInvId').value;
+            const addedQuantity = parseFloat(document.getElementById('stockAddQty').value);
+            const logExpense = document.getElementById('stockAddLogExpense').checked;
+
+            await authFetch(`/api/admin/inventory/${id}/stock`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ addedQuantity, logExpense })
+            });
+
+            closeModals();
+            showToast('Estoque atualizado e despesa registrada!');
+            loadInventory();
+            loadExpenses();
+            loadFinancial();
+        }
+
+        async function deleteInventory(id) {
+            if (!confirm('Deseja remover este item do inventário?')) return;
+            await authFetch(`/api/admin/inventory/${id}`, { method: 'DELETE' });
+            showToast('Item removido do estoque!');
+            loadInventory();
+        }
+
+        async function loadExpenses() {
+            const res = await authFetch('/api/admin/expenses');
+            const data = await res.json();
+            if (!data.success) return;
+
+            const tbody = document.getElementById('expensesTable');
+            if (data.expenses.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--slate); padding:20px;">Nenhuma despesa registrada.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.expenses.map(exp => `
+                <tr>
+                    <td class="mono">${exp.expense_date}</td>
+                    <td><strong>${exp.description}</strong></td>
+                    <td><span style="background:var(--paper); padding:3px 8px; border-radius:6px; font-size:11.5px;">${exp.category}</span></td>
+                    <td class="mono" style="font-weight:700; color:var(--red);">R$ ${parseFloat(exp.amount).toFixed(2).replace('.', ',')}</td>
+                    <td style="color:var(--slate); font-size:12px;">${exp.notes || '-'}</td>
+                    <td>
+                        <button class="btn-act btn-sm btn-del" onclick="deleteExpense(${exp.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expDesc').value = '';
+            document.getElementById('expAmount').value = '';
+            document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('expNotes').value = '';
+            document.getElementById('modalExpense').classList.add('active');
+        }
+
+        async function saveExpense(e) {
+            e.preventDefault();
+            const body = {
+                description: document.getElementById('expDesc').value,
+                category: document.getElementById('expCat').value,
+                amount: parseFloat(document.getElementById('expAmount').value),
+                expense_date: document.getElementById('expDate').value,
+                notes: document.getElementById('expNotes').value
+            };
+            await authFetch('/api/admin/expenses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            closeModals();
+            showToast('Despesa registrada com sucesso!');
+            loadExpenses();
+            loadFinancial();
+        }
+
+        async function deleteExpense(id) {
+            if (!confirm('Deseja excluir este lançamento de despesa?')) return;
+            await authFetch(`/api/admin/expenses/${id}`, { method: 'DELETE' });
+            showToast('Despesa excluída!');
+            loadExpenses();
+            loadFinancial();
+        }
+
+        // ================= CONFIGURAÇÕES =================
+        async function loadConfig() {
+            const res = await authFetch('/api/admin/config');
+            const data = await res.json();
+            if (!data.success) return;
+
+            document.getElementById('cfgPixKey').value = data.config.pix_key || '';
+            document.getElementById('cfgPixBank').value = data.config.pix_bank || '';
+            document.getElementById('cfgPixName').value = data.config.pix_name || '';
+            document.getElementById('cfgWhatsapp').value = data.config.whatsapp_number || '';
+        }
+
+        async function saveBusinessConfig(e) {
+            e.preventDefault();
+            const body = {
+                pix_key: document.getElementById('cfgPixKey').value.trim(),
+                pix_bank: document.getElementById('cfgPixBank').value.trim(),
+                pix_name: document.getElementById('cfgPixName').value.trim(),
+                whatsapp_number: document.getElementById('cfgWhatsapp').value.trim()
+            };
+
+            await authFetch('/api/admin/config', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            showToast('Configurações atualizadas!');
+        }
+
+        // Inicialização com Verificação de Autenticação
+        checkAuthInit();
+    </script>
+</body>
+
+</html>

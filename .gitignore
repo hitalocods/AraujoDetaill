@@ -1,0 +1,26 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variáveis de ambiente & credenciais
+.env
+.env.local
+.env.*.local
+
+# Banco de dados local / arquivos temporários
+local_data.json
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Editores / IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

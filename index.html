@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araújo Detail | Agendamento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ink: #12191b;
+            --deep: #1b2b30;
+            --mid: #33484f;
+            --soft: #6c828b;
+            --mist: #b3b8bb;
+            --slate: #5a6368;
+            --paper: #f2f0ea;
+            --white: #fffdf9;
+            --spark: #d98a3d;
+            --line: rgba(18, 25, 27, 0.14);
+            --shadow: 0 20px 50px -20px rgba(18, 25, 27, 0.45);
+            --ease: cubic-bezier(.22, 1, .36, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .disp {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        ::selection {
+            background: var(--spark);
+            color: var(--ink);
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .eyebrow {
+            font-size: 11.5px;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--soft);
+            font-weight: 700;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* ---------- progresso: coluna que alinha ---------- */
+        .spine-wrap {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: linear-gradient(180deg, var(--paper) 75%, transparent);
+            padding: 16px 0 8px;
+        }
+
+        .spine-row {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .seg {
+            flex: 1;
+            height: 9px;
+            border-radius: 5px;
+            background: var(--mid);
+            transform: rotate(0deg);
+            transition: all .55s var(--ease);
+        }
+
+        .seg:nth-child(1) {
+            transform: rotate(-9deg);
+        }
+
+        .seg:nth-child(2) {
+            transform: rotate(6deg);
+        }
+
+        .seg:nth-child(3) {
+            transform: rotate(-8deg);
+        }
+
+        .seg:nth-child(4) {
+            transform: rotate(5deg);
+        }
+
+        .seg:nth-child(5) {
+            transform: rotate(-4deg);
+        }
+
+        .seg:nth-child(6) {
+            transform: rotate(3deg);
+        }
+
+        .seg.done,
+        .seg.active {
+            background: var(--spark);
+            transform: rotate(0deg);
+        }
+
+        .spine-labels {
+            display: flex;
+            justify-content: space-between;
+            max-width: 640px;
+            margin: 8px auto 0;
+            padding: 0 24px;
+            font-size: 10px;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--slate);
+            font-weight: 700;
+        }
+
+        .spine-labels span {
+            opacity: .4;
+            transition: opacity .4s var(--ease), color .4s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .spine-labels span.active {
+            opacity: 1;
+            color: var(--ink);
+        }
+
+        /* ---------- header ---------- */
+        header {
+            padding: 36px 24px 6px;
+            text-align: center;
+        }
+
+        .wordmark {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 26px;
+            color: var(--ink);
+        }
+
+        .wordmark span {
+            color: var(--spark);
+        }
+
+        .subhead {
+            margin-top: 4px;
+            font-size: 11.5px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--slate);
+            font-weight: 600;
+        }
+
+        /* ---------- hero ---------- */
+        .hero {
+            padding: 30px 0 10px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: clamp(28px, 6.5vw, 40px);
+            line-height: 1.08;
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            color: var(--spark);
+        }
+
+        .hero p {
+            margin: 16px auto 0;
+            max-width: 400px;
+            color: var(--slate);
+            font-size: 15.5px;
+            line-height: 1.6;
+        }
+
+        /* ---------- botões ---------- */
+        .btn {
+            appearance: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 14.5px;
+            letter-spacing: .01em;
+            padding: 16px 34px;
+            border-radius: 999px;
+            background: var(--ink);
+            color: var(--paper);
+            box-shadow: var(--shadow);
+            transition: transform .35s var(--ease), box-shadow .35s var(--ease), background .3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.015);
+            background: var(--deep);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(.99);
+        }
+
+        .btn.ghost {
+            background: transparent;
+            color: var(--ink);
+            box-shadow: none;
+            border: 1.5px solid var(--line);
+            padding: 15px 30px;
+        }
+
+        .btn.ghost:hover {
+            background: rgba(18, 25, 27, 0.05);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled {
+            opacity: .35;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn.small {
+            padding: 11px 20px;
+            font-size: 13px;
+        }
+
+        /* ---------- steps ---------- */
+        main {
+            padding: 24px 0 90px;
+        }
+
+        .step {
+            display: none;
+            animation: rise .6s var(--ease);
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 25px;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .step-sub {
+            text-align: center;
+            color: var(--slate);
+            font-size: 14px;
+            margin-bottom: 26px;
+        }
+
+        .step-sub strong {
+            color: var(--ink);
+        }
+
+        /* ---------- serviços: acordeão ---------- */
+        .cat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .cat-block {
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: 26px;
+            overflow: hidden;
+            transition: border-color .3s;
+        }
+
+        .cat-block.open {
+            border-color: var(--spark);
+        }
+
+        .cat-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+        }
+
+        .cat-head .cat-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 14.5px;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+
+        .cat-head .cat-count {
+            font-size: 11px;
+            color: var(--slate);
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .cat-head .chev {
+            transition: transform .35s var(--ease);
+            color: var(--spark);
+            font-size: 13px;
+        }
+
+        .cat-block.open .chev {
+            transform: rotate(180deg);
+        }
+
+        .cat-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .5s var(--ease);
+        }
+
+        .cat-block.open .cat-body {
+            max-height: 1200px;
+        }
+
+        .cat-items {
+            padding: 0 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .svc-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 12px;
+            border-radius: 22px 15px 22px 15px;
+            cursor: pointer;
+            transition: background .3s, transform .3s var(--ease);
+        }
+
+        .svc-row:hover {
+            background: var(--paper);
+        }
+
+        .svc-row.selected {
+            background: var(--ink);
+            transform: scale(1.01);
+            box-shadow: var(--shadow);
+        }
+
+        .svc-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 7px;
+            border: 2px solid var(--line);
+            flex: 0 0 auto;
+            position: relative;
+            transition: border-color .3s;
+        }
+
+        .svc-row.selected .svc-box {
+            border-color: var(--spark);
+            background: var(--spark);
+        }
+
+        .svc-box svg {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: 12px;
+            height: 12px;
+            stroke: var(--ink);
+            stroke-width: 3;
+            display: none;
+        }
+
+        .svc-row.selected .svc-box svg {
+            display: block;
+        }
+
+        .svc-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .svc-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .svc-desc {
+            font-size: 11.5px;
+            color: var(--slate);
+            line-height: 1.4;
+            margin-top: 2px;
+        }
+
+        .svc-row.selected .svc-name {
+            color: var(--paper);
+        }
+
+        .svc-row.selected .svc-desc {
+            color: var(--mist);
+        }
+
+        .svc-counter {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--soft);
+            margin: -14px 0 20px;
+        }
+
+        /* ---------- veículo ---------- */
+        .veh-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .veh-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: 26px 18px 26px 18px;
+            padding: 16px 18px;
+            cursor: pointer;
+            transition: all .3s var(--ease);
+        }
+
+        .veh-card:hover {
+            border-color: var(--spark);
+        }
+
+        .veh-card.selected {
+            background: var(--ink);
+            box-shadow: var(--shadow);
+            transform: scale(1.01);
+        }
+
+        .veh-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--paper);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            transition: background .3s;
+        }
+
+        .veh-card.selected .veh-icon {
+            background: var(--spark);
+        }
+
+        .veh-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--ink);
+        }
+
+        .veh-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .veh-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .veh-desc {
+            font-size: 11.5px;
+            color: var(--slate);
+            margin-top: 2px;
+        }
+
+        .veh-card.selected .veh-name {
+            color: var(--paper);
+        }
+
+        .veh-card.selected .veh-desc {
+            color: var(--mist);
+        }
+
+        .veh-price {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--soft);
+            flex: 0 0 auto;
+        }
+
+        .veh-card.selected .veh-price {
+            color: var(--spark);
+        }
+
+        /* ---------- calendário ---------- */
+        .cal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .cal-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 16px;
+            transition: background .3s;
+        }
+
+        .cal-nav button:hover {
+            background: var(--white);
+        }
+
+        .cal-month {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            justify-items: center;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .cal-dow {
+            font-size: 10.5px;
+            color: var(--slate);
+            font-weight: 700;
+            padding-bottom: 6px;
+        }
+
+        .cal-day {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all .3s var(--ease);
+        }
+
+        .cal-day.in-month {
+            color: var(--ink);
+        }
+
+        .cal-day.out-month {
+            visibility: hidden;
+        }
+
+        .cal-day.past {
+            color: var(--slate);
+            opacity: .25;
+            pointer-events: none;
+        }
+
+        .cal-day.closed {
+            color: var(--slate);
+            opacity: .3;
+            pointer-events: none;
+            text-decoration: line-through;
+        }
+
+        .cal-day:not(.past):not(.closed):hover {
+            border-color: var(--spark);
+        }
+
+        .cal-day.selected {
+            background: var(--ink);
+            color: var(--spark);
+            box-shadow: var(--shadow);
+        }
+
+        /* ---------- horários ---------- */
+        .time-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 4px 18px;
+            scrollbar-width: none;
+        }
+
+        .time-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .time-chip {
+            flex: 0 0 auto;
+            padding: 12px 20px;
+            border-radius: 999px;
+            border: 1.5px solid var(--line);
+            background: var(--white);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all .3s var(--ease);
+        }
+
+        .time-chip:hover {
+            border-color: var(--spark);
+        }
+
+        .time-chip.selected {
+            background: var(--ink);
+            color: var(--spark);
+            border-color: transparent;
+            box-shadow: var(--shadow);
+        }
+
+        /* ---------- formulário ---------- */
+        .field-blob {
+            background: var(--white);
+            border-radius: 34px 28px 34px 26px;
+            padding: 8px 22px;
+            border: 1.5px solid var(--line);
+            margin-bottom: 14px;
+            transition: border-color .3s;
+        }
+
+        .field-blob:focus-within {
+            border-color: var(--spark);
+        }
+
+        .field-blob label {
+            display: block;
+            font-size: 10.5px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--soft);
+            font-weight: 700;
+            padding-top: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .field-blob input,
+        .field-blob textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: var(--ink);
+            padding: 6px 0 14px;
+            resize: none;
+        }
+
+        /* ---------- pix ---------- */
+        .pix-blob {
+            background: var(--white);
+            border: 1.5px dashed var(--soft);
+            border-radius: 30px 22px 30px 22px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+        }
+
+        .pix-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .pix-tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--ink);
+            background: var(--spark);
+            padding: 3px 9px;
+            border-radius: 999px;
+        }
+
+        .pix-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 14.5px;
+        }
+
+        .pix-desc {
+            font-size: 12.5px;
+            color: var(--slate);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .pix-desc strong {
+            color: var(--ink);
+        }
+
+        .pix-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            padding: 7px 0;
+            border-bottom: 1px dashed var(--line);
+        }
+
+        .pix-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .pix-row .k {
+            color: var(--slate);
+            font-weight: 600;
+        }
+
+        .pix-row .v {
+            font-weight: 700;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .pix-key-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-top: 12px;
+        }
+
+        .pix-key-val {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .btn-copy {
+            background: var(--paper);
+            color: var(--ink);
+            border: 1.5px solid var(--line);
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: .25s;
+            flex-shrink: 0;
+        }
+
+        .btn-copy:hover {
+            border-color: var(--spark);
+        }
+
+        /* ---------- resumo ---------- */
+        .summary {
+            background: var(--white);
+            border-radius: 38px 26px 38px 26px;
+            padding: 30px 26px;
+            box-shadow: var(--shadow);
+            border: 1.5px solid var(--line);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--line);
+            font-size: 14.5px;
+            gap: 16px;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row .k {
+            color: var(--slate);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .summary-row .v {
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .summary-total {
+            margin-top: 8px;
+            padding-top: 16px;
+            border-top: 1.5px solid var(--spark);
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .summary-total .k {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+        }
+
+        .summary-total .v {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--soft);
+        }
+
+        .summary-total.deposit {
+            border-top: none;
+            padding-top: 4px;
+            margin-top: 0;
+        }
+
+        .summary-total.deposit .v {
+            color: var(--spark);
+        }
+
+        .done-ring {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 22px;
+            border-radius: 50%;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        .done-ring svg {
+            width: 38px;
+            height: 38px;
+            stroke: var(--spark);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 24px 50px;
+            color: var(--slate);
+            font-size: 12.5px;
+        }
+
+        footer a {
+            color: var(--soft);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            * {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="spine-wrap">
+        <div class="spine-row" id="spineRow">
+            <div class="seg"></div>
+            <div class="seg"></div>
+            <div class="seg"></div>
+            <div class="seg"></div>
+            <div class="seg"></div>
+            <div class="seg"></div>
+        </div>
+        <div class="spine-labels">
+            <span data-i="0">Serviços</span>
+            <span data-i="1">Veículo</span>
+            <span data-i="2">Dia</span>
+            <span data-i="3">Horário</span>
+            <span data-i="4">Dados</span>
+            <span data-i="5">Confirmar</span>
+        </div>
+    </div>
+
+    <header>
+        <div class="wordmark">Araújo Detail<span>.</span></div>
+        <div class="subhead">Estética Automotiva · Zona Sul</div>
+    </header>
+
+    <main class="container">
+
+        <section class="step active" id="step-hero">
+            <div class="hero">
+                <h1>Seu carro,<br><em>tratado</em> como novo.</h1>
+                <p>Agende sua lavagem, polimento ou vitrificação em poucos toques — sem ligação, sem espera.</p>
+                <div class="btn-row">
+                    <button class="btn" onclick="goTo(0)">Agendar meu horário</button>
+                </div>
+                <div class="btn-row" style="margin-top:12px;">
+                    <a class="btn ghost small" href="https://www.instagram.com/araujodetailofc" target="_blank">Ver no
+                        Instagram</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="step" id="step-0">
+            <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 1</div>
+            <h2 class="step-title">Quais serviços?</h2>
+            <p class="step-sub">Selecione <strong>quantos quiser</strong></p>
+            <span class="svc-counter" id="svcCounter"></span>
+            <div class="cat-list" id="catList"></div>
+            <div class="btn-row">
+                <button class="btn ghost" onclick="goTo('hero')">Voltar</button>
+                <button class="btn" id="toStep1" onclick="goTo(1)" disabled>Continuar</button>
+            </div>
+        </section>
+
+        <section class="step" id="step-1">
+            <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 2</div>
+            <h2 class="step-title">Porte do veículo</h2>
+            <p class="step-sub">Selecione o porte do seu automóvel</p>
+            <div class="veh-grid" id="vehGrid"></div>
+            <div class="btn-row">
+                <button class="btn ghost" onclick="goTo(0)">Voltar</button>
+                <button class="btn" id="toStep2" onclick="goTo(2)" disabled>Continuar</button>
+            </div>
+        </section>
+
+        <section class="step" id="step-2">
+            <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 3</div>
+            <h2 class="step-title">Escolha o dia</h2>
+            <p class="step-sub">Atendimento de segunda a sábado</p>
+            <div class="cal-nav">
+                <button onclick="shiftMonth(-1)">&#8592;</button>
+                <div class="cal-month" id="calMonth"></div>
+                <button onclick="shiftMonth(1)">&#8594;</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="btn-row">
+                <button class="btn ghost" onclick="goTo(1)">Voltar</button>
+                <button class="btn" id="toStep3" onclick="goTo(3)" disabled>Continuar</button>
+            </div>
+        </section>
+
+        <section class="step" id="step-3">
+            <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 4</div>
+            <h2 class="step-title">Escolha o horário</h2>
+            <p class="step-sub" id="dateChosenLabel">Horários disponíveis</p>
+            <div class="time-scroll" id="timeField"></div>
+            <div class="btn-row">
+                <button class="btn ghost" onclick="goTo(2)">Voltar</button>
+                <button class="btn" id="toStep4" onclick="goTo(4)" disabled>Continuar</button>
+            </div>
+        </section>
+
+        <section class="step" id="step-4">
+            <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 5</div>
+            <h2 class="step-title">Seus dados</h2>
+            <p class="step-sub">Pra confirmarmos seu agendamento</p>
+            <div class="field-blob">
+                <label>Nome completo</label>
+                <input type="text" id="clientName" placeholder="Como podemos te chamar?">
+            </div>
+            <div class="field-blob">
+                <label>WhatsApp</label>
+                <input type="tel" id="clientPhone" placeholder="(86) 9 9999-9999">
+            </div>
+            <div class="field-blob">
+                <label>Observações (opcional)</label>
+                <textarea id="clientNotes" rows="2" placeholder="Detalhe extra do veículo ou preferência..."></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn ghost" onclick="goTo(3)">Voltar</button>
+                <button class="btn" id="toStep5" onclick="goTo(5)" disabled>Revisar agendamento</button>
+            </div>
+        </section>
+
+        <section class="step" id="step-5">
+            <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 6</div>
+            <h2 class="step-title">Confira e confirme</h2>
+            <p class="step-sub">Você vai concluir pelo WhatsApp da Araújo Detail</p>
+
+            <div class="pix-blob">
+                <div class="pix-top">
+                    <span class="pix-tag">PIX</span>
+                    <span class="pix-title">Sinal de 50% para reserva</span>
+                </div>
+                <div class="pix-desc">Para garantir seu horário na agenda, pedimos o envio de <strong>50% do valor
+                        (sinal)</strong> por PIX.</div>
+                <div class="pix-row">
+                    <span class="k">Banco</span>
+                    <span class="v" id="pixBankDisplay">Banco Inter / Nubank</span>
+                </div>
+                <div class="pix-row">
+                    <span class="k">Titular</span>
+                    <span class="v" id="pixNameDisplay">Araújo Detail</span>
+                </div>
+                <div class="pix-key-line">
+                    <div>
+                        <span class="eyebrow" style="display:block;">Chave PIX</span>
+                        <div class="pix-key-val" id="pixKeyVal">86999999999</div>
+                    </div>
+                    <button type="button" class="btn-copy" onclick="copyPixKey()">
+                        <span id="copyBtnText">Copiar chave</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="summary" id="summaryBox"></div>
+            <div class="btn-row">
+                <button class="btn ghost" onclick="goTo(4)">Voltar</button>
+                <button class="btn" onclick="confirmBooking()">Confirmar pelo WhatsApp</button>
+            </div>
+        </section>
+
+        <section class="step" id="step-done">
+            <div style="text-align:center; padding:20px 0 10px;">
+                <div class="done-ring">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <h2 class="step-title">Quase lá!</h2>
+                <p class="step-sub">Sua solicitação foi aberta no WhatsApp. É só enviar a mensagem e mandar o
+                    comprovante do sinal pra confirmar com a Araújo Detail.</p>
+                <div class="btn-row">
+                    <button class="btn ghost" onclick="resetFlow()">Fazer novo agendamento</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        Araújo Detail · Lavagem &amp; Estética Automotiva · Zona Sul, Teresina-PI<br>
+        <a href="https://www.instagram.com/araujodetailofc" target="_blank">@araujodetailofc</a>
+        <div style="margin-top:14px; opacity:.7;">
+            Desenvolvido por Atlas Software · <a href="https://www.instagram.com/atlassoftware_/"
+                target="_blank">Instagram</a>
+        </div>
+    </footer>
+
+    <script>
+        // ================= CONFIGURAÇÕES DINÂMICAS ================= //
+        let WHATSAPP_NUMBER = "5586900000000";
+
+        let PIX_CONFIG = {
+            key: "86999999999",
+            bank: "Banco Inter / Nubank",
+            name: "Araújo Detail"
+        };
+
+        const ICONS = {
+            car: '<path d="M3 12h1.5a2 2 0 0 1 1.8-1.2h11.4A2 2 0 0 1 19.5 12H21a2 2 0 0 0 2-2V8.5c0-.6-.3-1.1-.8-1.4L18 4.2A3 3 0 0 0 16.3 3.5H7.7a3 3 0 0 0-2.2.9L2.8 7.1H1a1 1 0 0 0-1 1V11a1 1 0 0 0 1 1Z" stroke-width="1.6" stroke-linejoin="round" fill="none"/><circle cx="6.5" cy="13.5" r="2" stroke-width="1.6" fill="none"/><circle cx="17.5" cy="13.5" r="2" stroke-width="1.6" fill="none"/>',
+            suv: '<path d="M2 13h1.8a2 2 0 0 1 1.8-1.2h12.8a2 2 0 0 1 1.8 1.2H22a2 2 0 0 0 2-2V7.5a2 2 0 0 0-.8-1.6L19 3.5H5L1.8 6.5A2 2 0 0 0 1 8v3a2 2 0 0 0 1 2Z" stroke-width="1.6" stroke-linejoin="round" fill="none"/><circle cx="6.5" cy="14" r="2.2" stroke-width="1.6" fill="none"/><circle cx="17.5" cy="14" r="2.2" stroke-width="1.6" fill="none"/>',
+            truck: '<path d="M1 13h1.8a2 2 0 0 1 1.8-1.2h12.8a2 2 0 0 1 1.8 1.2H23V8a2 2 0 0 0-2-2h-5V3.5H9L6 6.5H1v4.5a2 2 0 0 0 1 2Z" stroke-width="1.6" stroke-linejoin="round" fill="none"/><circle cx="6.5" cy="14" r="2.2" stroke-width="1.6" fill="none"/><circle cx="18" cy="14" r="2.2" stroke-width="1.6" fill="none"/>'
+        };
+        function svgIcon(name) {
+            return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${ICONS[name] || ICONS.car}</svg>`;
+        }
+
+        let CATALOG = [
+            {
+                cat: 'Serviços', items: [
+                    { id: 1, name: "Lavagem Detalhada", desc: "Higienização interna e externa minuciosa." },
+                    { id: 2, name: "Lavagem de Motor", desc: "Limpeza técnica com verniz protetor." },
+                    { id: 3, name: "Higienização Completa", desc: "Bancos, teto, carpetes e revitalização." },
+                    { id: 4, name: "Polimento Técnico", desc: "Correção de pintura e brilho espelhado." },
+                    { id: 5, name: "Vitrificação", desc: "Proteção cerâmica duradoura." },
+                    { id: 6, name: "Descontaminação Ferrosa", desc: "Remoção de chuva ácida, piche e cola." },
+                ]
+            }
+        ];
+
+        let VEHICLES = [
+            { id: 'passeio', name: 'Passeio', desc: 'Hatchs e sedans', price: 50, icon: 'car' },
+            { id: 'suv', name: 'SUV', desc: 'SUVs e crossovers', price: 60, icon: 'suv' },
+            { id: 'pickup', name: 'Pickup', desc: 'Pickups e caminhonetes', price: 70, icon: 'truck' }
+        ];
+
+        let BLOCKED_DAYS = [];
+        let SERVER_SLOTS = [];
+
+        const state = { services: [], vehicle: null, date: null, time: null, name: '', phone: '', notes: '' };
+        let calRef = new Date(); calRef.setDate(1);
+        let openCats = new Set([0]);
+
+        // Carrega dados dinâmicos do backend
+        async function loadServerConfig() {
+            try {
+                const res = await fetch('/api/public/config');
+                const data = await res.json();
+                if (!data.success) return;
+
+                if (data.config) {
+                    if (data.config.whatsapp_number) WHATSAPP_NUMBER = data.config.whatsapp_number;
+                    if (data.config.pix_key) PIX_CONFIG.key = data.config.pix_key;
+                    if (data.config.pix_bank) PIX_CONFIG.bank = data.config.pix_bank;
+                    if (data.config.pix_name) PIX_CONFIG.name = data.config.pix_name;
+                }
+
+                if (data.services && data.services.length > 0) {
+                    const groups = {};
+                    data.services.forEach(s => {
+                        const cat = s.category || 'Serviços';
+                        if (!groups[cat]) groups[cat] = [];
+                        groups[cat].push({ id: s.id, name: s.name, desc: s.description });
+                    });
+                    CATALOG = Object.keys(groups).map(cat => ({ cat, items: groups[cat] }));
+                }
+
+                if (data.vehicles && data.vehicles.length > 0) {
+                    VEHICLES = data.vehicles.map(v => ({
+                        id: v.id,
+                        name: v.name,
+                        desc: v.description,
+                        price: parseFloat(v.price),
+                        icon: v.icon || 'car'
+                    }));
+                }
+
+                if (data.blocked) {
+                    BLOCKED_DAYS = data.blocked.filter(b => !b.block_time).map(b => b.block_date);
+                }
+            } catch (e) {
+                console.log('Utilizando catálogo padrão offline.');
+            }
+        }
+
+        function goTo(key) {
+            key = String(key);
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(key === 'hero' ? 'step-hero' : 'step-' + key);
+            el.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateProgress(key);
+            if (key === '0') renderCatalog();
+            if (key === '1') renderVehicles();
+            if (key === '2') renderCalendar();
+            if (key === '3') renderTimes();
+            if (key === '5') renderSummary();
+        }
+
+        function updateProgress(key) {
+            const idx = key === 'hero' ? -1 : parseInt(key);
+            document.querySelectorAll('.spine-labels span').forEach(s => {
+                s.classList.toggle('active', parseInt(s.dataset.i) === idx);
+            });
+            document.querySelectorAll('#spineRow .seg').forEach((seg, i) => {
+                seg.classList.toggle('done', i < idx);
+                seg.classList.toggle('active', i === idx);
+            });
+        }
+
+        /* ---------------- serviços (etapa 1, multi-seleção) ---------------- */
+        function findService(id) {
+            for (const c of CATALOG) { const f = c.items.find(i => i.id === id); if (f) return f; }
+            return null;
+        }
+
+        function renderCatalog() {
+            const counter = document.getElementById('svcCounter');
+            const n = state.services.length;
+            counter.textContent = n === 0 ? 'Nenhum serviço selecionado' : (n === 1 ? '1 serviço selecionado' : n + ' serviços selecionados');
+
+            const list = document.getElementById('catList');
+            list.innerHTML = CATALOG.map((c, ci) => `
+    <div class="cat-block ${openCats.has(ci) ? 'open' : ''}" id="cat-${ci}">
+      <div class="cat-head" onclick="toggleCat(${ci})">
+        <span><span class="cat-name">${c.cat}</span><span class="cat-count">${c.items.length} opções</span></span>
+        <span class="chev">&#9660;</span>
+      </div>
+      <div class="cat-body">
+        <div class="cat-items">
+          ${c.items.map(i => `
+            <div class="svc-row ${state.services.includes(i.id) ? 'selected' : ''}" onclick="toggleService(${i.id})">
+              <span class="svc-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="svc-text">
+                <span class="svc-name">${i.name}</span>
+                <span class="svc-desc">${i.desc}</span>
+              </span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+        }
+
+        function toggleCat(ci) {
+            if (openCats.has(ci)) openCats.delete(ci); else openCats.add(ci);
+            renderCatalog();
+        }
+
+        function toggleService(id) {
+            const idx = state.services.indexOf(id);
+            if (idx > -1) state.services.splice(idx, 1); else state.services.push(id);
+            renderCatalog();
+            document.getElementById('toStep1').disabled = state.services.length === 0;
+        }
+
+        /* ---------------- veículo (etapa 2) ---------------- */
+        function renderVehicles() {
+            document.getElementById('vehGrid').innerHTML = VEHICLES.map(v => `
+        <div class="veh-card ${state.vehicle === v.id ? 'selected' : ''}" onclick="pickVehicle('${v.id}')">
+            <div class="veh-icon">${svgIcon(v.icon)}</div>
+            <div class="veh-body">
+                <div class="veh-name">${v.name}</div>
+                <div class="veh-desc">${v.desc}</div>
+            </div>
+            <div class="veh-price">R$ ${v.price},00</div>
+        </div>
+    `).join('');
+        }
+
+        function pickVehicle(id) {
+            state.vehicle = id;
+            renderVehicles();
+            document.getElementById('toStep2').disabled = false;
+        }
+
+        /* ---------------- calendário (etapa 3) ---------------- */
+        const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+        function renderCalendar() {
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            document.getElementById('calMonth').textContent = `${monthNames[calRef.getMonth()]} ${calRef.getFullYear()}`;
+            const grid = document.getElementById('calGrid');
+            grid.innerHTML = DOW.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+            const year = calRef.getFullYear(), month = calRef.getMonth();
+            const firstDow = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i < firstDow; i++) grid.innerHTML += `<div class="cal-day out-month"></div>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(year, month, d);
+                const isPast = dateObj < today;
+                const isSunday = dateObj.getDay() === 0;
+                const iso = dateObj.toISOString().slice(0, 10);
+                const isBlocked = BLOCKED_DAYS.includes(iso);
+
+                const cls = ['cal-day', 'in-month'];
+                if (isPast) cls.push('past');
+                if (isSunday || isBlocked) cls.push('closed');
+                if (state.date === iso) cls.push('selected');
+
+                if (isPast || isSunday || isBlocked) {
+                    grid.innerHTML += `<div class="${cls.join(' ')}" title="${isBlocked ? 'Dia bloqueado' : ''}">${d}</div>`;
+                } else {
+                    grid.innerHTML += `<div class="${cls.join(' ')}" onclick="pickDate('${iso}')">${d}</div>`;
+                }
+            }
+        }
+
+        function shiftMonth(dir) { calRef.setMonth(calRef.getMonth() + dir); renderCalendar(); }
+
+        async function pickDate(iso) {
+            state.date = iso; 
+            state.time = null;
+            renderCalendar();
+
+            // Busca slots disponíveis no backend
+            try {
+                const res = await fetch(`/api/public/available-slots?date=${iso}`);
+                const data = await res.json();
+                if (data.success && data.slots) {
+                    SERVER_SLOTS = data.slots;
+                }
+            } catch (e) {
+                SERVER_SLOTS = [];
+            }
+
+            document.getElementById('toStep3').disabled = false;
+        }
+
+        /* ---------------- horários (etapa 4) ---------------- */
+        const ALL_TIMES = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+        function renderTimes() {
+            const label = document.getElementById('dateChosenLabel');
+            if (state.date) {
+                const d = new Date(state.date + 'T00:00:00');
+                label.textContent = 'Horários para ' + d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+            }
+
+            const field = document.getElementById('timeField');
+            const slotsToRender = SERVER_SLOTS.length > 0 ? SERVER_SLOTS : ALL_TIMES.map(t => ({ time: t, available: true }));
+
+            field.innerHTML = slotsToRender.map(slot => {
+                const isSelected = state.time === slot.time;
+                if (!slot.available) {
+                    return `<div class="time-chip disabled" style="opacity:0.35; text-decoration:line-through; cursor:not-allowed;" title="${slot.reason || 'Indisponível'}">${slot.time}</div>`;
+                }
+                return `<div class="time-chip ${isSelected ? 'selected' : ''}" onclick="pickTime('${slot.time}')">${slot.time}</div>`;
+            }).join('');
+        }
+
+        function pickTime(t) {
+            state.time = t;
+            renderTimes();
+            document.getElementById('toStep4').disabled = false;
+        }
+
+        /* ---------------- dados (etapa 5) ---------------- */
+        document.getElementById('clientName').addEventListener('input', checkFormValid);
+        document.getElementById('clientPhone').addEventListener('input', checkFormValid);
+        function checkFormValid() {
+            state.name = document.getElementById('clientName').value.trim();
+            state.phone = document.getElementById('clientPhone').value.trim();
+            state.notes = document.getElementById('clientNotes').value.trim();
+            document.getElementById('toStep5').disabled = !(state.name.length > 1 && state.phone.length >= 8);
+        }
+
+        /* ---------------- confirmação (etapa 6) ---------------- */
+        function renderSummary() {
+            state.notes = document.getElementById('clientNotes').value.trim();
+            document.getElementById('pixKeyVal').textContent = PIX_CONFIG.key;
+            document.getElementById('pixBankDisplay').textContent = PIX_CONFIG.bank;
+            document.getElementById('pixNameDisplay').textContent = PIX_CONFIG.name;
+
+            const selectedServices = [];
+            CATALOG.forEach(c => {
+                c.items.forEach(i => {
+                    if (state.services.includes(i.id)) selectedServices.push(i);
+                });
+            });
+
+            const veh = VEHICLES.find(v => v.id === state.vehicle);
+            const d = new Date(state.date + 'T00:00:00');
+            const dateLabel = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+            const total = veh ? veh.price : 0;
+            const deposit = (total / 2).toFixed(2).replace('.', ',');
+
+            document.getElementById('summaryBox').innerHTML = `
+    <div class="summary-row"><span class="k">Serviços (${selectedServices.length})</span><span class="v">${selectedServices.map(s => s.name).join(', ')}</span></div>
+    <div class="summary-row"><span class="k">Veículo</span><span class="v">${veh ? veh.name : '-'}</span></div>
+    <div class="summary-row"><span class="k">Dia</span><span class="v">${dateLabel}</span></div>
+    <div class="summary-row"><span class="k">Horário</span><span class="v">${state.time}</span></div>
+    <div class="summary-row"><span class="k">Nome</span><span class="v">${state.name}</span></div>
+    <div class="summary-row"><span class="k">WhatsApp</span><span class="v">${state.phone}</span></div>
+    ${state.notes ? `<div class="summary-row"><span class="k">Obs.</span><span class="v">${state.notes}</span></div>` : ''}
+    <div class="summary-total"><span class="k">Total estimado</span><span class="v">R$ ${total},00</span></div>
+    <div class="summary-total deposit"><span class="k">Sinal 50%</span><span class="v">R$ ${deposit}</span></div>
+  `;
+        }
+
+        function copyPixKey() {
+            navigator.clipboard.writeText(PIX_CONFIG.key).then(() => {
+                const btnText = document.getElementById('copyBtnText');
+                btnText.textContent = "Copiado!";
+                setTimeout(() => { btnText.textContent = "Copiar chave"; }, 2200);
+            }).catch(() => {
+                prompt("Copie a chave PIX:", PIX_CONFIG.key);
+            });
+        }
+
+        async function confirmBooking() {
+            const selectedServices = [];
+            CATALOG.forEach(c => {
+                c.items.forEach(i => {
+                    if (state.services.includes(i.id)) selectedServices.push(i);
+                });
+            });
+
+            const veh = VEHICLES.find(v => v.id === state.vehicle);
+            const d = new Date(state.date + 'T00:00:00');
+            const dateLabel = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+            const total = veh ? veh.price : 0;
+            const deposit = (total / 2).toFixed(2).replace('.', ',');
+            const svcsList = selectedServices.map(s => `- ${s.name}`).join('%0A');
+
+            // Salva no banco de dados (Neon / Backend)
+            try {
+                await fetch('/api/public/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        client_name: state.name,
+                        client_phone: state.phone,
+                        client_notes: state.notes,
+                        vehicle_id: state.vehicle,
+                        vehicle_name: veh ? veh.name : '',
+                        services_ids: state.services,
+                        services_names: selectedServices.map(s => s.name).join(', '),
+                        booking_date: state.date,
+                        booking_time: state.time,
+                        total_price: total,
+                        deposit_price: total / 2
+                    })
+                });
+            } catch (e) {
+                console.error('Erro ao registrar agendamento no servidor:', e);
+            }
+
+            const msg = `Olá, Araújo Detail! Quero agendar:%0A%0A` +
+                `Serviços:%0A${svcsList}%0A%0A` +
+                `Veículo: ${veh ? veh.name : '-'}%0A` +
+                `Dia: ${dateLabel}%0A` +
+                `Horário: ${state.time}%0A%0A` +
+                `Total: R$ ${total},00%0A` +
+                `Sinal (50%25): R$ ${deposit}%0A%0A` +
+                `Nome: ${state.name}%0A` +
+                (state.notes ? `Obs: ${state.notes}%0A` : '') +
+                `%0AJá estou enviando o sinal via PIX para confirmação!`;
+
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+            document.getElementById('step-done').classList.add('active');
+            document.getElementById('step-5').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetFlow() {
+            state.services = []; state.vehicle = null; state.date = null; state.time = null;
+            state.name = ''; state.phone = ''; state.notes = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientPhone').value = '';
+            document.getElementById('clientNotes').value = '';
+            document.getElementById('toStep1').disabled = true;
+            document.getElementById('toStep2').disabled = true;
+            document.getElementById('toStep3').disabled = true;
+            document.getElementById('toStep4').disabled = true;
+            document.getElementById('toStep5').disabled = true;
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-hero').classList.add('active');
+            updateProgress('hero');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Inicialização
+        loadServerConfig();
+        updateProgress('hero');
+    </script>
+</body>
+
+</html>
