@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Araújo Detail — Painel Administrativo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,10 +28,11 @@
             --ease: cubic-bezier(.22, 1, .36, 1);
         }
 
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            touch-action: manipulation;
         }
 
         body {
@@ -41,6 +42,14 @@
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Previne zoom automático do iOS/Android em campos de formulário */
+        input, select, textarea, button {
+            font-size: 16px;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
         }
 
         .disp {
@@ -54,6 +63,7 @@
         a {
             color: inherit;
             text-decoration: none;
+            touch-action: manipulation;
         }
 
         button {
@@ -62,6 +72,7 @@
             border: none;
             outline: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         /* Tela de Login */
@@ -1057,38 +1068,79 @@
                 grid-column: span 1;
             }
 
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px !important;
+                min-height: 46px;
+            }
+
             .check-grid {
                 grid-template-columns: 1fr;
             }
 
             .modal-box {
-                padding: 20px 16px;
+                width: 95vw;
+                padding: 20px 14px;
                 border-radius: 20px;
+                max-height: 88vh;
             }
 
             .filter-pills {
                 width: 100%;
+                display: flex;
+                gap: 6px;
             }
 
             .pill-btn {
                 flex: 1;
                 text-align: center;
-                padding: 8px 6px;
-                font-size: 11.5px;
+                padding: 10px 6px;
+                font-size: 12px;
+                min-height: 38px;
+            }
+
+            .custom-date-box {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .custom-date-box input[type="date"] {
+                width: 100%;
+                min-height: 42px;
+                font-size: 15px !important;
+            }
+
+            .custom-date-box .btn-act {
+                width: 100%;
+                min-height: 42px;
             }
 
             .btn-act {
                 width: 100%;
+                min-height: 44px;
                 padding: 12px 18px;
+                font-size: 13.5px;
             }
 
             .panel-head {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 12px;
             }
 
             .panel-head .btn-act {
                 width: 100%;
+            }
+
+            .emp-payout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table th, .data-table td {
+                padding: 10px 8px;
             }
         }
     </style>

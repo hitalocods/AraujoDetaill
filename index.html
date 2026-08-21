@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Araújo Detail | Agendamento</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,18 +26,27 @@
             --ease: cubic-bezier(.22, 1, .36, 1);
         }
 
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            touch-action: manipulation;
         }
 
         html {
             scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
             font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+
+        input, select, textarea, button {
+            font-size: 16px;
+            touch-action: manipulation;
+        }
             background: var(--paper);
             color: var(--ink);
             -webkit-font-smoothing: antialiased;
