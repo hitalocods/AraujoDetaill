@@ -1125,12 +1125,12 @@
         let CATALOG = [
             {
                 cat: 'Serviços', items: [
-                    { id: 1, name: "Lavagem Detalhada", desc: "Higienização interna e externa minuciosa." },
-                    { id: 2, name: "Lavagem de Motor", desc: "Limpeza técnica com verniz protetor." },
-                    { id: 3, name: "Higienização Completa", desc: "Bancos, teto, carpetes e revitalização." },
-                    { id: 4, name: "Polimento Técnico", desc: "Correção de pintura e brilho espelhado." },
-                    { id: 5, name: "Vitrificação", desc: "Proteção cerâmica duradoura." },
-                    { id: 6, name: "Descontaminação Ferrosa", desc: "Remoção de chuva ácida, piche e cola." },
+                    { id: 1, name: "Lavagem Detalhada", desc: "Higienização interna e externa minuciosa.", prices: { passeio: 50, suv: 60, pickup: 70 } },
+                    { id: 2, name: "Lavagem de Motor", desc: "Limpeza técnica com verniz protetor.", prices: { passeio: 40, suv: 50, pickup: 60 } },
+                    { id: 3, name: "Higienização Completa", desc: "Bancos, teto, carpetes e revitalização.", prices: { passeio: 180, suv: 220, pickup: 260 } },
+                    { id: 4, name: "Polimento Técnico", desc: "Correção de pintura e brilho espelhado.", prices: { passeio: 350, suv: 450, pickup: 550 } },
+                    { id: 5, name: "Vitrificação", desc: "Proteção cerâmica duradoura.", prices: { passeio: 700, suv: 900, pickup: 1100 } },
+                    { id: 6, name: "Descontaminação Ferrosa", desc: "Remoção de chuva ácida, piche e cola.", prices: { passeio: 80, suv: 100, pickup: 120 } },
                 ]
             }
         ];
@@ -1147,6 +1147,16 @@
         const state = { services: [], vehicle: null, date: null, time: null, name: '', phone: '', notes: '' };
         let calRef = new Date(); calRef.setDate(1);
         let openCats = new Set([0]);
+
+        function getServicePriceForVehicle(service, vehicleId) {
+            if (!service || !service.prices) return 0;
+            if (vehicleId && service.prices[vehicleId] !== undefined) {
+                return parseFloat(service.prices[vehicleId]);
+            }
+            if (service.prices.passeio !== undefined) return parseFloat(service.prices.passeio);
+            const vals = Object.values(service.prices);
+            return vals.length > 0 ? parseFloat(vals[0]) : 0;
+        }
 
         // Carrega dados dinâmicos do backend
         async function loadServerConfig() {
@@ -1167,7 +1177,12 @@
                     data.services.forEach(s => {
                         const cat = s.category || 'Serviços';
                         if (!groups[cat]) groups[cat] = [];
-                        groups[cat].push({ id: s.id, name: s.name, desc: s.description });
+                        groups[cat].push({
+                            id: s.id,
+                            name: s.name,
+                            desc: s.description,
+                            prices: s.prices || { passeio: 50, suv: 60, pickup: 70 }
+                        });
                     });
                     CATALOG = Object.keys(groups).map(cat => ({ cat, items: groups[cat] }));
                 }
@@ -1264,16 +1279,25 @@
 
         /* ---------------- veículo (etapa 2) ---------------- */
         function renderVehicles() {
-            document.getElementById('vehGrid').innerHTML = VEHICLES.map(v => `
-        <div class="veh-card ${state.vehicle === v.id ? 'selected' : ''}" onclick="pickVehicle('${v.id}')">
-            <div class="veh-icon">${svgIcon(v.icon)}</div>
-            <div class="veh-body">
-                <div class="veh-name">${v.name}</div>
-                <div class="veh-desc">${v.desc}</div>
-            </div>
-            <div class="veh-price">R$ ${v.price},00</div>
-        </div>
-    `).join('');
+            const selectedServices = [];
+            CATALOG.forEach(c => {
+                c.items.forEach(i => {
+                    if (state.services.includes(i.id)) selectedServices.push(i);
+                });
+            });
+
+            document.getElementById('vehGrid').innerHTML = VEHICLES.map(v => {
+                const costForThisVeh = selectedServices.reduce((sum, s) => sum + getServicePriceForVehicle(s, v.id), 0);
+                return `
+                <div class="veh-card ${state.vehicle === v.id ? 'selected' : ''}" onclick="pickVehicle('${v.id}')">
+                    <div class="veh-icon">${svgIcon(v.icon)}</div>
+                    <div class="veh-body">
+                        <div class="veh-name">${v.name}</div>
+                        <div class="veh-desc">${v.desc}</div>
+                    </div>
+                    <div class="veh-price">R$ ${costForThisVeh.toFixed(2).replace('.', ',')}</div>
+                </div>
+            `}).join('');
         }
 
         function pickVehicle(id) {
@@ -1391,18 +1415,24 @@
             const veh = VEHICLES.find(v => v.id === state.vehicle);
             const d = new Date(state.date + 'T00:00:00');
             const dateLabel = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-            const total = veh ? veh.price : 0;
+            
+            const total = selectedServices.reduce((sum, s) => sum + getServicePriceForVehicle(s, state.vehicle), 0);
             const deposit = (total / 2).toFixed(2).replace('.', ',');
 
+            const servicesFormatted = selectedServices.map(s => {
+                const p = getServicePriceForVehicle(s, state.vehicle);
+                return `${s.name} (R$ ${p.toFixed(2).replace('.', ',')})`;
+            }).join(', ');
+
             document.getElementById('summaryBox').innerHTML = `
-    <div class="summary-row"><span class="k">Serviços (${selectedServices.length})</span><span class="v">${selectedServices.map(s => s.name).join(', ')}</span></div>
+    <div class="summary-row"><span class="k">Serviços (${selectedServices.length})</span><span class="v">${servicesFormatted}</span></div>
     <div class="summary-row"><span class="k">Veículo</span><span class="v">${veh ? veh.name : '-'}</span></div>
     <div class="summary-row"><span class="k">Dia</span><span class="v">${dateLabel}</span></div>
     <div class="summary-row"><span class="k">Horário</span><span class="v">${state.time}</span></div>
     <div class="summary-row"><span class="k">Nome</span><span class="v">${state.name}</span></div>
     <div class="summary-row"><span class="k">WhatsApp</span><span class="v">${state.phone}</span></div>
     ${state.notes ? `<div class="summary-row"><span class="k">Obs.</span><span class="v">${state.notes}</span></div>` : ''}
-    <div class="summary-total"><span class="k">Total estimado</span><span class="v">R$ ${total},00</span></div>
+    <div class="summary-total"><span class="k">Total estimado</span><span class="v">R$ ${total.toFixed(2).replace('.', ',')}</span></div>
     <div class="summary-total deposit"><span class="k">Sinal 50%</span><span class="v">R$ ${deposit}</span></div>
   `;
         }
@@ -1428,9 +1458,14 @@
             const veh = VEHICLES.find(v => v.id === state.vehicle);
             const d = new Date(state.date + 'T00:00:00');
             const dateLabel = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-            const total = veh ? veh.price : 0;
+            
+            const total = selectedServices.reduce((sum, s) => sum + getServicePriceForVehicle(s, state.vehicle), 0);
             const deposit = (total / 2).toFixed(2).replace('.', ',');
-            const svcsList = selectedServices.map(s => `- ${s.name}`).join('%0A');
+            
+            const svcsList = selectedServices.map(s => {
+                const p = getServicePriceForVehicle(s, state.vehicle);
+                return `- ${s.name}: R$ ${p.toFixed(2).replace('.', ',')}`;
+            }).join('%0A');
 
             // Salva no banco de dados (Neon / Backend)
             try {
@@ -1460,7 +1495,7 @@
                 `Veículo: ${veh ? veh.name : '-'}%0A` +
                 `Dia: ${dateLabel}%0A` +
                 `Horário: ${state.time}%0A%0A` +
-                `Total: R$ ${total},00%0A` +
+                `Total: R$ ${total.toFixed(2).replace('.', ',')}%0A` +
                 `Sinal (50%25): R$ ${deposit}%0A%0A` +
                 `Nome: ${state.name}%0A` +
                 (state.notes ? `Obs: ${state.notes}%0A` : '') +

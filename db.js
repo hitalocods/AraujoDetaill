@@ -8,7 +8,6 @@ let useLocalDb = false;
 
 // Conecta ao Neon PostgreSQL
 if (process.env.DATABASE_URL && process.env.DATABASE_URL.trim() !== '') {
-    // Remove channel_binding se presente para compatibilidade com pg
     let cleanUrl = process.env.DATABASE_URL.replace(/channel_binding=[^&]+&?/g, '').replace(/\?&/, '?').replace(/\?$/, '');
     pool = new Pool({
         connectionString: cleanUrl,
@@ -31,12 +30,12 @@ const DEFAULT_DATA = {
         whatsapp_number: "559984937614"
     },
     services: [
-        { id: 1, name: "Lavagem Detalhada", description: "Higienização interna e externa minuciosa", category: "Lavagem", icon: "spray", active: true },
-        { id: 2, name: "Lavagem de Motor", description: "Limpeza técnica com verniz protetor", category: "Motor", icon: "wrench", active: true },
-        { id: 3, name: "Higienização Completa", description: "Bancos, teto, carpetes e revitalização", category: "Interior", icon: "sparkle", active: true },
-        { id: 4, name: "Polimento Técnico", description: "Correção de pintura e brilho espelhado", category: "Polimento", icon: "polish", active: true },
-        { id: 5, name: "Vitrificação", description: "Proteção cerâmica duradoura", category: "Proteção", icon: "shield", active: true },
-        { id: 6, name: "Descontaminação Ferrosa", description: "Remoção de chuva ácida, piche e cola", category: "Pintura", icon: "magnet", active: true }
+        { id: 1, name: "Lavagem Detalhada", description: "Higienização interna e externa minuciosa", category: "Lavagem", icon: "spray", prices: { passeio: 50, suv: 60, pickup: 70 }, active: true },
+        { id: 2, name: "Lavagem de Motor", description: "Limpeza técnica com verniz protetor", category: "Motor", icon: "wrench", prices: { passeio: 40, suv: 50, pickup: 60 }, active: true },
+        { id: 3, name: "Higienização Completa", description: "Bancos, teto, carpetes e revitalização", category: "Interior", icon: "sparkle", prices: { passeio: 180, suv: 220, pickup: 260 }, active: true },
+        { id: 4, name: "Polimento Técnico", description: "Correção de pintura e brilho espelhado", category: "Polimento", icon: "polish", prices: { passeio: 350, suv: 450, pickup: 550 }, active: true },
+        { id: 5, name: "Vitrificação", description: "Proteção cerâmica duradoura", category: "Proteção", icon: "shield", prices: { passeio: 700, suv: 900, pickup: 1100 }, active: true },
+        { id: 6, name: "Descontaminação Ferrosa", description: "Remoção de chuva ácida, piche e cola", category: "Pintura", icon: "magnet", prices: { passeio: 80, suv: 100, pickup: 120 }, active: true }
     ],
     vehicles: [
         { id: "passeio", name: "Passeio", description: "Hatchs e sedans", price: 50.00, icon: "car", active: true },
@@ -87,7 +86,7 @@ async function initPostgresTables() {
                     pix_key VARCHAR(255) DEFAULT '86999999999',
                     pix_bank VARCHAR(255) DEFAULT 'Banco Inter / Nubank',
                     pix_name VARCHAR(255) DEFAULT 'Araújo Detail',
-                    whatsapp_number VARCHAR(50) DEFAULT '5586900000000',
+                    whatsapp_number VARCHAR(50) DEFAULT '559984937614',
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
 
@@ -97,6 +96,7 @@ async function initPostgresTables() {
                     description TEXT,
                     category VARCHAR(100) DEFAULT 'Geral',
                     icon VARCHAR(50) DEFAULT 'spray',
+                    prices JSONB DEFAULT '{"passeio": 50, "suv": 60, "pickup": 70}'::jsonb,
                     active BOOLEAN DEFAULT true,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
@@ -173,41 +173,18 @@ async function initPostgresTables() {
                 );
             `);
 
-            // Seed inicial no Neon se estiver vazio
-            const cfg = await client.query('SELECT count(*) FROM business_config');
-            if (parseInt(cfg.rows[0].count) === 0) {
+            // Garante coluna prices em services
+            await client.query(`
+                ALTER TABLE services ADD COLUMN IF NOT EXISTS prices JSONB DEFAULT '{"passeio": 50, "suv": 60, "pickup": 70}'::jsonb;
+            `);
+
+            // Atualiza registros existentes que estejam sem prices no Neon
+            for (const s of DEFAULT_DATA.services) {
                 await client.query(`
-                    INSERT INTO business_config (pix_key, pix_bank, pix_name, whatsapp_number)
-                    VALUES ('86999999999', 'Banco Inter / Nubank', 'Araújo Detail', '5586900000000');
-                `);
-            }
-
-            const svcs = await client.query('SELECT count(*) FROM services');
-            if (parseInt(svcs.rows[0].count) === 0) {
-                for (const s of DEFAULT_DATA.services) {
-                    await client.query('INSERT INTO services (name, description, category, icon, active) VALUES ($1, $2, $3, $4, $5)', [s.name, s.description, s.category, s.icon, s.active]);
-                }
-            }
-
-            const vehs = await client.query('SELECT count(*) FROM vehicles');
-            if (parseInt(vehs.rows[0].count) === 0) {
-                for (const v of DEFAULT_DATA.vehicles) {
-                    await client.query('INSERT INTO vehicles (id, name, description, price, icon, active) VALUES ($1, $2, $3, $4, $5, $6)', [v.id, v.name, v.description, v.price, v.icon, v.active]);
-                }
-            }
-
-            const emps = await client.query('SELECT count(*) FROM employees');
-            if (parseInt(emps.rows[0].count) === 0) {
-                for (const e of DEFAULT_DATA.employees) {
-                    await client.query('INSERT INTO employees (name, role, phone, commission_type, commission_value, active) VALUES ($1, $2, $3, $4, $5, $6)', [e.name, e.role, e.phone, e.commission_type, e.commission_value, e.active]);
-                }
-            }
-
-            const invs = await client.query('SELECT count(*) FROM inventory');
-            if (parseInt(invs.rows[0].count) === 0) {
-                for (const i of DEFAULT_DATA.inventory) {
-                    await client.query('INSERT INTO inventory (name, category, quantity, min_quantity, unit, unit_cost) VALUES ($1, $2, $3, $4, $5, $6)', [i.name, i.category, i.quantity, i.min_quantity, i.unit, i.unit_cost]);
-                }
+                    UPDATE services 
+                    SET prices = $1 
+                    WHERE name ILIKE $2 AND (prices IS NULL OR prices = '{}'::jsonb)
+                `, [JSON.stringify(s.prices), `%${s.name}%`]);
             }
 
             console.log('✅ Conectado ao Neon PostgreSQL com sucesso! Tabelas sincronizadas.');
@@ -255,36 +232,39 @@ const db = {
         if (!useLocalDb && pool) {
             try {
                 const res = await pool.query('SELECT * FROM services ORDER BY id ASC');
-                return res.rows;
+                return res.rows.map(r => ({
+                    ...r,
+                    prices: typeof r.prices === 'string' ? JSON.parse(r.prices) : (r.prices || { passeio: 50, suv: 60, pickup: 70 })
+                }));
             } catch (e) { }
         }
         return getLocalData().services;
     },
 
-    async createService({ name, description, category, icon, active = true }) {
+    async createService({ name, description, category, icon, prices = {}, active = true }) {
         if (!useLocalDb && pool) {
             try {
                 const res = await pool.query(
-                    'INSERT INTO services (name, description, category, icon, active) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                    [name, description, category || 'Geral', icon || 'spray', active]
+                    'INSERT INTO services (name, description, category, icon, prices, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                    [name, description, category || 'Geral', icon || 'spray', JSON.stringify(prices), active]
                 );
                 return res.rows[0];
             } catch (e) { }
         }
         const data = getLocalData();
         const newId = (data.services.length > 0 ? Math.max(...data.services.map(s => s.id)) : 0) + 1;
-        const newService = { id: newId, name, description, category: category || 'Geral', icon: icon || 'spray', active };
+        const newService = { id: newId, name, description, category: category || 'Geral', icon: icon || 'spray', prices, active };
         data.services.push(newService);
         saveLocalData(data);
         return newService;
     },
 
-    async updateService(id, { name, description, category, icon, active }) {
+    async updateService(id, { name, description, category, icon, prices, active }) {
         if (!useLocalDb && pool) {
             try {
                 const res = await pool.query(
-                    'UPDATE services SET name = $1, description = $2, category = $3, icon = $4, active = $5 WHERE id = $6 RETURNING *',
-                    [name, description, category, icon, active, id]
+                    'UPDATE services SET name = $1, description = $2, category = $3, icon = $4, prices = $5, active = $6 WHERE id = $7 RETURNING *',
+                    [name, description, category, icon, JSON.stringify(prices || {}), active, id]
                 );
                 return res.rows[0];
             } catch (e) { }
@@ -292,7 +272,7 @@ const db = {
         const data = getLocalData();
         const idx = data.services.findIndex(s => s.id === parseInt(id));
         if (idx !== -1) {
-            data.services[idx] = { ...data.services[idx], name, description, category, icon, active };
+            data.services[idx] = { ...data.services[idx], name, description, category, icon, prices: prices || data.services[idx].prices, active };
             saveLocalData(data);
             return data.services[idx];
         }
@@ -774,7 +754,6 @@ const db = {
             filteredBookings = bookings.filter(b => b.booking_date >= startStr && b.booking_date <= refDate);
             filteredExpenses = expenses.filter(e => e.expense_date >= startStr && e.expense_date <= refDate);
         } else {
-            // Mês (ex: 2026-08)
             const yearMonth = refDate.slice(0, 7);
             filteredBookings = bookings.filter(b => b.booking_date.startsWith(yearMonth));
             filteredExpenses = expenses.filter(e => e.expense_date.startsWith(yearMonth));
