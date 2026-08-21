@@ -199,8 +199,25 @@ async function initPostgresTables() {
     }
 }
 
+function calculateCommission(emp, vehicleId, totalPrice) {
+    if (!emp) return 0;
+    if (emp.commission_type === 'by_vehicle' && emp.commission_rates && typeof emp.commission_rates === 'object') {
+        const vKey = (vehicleId || '').toLowerCase();
+        if (emp.commission_rates[vKey] !== undefined && emp.commission_rates[vKey] !== null && emp.commission_rates[vKey] !== '') {
+            const parsed = parseFloat(emp.commission_rates[vKey]);
+            if (!isNaN(parsed)) return parsed;
+        }
+    }
+    if (emp.commission_type === 'percentage') {
+        return (parseFloat(totalPrice || 0) * (parseFloat(emp.commission_value || 0) / 100));
+    }
+    return parseFloat(emp.commission_value || 0);
+}
+
 // Helpers de Banco de Dados
 const db = {
+    calculateCommission,
+
     // Config
     async getConfig() {
         if (!useLocalDb && pool) {
@@ -408,30 +425,32 @@ const db = {
         return getLocalData().employees;
     },
 
-    async createEmployee({ name, role = 'Detailer', phone = '', commission_type = 'percentage', commission_value = 0, active = true }) {
+    async createEmployee({ name, role = 'Detailer', phone = '', commission_type = 'by_vehicle', commission_value = 0, commission_rates = { moto: 10, passeio: 15, suv: 20, pickup: 25 }, active = true }) {
+        const ratesJson = commission_rates || { moto: 10, passeio: 15, suv: 20, pickup: 25 };
         if (!useLocalDb && pool) {
             try {
                 const res = await pool.query(
-                    'INSERT INTO employees (name, role, phone, commission_type, commission_value, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-                    [name, role, phone, commission_type, parseFloat(commission_value), active]
+                    'INSERT INTO employees (name, role, phone, commission_type, commission_value, commission_rates, active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+                    [name, role, phone, commission_type, parseFloat(commission_value || 0), JSON.stringify(ratesJson), active]
                 );
                 return res.rows[0];
             } catch (e) { }
         }
         const data = getLocalData();
         const newId = (data.employees.length > 0 ? Math.max(...data.employees.map(emp => emp.id)) : 0) + 1;
-        const newEmp = { id: newId, name, role, phone, commission_type, commission_value: parseFloat(commission_value), active, created_at: new Date().toISOString() };
+        const newEmp = { id: newId, name, role, phone, commission_type, commission_value: parseFloat(commission_value || 0), commission_rates: ratesJson, active, created_at: new Date().toISOString() };
         data.employees.push(newEmp);
         saveLocalData(data);
         return newEmp;
     },
 
-    async updateEmployee(id, { name, role, phone, commission_type, commission_value, active }) {
+    async updateEmployee(id, { name, role, phone, commission_type = 'by_vehicle', commission_value = 0, commission_rates, active }) {
+        const ratesJson = commission_rates || { moto: 10, passeio: 15, suv: 20, pickup: 25 };
         if (!useLocalDb && pool) {
             try {
                 const res = await pool.query(
-                    'UPDATE employees SET name = $1, role = $2, phone = $3, commission_type = $4, commission_value = $5, active = $6 WHERE id = $7 RETURNING *',
-                    [name, role, phone, commission_type, parseFloat(commission_value), active, id]
+                    'UPDATE employees SET name = $1, role = $2, phone = $3, commission_type = $4, commission_value = $5, commission_rates = $6, active = $7 WHERE id = $8 RETURNING *',
+                    [name, role, phone, commission_type, parseFloat(commission_value || 0), JSON.stringify(ratesJson), active, id]
                 );
                 return res.rows[0];
             } catch (e) { }
@@ -439,7 +458,7 @@ const db = {
         const data = getLocalData();
         const idx = data.employees.findIndex(emp => emp.id === parseInt(id));
         if (idx !== -1) {
-            data.employees[idx] = { ...data.employees[idx], name, role, phone, commission_type, commission_value: parseFloat(commission_value), active };
+            data.employees[idx] = { ...data.employees[idx], name, role, phone, commission_type, commission_value: parseFloat(commission_value || 0), commission_rates: ratesJson, active };
             saveLocalData(data);
             return data.employees[idx];
         }
@@ -485,9 +504,7 @@ const db = {
             const employees = await this.getEmployees();
             const emp = employees.find(e => e.id === parseInt(employee_id));
             if (emp) {
-                commissionAmount = emp.commission_type === 'percentage'
-                    ? (parseFloat(total_price) * (parseFloat(emp.commission_value) / 100))
-                    : parseFloat(emp.commission_value);
+                commissionAmount = calculateCommission(emp, vehicle_id, total_price);
             }
         }
 
@@ -542,10 +559,9 @@ const db = {
                 if (bRes.rows.length > 0) {
                     const current = bRes.rows[0];
                     const finalTotal = total_price !== undefined ? parseFloat(total_price) : parseFloat(current.total_price);
+                    const finalVehId = vehicle_id || current.vehicle_id;
                     if (emp) {
-                        commissionAmount = emp.commission_type === 'percentage'
-                            ? (finalTotal * (parseFloat(emp.commission_value) / 100))
-                            : parseFloat(emp.commission_value);
+                        commissionAmount = calculateCommission(emp, finalVehId, finalTotal);
                     }
                     const res = await pool.query(`
                         UPDATE bookings 
@@ -571,10 +587,9 @@ const db = {
         if (idx !== -1) {
             const current = data.bookings[idx];
             const finalTotal = total_price !== undefined ? parseFloat(total_price) : parseFloat(current.total_price);
+            const finalVehId = vehicle_id || current.vehicle_id;
             if (emp) {
-                commissionAmount = emp.commission_type === 'percentage'
-                    ? (finalTotal * (parseFloat(emp.commission_value) / 100))
-                    : parseFloat(emp.commission_value);
+                commissionAmount = calculateCommission(emp, finalVehId, finalTotal);
             }
             data.bookings[idx] = {
                 ...current,

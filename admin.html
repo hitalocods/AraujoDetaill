@@ -1884,18 +1884,27 @@
                         <input type="text" id="empPhone" placeholder="(86) 9####-####">
                     </div>
                 </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Tipo de Comissão</label>
-                        <select id="empCommType">
-                            <option value="percentage">Porcentagem (%)</option>
-                            <option value="fixed">Valor Fixo (R$ por serviço)</option>
-                        </select>
+                <div class="form-group">
+                    <label>Modelo de Comissão</label>
+                    <select id="empCommType" onchange="toggleEmpCommFields()">
+                        <option value="by_vehicle">Valor Fixo por Porte de Veículo (Moto, Passeio, SUV, Pickup)</option>
+                        <option value="percentage">Porcentagem (%) sobre o Atendimento</option>
+                        <option value="fixed">Valor Fixo Geral (R$)</option>
+                    </select>
+                </div>
+
+                <!-- PREÇOS DE COMISSÃO POR PORTE DE VEÍCULO -->
+                <div class="form-group" id="empVehicleRatesGroup">
+                    <label style="color:var(--spark); font-weight:700;">Comissão a Pagar por Veículo (R$)</label>
+                    <div id="empVehicleRatesContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; background:var(--paper); padding:12px; border-radius:12px; border:1px solid var(--line);">
+                        <!-- Gerado dinamicamente via JS -->
                     </div>
-                    <div class="form-group">
-                        <label>Valor da Comissão</label>
-                        <input type="number" step="0.1" id="empCommValue" required placeholder="Ex: 30 para 30% ou 20.00">
-                    </div>
+                </div>
+
+                <!-- CAMPO SIMPLES (Caso escolha % ou fixo geral) -->
+                <div class="form-group" id="empSingleCommGroup" style="display:none;">
+                    <label id="empSingleCommLabel">Valor da Comissão</label>
+                    <input type="number" step="0.5" id="empCommValue" placeholder="Ex: 30 para 30% ou 20.00">
                 </div>
                 <div class="form-group">
                     <label style="display:flex; align-items:center; gap:8px; text-transform:none; cursor:pointer;">
@@ -2810,7 +2819,79 @@
         }
 
         // ================= FUNCIONÁRIOS & REPASSE DE COMISSÕES =================
+        function calculateEmpCommission(emp, vehicleId, totalPrice) {
+            if (!emp) return 0;
+            if (emp.commission_type === 'by_vehicle' && emp.commission_rates && typeof emp.commission_rates === 'object') {
+                const vKey = (vehicleId || '').toLowerCase();
+                if (emp.commission_rates[vKey] !== undefined && emp.commission_rates[vKey] !== null && emp.commission_rates[vKey] !== '') {
+                    const parsed = parseFloat(emp.commission_rates[vKey]);
+                    if (!isNaN(parsed)) return parsed;
+                }
+            }
+            if (emp.commission_type === 'percentage') {
+                return (parseFloat(totalPrice || 0) * (parseFloat(emp.commission_value || 0) / 100));
+            }
+            return parseFloat(emp.commission_value || 0);
+        }
+
+        function formatEmpCommissionRule(emp) {
+            if (emp.commission_type === 'percentage') {
+                return `${emp.commission_value}% por atendimento`;
+            }
+            if (emp.commission_type === 'fixed') {
+                return `R$ ${parseFloat(emp.commission_value || 0).toFixed(2)} fixo geral`;
+            }
+            if (emp.commission_rates && typeof emp.commission_rates === 'object') {
+                const rates = Object.entries(emp.commission_rates).map(([k, v]) => {
+                    const veh = cachedVehicles.find(item => item.id === k);
+                    const name = veh ? veh.name : (k.charAt(0).toUpperCase() + k.slice(1));
+                    return `${name}: R$ ${parseFloat(v).toFixed(2)}`;
+                });
+                return rates.join(' | ') || 'Valores por veículo';
+            }
+            return 'Por veículo';
+        }
+
+        function renderEmployeeRatesInputs(existingRates = {}) {
+            const container = document.getElementById('empVehicleRatesContainer');
+            if (cachedVehicles.length === 0) {
+                container.innerHTML = `<span style="color:var(--slate); font-size:12px;">Nenhum veículo cadastrado.</span>`;
+                return;
+            }
+
+            const defaultRates = { moto: 10, passeio: 15, suv: 20, pickup: 25 };
+            container.innerHTML = cachedVehicles.map(v => {
+                const currentVal = existingRates[v.id] !== undefined ? existingRates[v.id] : (defaultRates[v.id] || 15);
+                return `
+                <div>
+                    <label style="font-size:11px; margin-bottom:4px; font-weight:700; color:var(--ink);">${v.name}</label>
+                    <input type="number" step="0.5" class="emp-veh-rate-input" data-veh="${v.id}" value="${currentVal}" required placeholder="15.00" style="padding:6px 10px; font-size:13px;">
+                </div>`;
+            }).join('');
+        }
+
+        function toggleEmpCommFields() {
+            const type = document.getElementById('empCommType').value;
+            const ratesGroup = document.getElementById('empVehicleRatesGroup');
+            const singleGroup = document.getElementById('empSingleCommGroup');
+            const singleLabel = document.getElementById('empSingleCommLabel');
+
+            if (type === 'by_vehicle') {
+                ratesGroup.style.display = 'block';
+                singleGroup.style.display = 'none';
+            } else if (type === 'percentage') {
+                ratesGroup.style.display = 'none';
+                singleGroup.style.display = 'block';
+                singleLabel.textContent = 'Porcentagem de Comissão (%)';
+            } else {
+                ratesGroup.style.display = 'none';
+                singleGroup.style.display = 'block';
+                singleLabel.textContent = 'Valor Fixo por Atendimento (R$)';
+            }
+        }
+
         async function loadEmployees() {
+            await loadVehicles();
             const [empRes, bookRes] = await Promise.all([
                 authFetch('/api/admin/employees'),
                 authFetch('/api/admin/bookings')
@@ -2850,15 +2931,13 @@
                     const totalCommission = empBookings.reduce((sum, b) => {
                         let comm = parseFloat(b.commission_amount || 0);
                         if (!comm || comm === 0) {
-                            comm = emp.commission_type === 'percentage' 
-                                ? (parseFloat(b.total_price || 0) * (parseFloat(emp.commission_value) / 100))
-                                : parseFloat(emp.commission_value);
+                            comm = calculateEmpCommission(emp, b.vehicle_id, b.total_price);
                         }
                         return sum + comm;
                     }, 0);
 
                     const initials = emp.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-                    const ruleLabel = emp.commission_type === 'percentage' ? `${emp.commission_value}% por serviço` : `R$ ${parseFloat(emp.commission_value).toFixed(2)} fixo por serviço`;
+                    const ruleLabel = formatEmpCommissionRule(emp);
 
                     return `
                     <div class="emp-payout-card">
@@ -2867,7 +2946,8 @@
                                 <div class="emp-avatar">${initials}</div>
                                 <div class="emp-info">
                                     <div class="emp-name">${emp.name}</div>
-                                    <div class="emp-role">${emp.role || 'Detailer'} · <span style="color:var(--spark); font-weight:600;">${ruleLabel}</span></div>
+                                    <div class="emp-role">${emp.role || 'Detailer'}</div>
+                                    <div style="font-size:11px; color:var(--spark); font-weight:600; margin-top:2px;">${ruleLabel}</div>
                                 </div>
                             </div>
 
@@ -2902,12 +2982,14 @@
                 return;
             }
 
-            tbody.innerHTML = cachedEmployees.map(emp => `
+            tbody.innerHTML = cachedEmployees.map(emp => {
+                const ruleBadge = formatEmpCommissionRule(emp);
+                return `
                 <tr>
                     <td><strong>${emp.name}</strong></td>
                     <td>${emp.role}</td>
                     <td class="mono">${emp.phone || '-'}</td>
-                    <td><strong class="mono" style="color:var(--spark);">${emp.commission_type === 'percentage' ? emp.commission_value + '%' : 'R$ ' + parseFloat(emp.commission_value).toFixed(2)}</strong></td>
+                    <td><span style="font-size:11.5px; background:var(--paper); padding:4px 8px; border-radius:6px; font-weight:600; color:var(--spark);">${ruleBadge}</span></td>
                     <td>${emp.active ? '<span style="color:var(--green); font-weight:700;">Ativo</span>' : '<span style="color:var(--red);">Inativo</span>'}</td>
                     <td>
                         <div style="display:flex; gap:6px;">
@@ -2915,8 +2997,8 @@
                             <button class="btn-act btn-sm btn-del" onclick="deleteEmployee(${emp.id})">Excluir</button>
                         </div>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
         }
 
         // Extrato Detalhado de Serviços do Funcionário
@@ -2943,7 +3025,7 @@
             const empBookings = periodBookings.filter(b => b.employee_id === emp.id && b.status === 'concluido');
 
             document.getElementById('empStatementTitle').textContent = `Extrato — ${emp.name}`;
-            document.getElementById('empStatementSub').textContent = `${emp.role} · Período: ${currentEmpPayoutPeriod === 'month' ? 'Este Mês' : (currentEmpPayoutPeriod === 'week' ? 'Últimos 7 dias' : (currentEmpPayoutPeriod === 'day' ? 'Hoje' : 'Todos os agendamentos'))}`;
+            document.getElementById('empStatementSub').textContent = `${emp.role} · Regra: ${formatEmpCommissionRule(emp)}`;
 
             const tbody = document.getElementById('empStatementTable');
             if (empBookings.length === 0) {
@@ -2954,9 +3036,7 @@
                 tbody.innerHTML = empBookings.map(b => {
                     let comm = parseFloat(b.commission_amount || 0);
                     if (!comm || comm === 0) {
-                        comm = emp.commission_type === 'percentage' 
-                            ? (parseFloat(b.total_price || 0) * (parseFloat(emp.commission_value) / 100))
-                            : parseFloat(emp.commission_value);
+                        comm = calculateEmpCommission(emp, b.vehicle_id, b.total_price);
                     }
                     totalPayout += comm;
 
@@ -2982,9 +3062,11 @@
             document.getElementById('empName').value = '';
             document.getElementById('empRole').value = 'Detailer';
             document.getElementById('empPhone').value = '';
-            document.getElementById('empCommType').value = 'percentage';
+            document.getElementById('empCommType').value = 'by_vehicle';
             document.getElementById('empCommValue').value = '30';
             document.getElementById('empActive').checked = true;
+            renderEmployeeRatesInputs({});
+            toggleEmpCommFields();
             document.getElementById('modalEmployee').classList.add('active');
         }
 
@@ -2996,21 +3078,32 @@
             document.getElementById('empName').value = emp.name;
             document.getElementById('empRole').value = emp.role;
             document.getElementById('empPhone').value = emp.phone || '';
-            document.getElementById('empCommType').value = emp.commission_type || 'percentage';
-            document.getElementById('empCommValue').value = emp.commission_value;
+            document.getElementById('empCommType').value = emp.commission_type || 'by_vehicle';
+            document.getElementById('empCommValue').value = emp.commission_value || 0;
             document.getElementById('empActive').checked = !!emp.active;
+            renderEmployeeRatesInputs(emp.commission_rates || {});
+            toggleEmpCommFields();
             document.getElementById('modalEmployee').classList.add('active');
         }
 
         async function saveEmployee(e) {
             e.preventDefault();
             const id = document.getElementById('empId').value;
+            const commType = document.getElementById('empCommType').value;
+            
+            const commission_rates = {};
+            document.querySelectorAll('.emp-veh-rate-input').forEach(inp => {
+                const vehKey = inp.getAttribute('data-veh');
+                commission_rates[vehKey] = parseFloat(inp.value) || 0;
+            });
+
             const body = {
                 name: document.getElementById('empName').value,
                 role: document.getElementById('empRole').value,
                 phone: document.getElementById('empPhone').value,
-                commission_type: document.getElementById('empCommType').value,
-                commission_value: parseFloat(document.getElementById('empCommValue').value),
+                commission_type: commType,
+                commission_value: parseFloat(document.getElementById('empCommValue').value || 0),
+                commission_rates,
                 active: document.getElementById('empActive').checked
             };
 
