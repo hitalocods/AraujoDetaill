@@ -1151,7 +1151,7 @@
             { id: 'pickup', name: 'Pickup', desc: 'Pickups e caminhonetes', price: 70, icon: 'truck' }
         ];
 
-        let BLOCKED_DAYS = [];
+        let BLOCKED_SCHEDULES = [];
         let SERVER_SLOTS = [];
 
         const state = { services: [], vehicle: null, date: null, time: null, name: '', phone: '', notes: '' };
@@ -1208,7 +1208,7 @@
                 }
 
                 if (data.blocked) {
-                    BLOCKED_DAYS = data.blocked.filter(b => !b.block_time).map(b => b.block_date);
+                    BLOCKED_SCHEDULES = data.blocked;
                 }
             } catch (e) {
                 console.log('Utilizando catálogo padrão offline.');
@@ -1342,16 +1342,19 @@
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateObj = new Date(year, month, d);
                 const isPast = dateObj < today;
-                const isSunday = dateObj.getDay() === 0;
-                const iso = dateObj.toISOString().slice(0, 10);
-                const isBlocked = BLOCKED_DAYS.includes(iso);
+                const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const dow = dateObj.getDay();
+                const isBlocked = BLOCKED_SCHEDULES.some(b => 
+                    (b.block_type === 'dow' && parseInt(b.block_dow) === dow) ||
+                    ((b.block_type === 'date' || !b.block_type) && b.block_date === iso && !b.block_time)
+                );
 
                 const cls = ['cal-day', 'in-month'];
                 if (isPast) cls.push('past');
-                if (isSunday || isBlocked) cls.push('closed');
+                if (isBlocked) cls.push('closed');
                 if (state.date === iso) cls.push('selected');
 
-                if (isPast || isSunday || isBlocked) {
+                if (isPast || isBlocked) {
                     grid.innerHTML += `<div class="${cls.join(' ')}" title="${isBlocked ? 'Dia bloqueado' : ''}">${d}</div>`;
                 } else {
                     grid.innerHTML += `<div class="${cls.join(' ')}" onclick="pickDate('${iso}')">${d}</div>`;
@@ -1543,6 +1546,16 @@
             document.getElementById('step-done').classList.add('active');
             document.getElementById('step-5').classList.remove('active');
             
+            // Notificação na tela do cliente se suportado
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification('✅ Agendamento Solicitado - Araújo Detail', {
+                        body: `Olá ${state.name}! Recebemos seu agendamento para ${dateLabel} às ${state.time}. Total: R$ ${total.toFixed(2).replace('.', ',')}.`,
+                        icon: '/favicon.ico'
+                    });
+                } catch (e) {}
+            }
+
             // Oculta rodapé (about/desenvolvedor) e barra superior na tela final
             const footerEl = document.querySelector('footer');
             if (footerEl) footerEl.style.display = 'none';
@@ -1612,6 +1625,9 @@
         }, 20000);
 
         // Inicialização
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
         loadServerConfig();
         updateProgress('hero');
     </script>

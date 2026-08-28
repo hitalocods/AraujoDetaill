@@ -1143,6 +1143,124 @@
                 padding: 10px 8px;
             }
         }
+
+        /* Notificações no Celular & Floating Alert */
+        .notif-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: var(--paper);
+            border: 1.5px solid var(--line);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            white-space: nowrap;
+        }
+        .notif-toggle-btn.granted {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: var(--green);
+            color: #15803d;
+        }
+        .notif-toggle-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+        .notif-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--slate);
+            transition: background 0.3s;
+        }
+        .notif-toggle-btn.granted .notif-dot {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .notif-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(249, 115, 22, 0.03) 100%);
+            border: 1.5px solid rgba(234, 88, 12, 0.25);
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .notif-banner-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--spark);
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Floating in-app alert card */
+        .booking-inapp-alert {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            background: var(--ink);
+            color: var(--paper);
+            border: 1.5px solid var(--spark);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+            max-width: 380px;
+            width: calc(100% - 48px);
+            animation: slideInUp 0.4s var(--ease);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .alert-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alert-title {
+            color: var(--spark);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .alert-body {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--mist);
+        }
+        .alert-body strong {
+            color: #fff;
+        }
+        .alert-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
     </style>
 </head>
 
@@ -1173,11 +1291,17 @@
             <div class="side-badge">AD</div>
             <strong class="disp" style="font-size:16px;">Araújo Detail</strong>
         </div>
-        <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Abrir Menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="notif-toggle-btn" id="notifMobileBtn" onclick="requestNotificationPermission()" title="Ativar Notificações no Celular">
+                <span class="notif-dot"></span>
+                <span id="notifMobileText">Alertas</span>
+            </button>
+            <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Abrir Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
     </header>
 
     <!-- OVERLAY MASK -->
@@ -1248,7 +1372,13 @@
                         <h1>Financeiro & Visão Geral</h1>
                         <p>Controle de receitas, despesas, comissões e lucro líquido.</p>
                     </div>
-                    <div class="db-badge"><span class="db-dot"></span> Neon PostgreSQL</div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <button class="notif-toggle-btn" id="notifDesktopBtn" onclick="requestNotificationPermission()">
+                            <span class="notif-dot"></span>
+                            <span id="notifDesktopText">Notificações no Celular</span>
+                        </button>
+                        <div class="db-badge"><span class="db-dot"></span> Neon PostgreSQL</div>
+                    </div>
                 </div>
 
                 <!-- FILTRO INTELIGENTE DE DATAS -->
@@ -1326,7 +1456,25 @@
                         <h1>Gerenciador de Agendamentos</h1>
                         <p>Acompanhe solicitações de clientes ou crie agendamentos manuais.</p>
                     </div>
-                    <button class="btn-act" onclick="openNewBookingModal()">+ Novo Agendamento Manual</button>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn-act btn-sm" style="background:var(--mid);" onclick="testNotification()">🔔 Testar Notificação</button>
+                        <button class="btn-act" onclick="openNewBookingModal()">+ Novo Agendamento Manual</button>
+                    </div>
+                </div>
+
+                <!-- BANNER DE NOTIFICAÇÕES NO CELULAR -->
+                <div class="notif-banner" id="notifBannerAgendamentos">
+                    <div style="display:flex; align-items:center; gap:14px;">
+                        <div class="notif-banner-icon">🔔</div>
+                        <div>
+                            <strong style="font-size:14.5px; display:block; margin-bottom:2px;">Notificações Automáticas no Celular / Tela</strong>
+                            <p style="font-size:12.5px; color:var(--slate); margin:0;">Receba um alerta sonoro e notificação formatada com todos os dados do agendamento quando um cliente marcar.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <button class="btn-act btn-sm" id="btnEnableNotifBanner" onclick="requestNotificationPermission()">Ativar Notificações</button>
+                        <button class="btn-act btn-sm" style="background:var(--mid);" onclick="testNotification()">Testar Alerta</button>
+                    </div>
                 </div>
 
                 <div class="panel">
@@ -3343,8 +3491,322 @@
             showToast('Configurações atualizadas!');
         }
 
-        // Inicialização com Verificação de Autenticação
+        // ================= NOTIFICAÇÕES NO CELULAR & ALERTA SONORO =================
+        let swRegistration = null;
+        let knownBookingIds = new Set();
+        let isFirstBookingsLoad = true;
+        let bookingsLivePollTimer = null;
+
+        // Inicializa Service Worker
+        async function initServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    swRegistration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('[Push] Service Worker registrado com sucesso:', swRegistration.scope);
+                } catch (err) {
+                    console.warn('[Push] Service Worker falhou:', err);
+                }
+            }
+            updateNotificationUI();
+        }
+
+        // Toca som de alerta nítido via Web Audio API (sem dependência de arquivos externos)
+        function playNotificationSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+
+                // Tom 1: Brilho (880 Hz)
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(880, now);
+                gain1.gain.setValueAtTime(0, now);
+                gain1.gain.linearRampToValueAtTime(0.35, now + 0.04);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.35);
+
+                // Tom 2: Confirmação (1318.5 Hz)
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1318.51, now + 0.14);
+                gain2.gain.setValueAtTime(0, now + 0.14);
+                gain2.gain.linearRampToValueAtTime(0.4, now + 0.18);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.14);
+                osc2.stop(now + 0.65);
+            } catch (e) {
+                console.warn('Erro ao tocar som de notificação:', e);
+            }
+        }
+
+        // Atualiza estado visual dos botões de notificação
+        function updateNotificationUI() {
+            const hasSupport = 'Notification' in window;
+            const isGranted = hasSupport && Notification.permission === 'granted';
+
+            const mobileBtn = document.getElementById('notifMobileBtn');
+            const mobileText = document.getElementById('notifMobileText');
+            const desktopBtn = document.getElementById('notifDesktopBtn');
+            const desktopText = document.getElementById('notifDesktopText');
+            const bannerBtn = document.getElementById('btnEnableNotifBanner');
+
+            if (mobileBtn) {
+                if (isGranted) {
+                    mobileBtn.classList.add('granted');
+                    if (mobileText) mobileText.textContent = 'Alertas ON';
+                } else {
+                    mobileBtn.classList.remove('granted');
+                    if (mobileText) mobileText.textContent = 'Ativar Alertas';
+                }
+            }
+
+            if (desktopBtn) {
+                if (isGranted) {
+                    desktopBtn.classList.add('granted');
+                    if (desktopText) desktopText.textContent = 'Notificações Ativas';
+                } else {
+                    desktopBtn.classList.remove('granted');
+                    if (desktopText) desktopText.textContent = 'Ativar Notificações no Celular';
+                }
+            }
+
+            if (bannerBtn) {
+                if (isGranted) {
+                    bannerBtn.textContent = '✓ Notificações Ativadas';
+                    bannerBtn.style.background = 'var(--green)';
+                    bannerBtn.style.color = '#fff';
+                } else {
+                    bannerBtn.textContent = 'Ativar Notificações';
+                    bannerBtn.style.background = 'var(--ink)';
+                    bannerBtn.style.color = 'var(--paper)';
+                }
+            }
+        }
+
+        // Solicita permissão ao usuário
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                showToast('Seu navegador não suporta notificações de sistema.');
+                return false;
+            }
+
+            try {
+                // Toca som rápido para desbloquear áudio no clique do usuário (necessário no iOS / Chrome)
+                playNotificationSound();
+                const perm = await Notification.requestPermission();
+                updateNotificationUI();
+
+                if (perm === 'granted') {
+                    showToast('🔔 Notificações no celular ativadas com sucesso!');
+                    // Dispara notificação de boas-vindas / teste
+                    triggerBookingNotification({
+                        id: 'welcome',
+                        client_name: 'Araújo Detail Notificações',
+                        client_phone: 'Ativo no seu celular',
+                        vehicle_name: 'Sistema Pronto',
+                        services_names: 'Você receberá alertas formatados de novos agendamentos aqui!',
+                        booking_date: new Date().toISOString().slice(0, 10),
+                        booking_time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                        total_price: 0,
+                        deposit_price: 0
+                    }, true);
+                    return true;
+                } else if (perm === 'denied') {
+                    alert('As notificações foram bloqueadas no navegador. Para ativar, acesse as permissões do site nas configurações do seu celular.');
+                    return false;
+                }
+            } catch (err) {
+                console.error('Erro ao pedir permissão de notificação:', err);
+            }
+            return false;
+        }
+
+        // Dispara notificação formatada no celular / tela
+        async function triggerBookingNotification(b, isTest = false) {
+            playNotificationSound();
+
+            if ('vibrate' in navigator) {
+                try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
+            }
+
+            const title = isTest 
+                ? '🔔 Notificação Araújo Detail' 
+                : '🚗 NOVO AGENDAMENTO RECEBIDO!';
+
+            const totalVal = parseFloat(b.total_price || 0).toFixed(2).replace('.', ',');
+            const depositVal = parseFloat(b.deposit_price || (b.total_price ? b.total_price / 2 : 0)).toFixed(2).replace('.', ',');
+
+            const body = 
+`👤 Cliente: ${b.client_name} (${b.client_phone || 'Sem telefone'})
+🚘 Veículo: ${b.vehicle_name || 'Não informado'}
+🛠 Serviços: ${b.services_names || 'Serviço'}
+📅 Data: ${b.booking_date} às ${b.booking_time}
+💰 Total: R$ ${totalVal} (Sinal: R$ ${depositVal})` +
+(b.client_notes ? `\n📝 Obs: ${b.client_notes}` : '');
+
+            const options = {
+                body: body,
+                icon: '/favicon.ico',
+                badge: '/favicon.ico',
+                tag: 'booking-' + (b.id || Date.now()),
+                renotify: true,
+                requireInteraction: true,
+                vibrate: [200, 100, 200, 100, 300],
+                data: { url: '/admin' }
+            };
+
+            // 1. Tenta via Service Worker primeiro (Ideal para celulares Android / PWA)
+            if (swRegistration && 'showNotification' in swRegistration && Notification.permission === 'granted') {
+                try {
+                    await swRegistration.showNotification(title, options);
+                } catch (e) {
+                    console.warn('Erro showNotification SW:', e);
+                }
+            } else if ('Notification' in window && Notification.permission === 'granted') {
+                // 2. Fallback direto da Notification API
+                try {
+                    const notif = new Notification(title, options);
+                    notif.onclick = () => {
+                        window.focus();
+                        switchTab('agendamentos');
+                    };
+                } catch (e) {
+                    console.warn('Erro ao disparar Notification direta:', e);
+                }
+            }
+
+            // 3. Exibe alerta visual flutuante elegante dentro da própria tela
+            showBookingInAppAlert(b, isTest);
+        }
+
+        // Card flutuante In-App de alta visibilidade
+        function showBookingInAppAlert(b, isTest) {
+            const existing = document.getElementById('bookingInAppAlert');
+            if (existing) existing.remove();
+
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'bookingInAppAlert';
+            alertDiv.className = 'booking-inapp-alert';
+
+            const totalVal = parseFloat(b.total_price || 0).toFixed(2).replace('.', ',');
+            const depositVal = parseFloat(b.deposit_price || (b.total_price ? b.total_price / 2 : 0)).toFixed(2).replace('.', ',');
+
+            alertDiv.innerHTML = `
+                <div class="alert-head">
+                    <div class="alert-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        ${isTest ? 'Teste de Notificação' : 'Novo Agendamento!'}
+                    </div>
+                    <button onclick="this.closest('.booking-inapp-alert').remove()" style="background:none; border:none; color:var(--slate); font-size:18px; cursor:pointer;">✕</button>
+                </div>
+                <div class="alert-body">
+                    <div><strong>👤 Cliente:</strong> ${b.client_name} (${b.client_phone || 'Sem fone'})</div>
+                    <div><strong>🚘 Veículo:</strong> ${b.vehicle_name || '-'}</div>
+                    <div><strong>🛠 Serviços:</strong> ${b.services_names || '-'}</div>
+                    <div><strong>📅 Agendado para:</strong> <span style="color:var(--spark); font-weight:700;">${b.booking_date} às ${b.booking_time}</span></div>
+                    <div><strong>💰 Total:</strong> R$ ${totalVal} (Sinal: R$ ${depositVal})</div>
+                    ${b.client_notes ? `<div style="font-size:12px; color:var(--slate); margin-top:2px;"><em>Obs: ${b.client_notes}</em></div>` : ''}
+                </div>
+                <div class="alert-actions">
+                    <button class="btn-act btn-sm" style="flex:1; background:var(--spark); color:var(--ink); font-weight:800;" onclick="switchTab('agendamentos'); document.getElementById('bookingInAppAlert')?.remove();">Ver na Fila</button>
+                    <button class="btn-act btn-sm btn-del" style="padding:6px 12px;" onclick="this.closest('.booking-inapp-alert').remove()">Fechar</button>
+                </div>
+            `;
+
+            document.body.appendChild(alertDiv);
+            setTimeout(() => {
+                if (alertDiv && alertDiv.parentNode) alertDiv.remove();
+            }, 12000);
+        }
+
+        // Teste acionado pelo botão do usuário
+        function testNotification() {
+            if ('Notification' in window && Notification.permission !== 'granted') {
+                requestNotificationPermission();
+                return;
+            }
+
+            triggerBookingNotification({
+                id: 9999,
+                client_name: 'Eduardo Lima (Exemplo)',
+                client_phone: '(86) 99888-7766',
+                vehicle_name: 'SUV / Renegade',
+                services_names: 'Lavagem Detalhada + Vitrificação',
+                booking_date: new Date().toISOString().slice(0, 10),
+                booking_time: '14:00',
+                total_price: 190.00,
+                deposit_price: 95.00,
+                client_notes: 'Veículo com película protetora nova'
+            }, true);
+        }
+
+        // Polling em background a cada 5 segundos para detectar novos agendamentos em tempo real
+        async function checkNewBookingsBackground() {
+            if (!adminToken) return;
+            try {
+                const res = await authFetch('/api/admin/bookings?_t=' + Date.now());
+                const data = await res.json();
+                if (!data.success || !data.bookings) return;
+
+                const currentList = data.bookings;
+
+                if (isFirstBookingsLoad) {
+                    currentList.forEach(b => knownBookingIds.add(b.id));
+                    isFirstBookingsLoad = false;
+                    cachedBookings = currentList;
+                    return;
+                }
+
+                // Detecta novos agendamentos criados
+                const newBookings = currentList.filter(b => !knownBookingIds.has(b.id));
+                if (newBookings.length > 0) {
+                    newBookings.forEach(b => {
+                        knownBookingIds.add(b.id);
+                        triggerBookingNotification(b, false);
+                    });
+
+                    cachedBookings = currentList;
+                    renderBookingsTable();
+
+                    // Se estiver na aba financeiro, atualiza os KPIs
+                    const finTab = document.getElementById('tab-financeiro');
+                    if (finTab && finTab.style.display !== 'none') {
+                        loadFinancial();
+                    }
+                }
+            } catch (e) {
+                // Silencioso em caso de instabilidade de rede temporária
+            }
+        }
+
+        function startLivePolling() {
+            if (bookingsLivePollTimer) clearInterval(bookingsLivePollTimer);
+            checkNewBookingsBackground();
+            bookingsLivePollTimer = setInterval(checkNewBookingsBackground, 5000);
+        }
+
+        // Listener do Service Worker para mensagens
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.action === 'OPEN_BOOKINGS') {
+                    switchTab('agendamentos');
+                }
+            });
+        }
+
+        // Inicialização com Verificação de Autenticação e Registro do Service Worker
+        initServiceWorker();
         checkAuthInit();
+        startLivePolling();
     </script>
 </body>
 
