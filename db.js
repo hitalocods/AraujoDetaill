@@ -27,7 +27,14 @@ const DEFAULT_DATA = {
         pix_key: "86999999999",
         pix_bank: "Banco Inter / Nubank",
         pix_name: "Araújo Detail",
-        whatsapp_number: "559984937614"
+        whatsapp_number: "5599984937614",
+        atlas_license_key: "ATLAS-CORE-DETAIL-2026",
+        atlas_license_status: "Ativa",
+        atlas_license_owner: "Araújo Detail - Carlos Araújo",
+        abacatepay_api_key: "",
+        abacatepay_enabled: false,
+        abacatepay_mode: "production",
+        abacatepay_charge_type: "deposit"
     },
     services: [
         { id: 1, name: "Lavagem Detalhada", description: "Higienização interna e externa minuciosa", category: "Lavagem", icon: "spray", prices: { moto: 35, passeio: 50, suv: 60, pickup: 70 }, active: true },
@@ -87,7 +94,14 @@ async function initPostgresTables() {
                     pix_key VARCHAR(255) DEFAULT '86999999999',
                     pix_bank VARCHAR(255) DEFAULT 'Banco Inter / Nubank',
                     pix_name VARCHAR(255) DEFAULT 'Araújo Detail',
-                    whatsapp_number VARCHAR(50) DEFAULT '559984937614',
+                    whatsapp_number VARCHAR(50) DEFAULT '5599984937614',
+                    atlas_license_key VARCHAR(255) DEFAULT 'ATLAS-CORE-DETAIL-2026',
+                    atlas_license_status VARCHAR(100) DEFAULT 'Ativa',
+                    atlas_license_owner VARCHAR(255) DEFAULT 'Araújo Detail - Carlos Araújo',
+                    abacatepay_api_key TEXT DEFAULT '',
+                    abacatepay_enabled BOOLEAN DEFAULT false,
+                    abacatepay_mode VARCHAR(50) DEFAULT 'production',
+                    abacatepay_charge_type VARCHAR(50) DEFAULT 'deposit',
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
 
@@ -146,6 +160,11 @@ async function initPostgresTables() {
                     total_price NUMERIC(10, 2) DEFAULT 0,
                     deposit_price NUMERIC(10, 2) DEFAULT 0,
                     status VARCHAR(50) DEFAULT 'pendente',
+                    payment_id VARCHAR(255),
+                    payment_status VARCHAR(50) DEFAULT 'pendente',
+                    pix_qrcode TEXT,
+                    pix_copia_cola TEXT,
+                    pix_url TEXT,
                     employee_id INTEGER REFERENCES employees(id) ON DELETE SET NULL,
                     commission_amount NUMERIC(10, 2) DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -172,6 +191,26 @@ async function initPostgresTables() {
                     notes TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
+            `);
+
+            // Garante colunas de Licença Atlas e AbacatePay na tabela business_config
+            await client.query(`
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_key VARCHAR(255) DEFAULT 'ATLAS-CORE-DETAIL-2026';
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_status VARCHAR(100) DEFAULT 'Ativa';
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_owner VARCHAR(255) DEFAULT 'Araújo Detail - Carlos Araújo';
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_api_key TEXT DEFAULT '';
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_enabled BOOLEAN DEFAULT false;
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_mode VARCHAR(50) DEFAULT 'production';
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_charge_type VARCHAR(50) DEFAULT 'deposit';
+            `);
+
+            // Garante colunas de pagamento dinâmico na tabela bookings
+            await client.query(`
+                ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_id VARCHAR(255);
+                ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'pendente';
+                ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pix_qrcode TEXT;
+                ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pix_copia_cola TEXT;
+                ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pix_url TEXT;
             `);
 
             // Garante coluna prices em services
@@ -229,18 +268,46 @@ const db = {
         return getLocalData().business_config;
     },
 
-    async updateConfig({ pix_key, pix_bank, pix_name, whatsapp_number }) {
+    async updateConfig({
+        pix_key, pix_bank, pix_name, whatsapp_number,
+        atlas_license_key, atlas_license_status, atlas_license_owner,
+        abacatepay_api_key, abacatepay_enabled, abacatepay_mode, abacatepay_charge_type
+    }) {
+        const current = await this.getConfig();
+        const updated = {
+            pix_key: pix_key !== undefined ? pix_key : (current.pix_key || '86999999999'),
+            pix_bank: pix_bank !== undefined ? pix_bank : (current.pix_bank || 'Banco Inter / Nubank'),
+            pix_name: pix_name !== undefined ? pix_name : (current.pix_name || 'Araújo Detail'),
+            whatsapp_number: whatsapp_number !== undefined ? whatsapp_number : (current.whatsapp_number || '5599984937614'),
+            atlas_license_key: atlas_license_key !== undefined ? atlas_license_key : (current.atlas_license_key || 'ATLAS-CORE-DETAIL-2026'),
+            atlas_license_status: atlas_license_status !== undefined ? atlas_license_status : (current.atlas_license_status || 'Ativa'),
+            atlas_license_owner: atlas_license_owner !== undefined ? atlas_license_owner : (current.atlas_license_owner || 'Araújo Detail - Carlos Araújo'),
+            abacatepay_api_key: abacatepay_api_key !== undefined ? abacatepay_api_key : (current.abacatepay_api_key || ''),
+            abacatepay_enabled: abacatepay_enabled !== undefined ? Boolean(abacatepay_enabled) : Boolean(current.abacatepay_enabled),
+            abacatepay_mode: abacatepay_mode !== undefined ? abacatepay_mode : (current.abacatepay_mode || 'production'),
+            abacatepay_charge_type: abacatepay_charge_type !== undefined ? abacatepay_charge_type : (current.abacatepay_charge_type || 'deposit')
+        };
+
         if (!useLocalDb && pool) {
             try {
                 const res = await pool.query(
-                    `UPDATE business_config SET pix_key = $1, pix_bank = $2, pix_name = $3, whatsapp_number = $4, updated_at = CURRENT_TIMESTAMP WHERE id = 1 RETURNING *`,
-                    [pix_key, pix_bank, pix_name, whatsapp_number]
+                    `UPDATE business_config 
+                     SET pix_key = $1, pix_bank = $2, pix_name = $3, whatsapp_number = $4,
+                         atlas_license_key = $5, atlas_license_status = $6, atlas_license_owner = $7,
+                         abacatepay_api_key = $8, abacatepay_enabled = $9, abacatepay_mode = $10, abacatepay_charge_type = $11,
+                         updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = 1 RETURNING *`,
+                    [
+                        updated.pix_key, updated.pix_bank, updated.pix_name, updated.whatsapp_number,
+                        updated.atlas_license_key, updated.atlas_license_status, updated.atlas_license_owner,
+                        updated.abacatepay_api_key, updated.abacatepay_enabled, updated.abacatepay_mode, updated.abacatepay_charge_type
+                    ]
                 );
                 if (res.rows.length > 0) return res.rows[0];
             } catch (e) { }
         }
         const data = getLocalData();
-        data.business_config = { ...data.business_config, pix_key, pix_bank, pix_name, whatsapp_number };
+        data.business_config = { ...data.business_config, ...updated };
         saveLocalData(data);
         return data.business_config;
     },
@@ -603,6 +670,62 @@ const db = {
                 status: status !== undefined ? status : current.status,
                 employee_id: employee_id !== undefined ? (employee_id ? parseInt(employee_id) : null) : current.employee_id,
                 commission_amount: commissionAmount
+            };
+            saveLocalData(data);
+            return data.bookings[idx];
+        }
+        return null;
+    },
+
+    async getBookingById(id) {
+        if (!useLocalDb && pool) {
+            try {
+                const res = await pool.query('SELECT * FROM bookings WHERE id = $1 LIMIT 1', [parseInt(id)]);
+                if (res.rows.length > 0) return res.rows[0];
+            } catch (e) { }
+        }
+        const data = getLocalData();
+        return data.bookings.find(b => b.id === parseInt(id)) || null;
+    },
+
+    async getBookingByPaymentId(paymentId) {
+        if (!useLocalDb && pool) {
+            try {
+                const res = await pool.query('SELECT * FROM bookings WHERE payment_id = $1 LIMIT 1', [paymentId]);
+                if (res.rows.length > 0) return res.rows[0];
+            } catch (e) { }
+        }
+        const data = getLocalData();
+        return data.bookings.find(b => b.payment_id === paymentId) || null;
+    },
+
+    async updateBookingPayment(id, { payment_id, payment_status, pix_qrcode, pix_copia_cola, pix_url, status }) {
+        if (!useLocalDb && pool) {
+            try {
+                const res = await pool.query(`
+                    UPDATE bookings 
+                    SET payment_id = COALESCE($1, payment_id),
+                        payment_status = COALESCE($2, payment_status),
+                        pix_qrcode = COALESCE($3, pix_qrcode),
+                        pix_copia_cola = COALESCE($4, pix_copia_cola),
+                        pix_url = COALESCE($5, pix_url),
+                        status = COALESCE($6, status)
+                    WHERE id = $7 RETURNING *
+                `, [payment_id, payment_status, pix_qrcode, pix_copia_cola, pix_url, status, parseInt(id)]);
+                if (res.rows.length > 0) return res.rows[0];
+            } catch (e) { }
+        }
+        const data = getLocalData();
+        const idx = data.bookings.findIndex(b => b.id === parseInt(id));
+        if (idx !== -1) {
+            data.bookings[idx] = {
+                ...data.bookings[idx],
+                payment_id: payment_id !== undefined ? payment_id : data.bookings[idx].payment_id,
+                payment_status: payment_status !== undefined ? payment_status : data.bookings[idx].payment_status,
+                pix_qrcode: pix_qrcode !== undefined ? pix_qrcode : data.bookings[idx].pix_qrcode,
+                pix_copia_cola: pix_copia_cola !== undefined ? pix_copia_cola : data.bookings[idx].pix_copia_cola,
+                pix_url: pix_url !== undefined ? pix_url : data.bookings[idx].pix_url,
+                status: status !== undefined ? status : data.bookings[idx].status
             };
             saveLocalData(data);
             return data.bookings[idx];

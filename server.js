@@ -122,6 +122,67 @@ app.get('/api/public/available-slots', async (req, res) => {
     }
 });
 
+// ==========================================
+// INTEGRAÇÃO GATEWAY ABACATEPAY (PIX)
+// ==========================================
+
+async function createAbacatePayBilling({ apiKey, booking, amount, chargeType, host }) {
+    if (!apiKey) throw new Error('Chave de API do AbacatePay não configurada.');
+
+    const cleanPhone = (booking.client_phone || '').replace(/\D/g, '');
+    const priceInCents = Math.max(100, Math.round(amount * 100)); // em centavos (mínimo R$ 1,00)
+
+    const payload = {
+        frequency: "ONE_TIME",
+        methods: ["PIX"],
+        products: [
+            {
+                externalId: `booking-${booking.id}`,
+                name: `${chargeType === 'full' ? 'Pagamento Total' : 'Sinal (50%)'} - Araújo Detail`,
+                description: `${booking.services_names || 'Serviço'} - ${booking.vehicle_name || 'Veículo'} (${booking.booking_date} às ${booking.booking_time})`,
+                quantity: 1,
+                price: priceInCents
+            }
+        ],
+        returnUrl: `${host}/?bookingId=${booking.id}`,
+        completionUrl: `${host}/?bookingId=${booking.id}&paid=true`,
+        customer: {
+            name: booking.client_name,
+            cellphone: cleanPhone.length >= 10 ? cleanPhone : '86999999999',
+            email: `${(booking.client_name || 'cliente').toLowerCase().replace(/[^a-z0-9]/g, '') || 'cliente'}@araujodetail.com.br`
+        },
+        metadata: {
+            booking_id: String(booking.id),
+            client_name: booking.client_name,
+            booking_date: booking.booking_date,
+            booking_time: booking.booking_time
+        }
+    };
+
+    const response = await fetch('https://api.abacatepay.com/v1/billing/create', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey.trim()}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (!response.ok || (data.error && !data.data)) {
+        throw new Error(data.error || data.message || 'Erro ao comunicar com a API do AbacatePay');
+    }
+
+    const billing = data.data || data;
+    return {
+        payment_id: billing.id || billing._id || `abp_${Date.now()}`,
+        pix_url: billing.url || '',
+        pix_copia_cola: billing.pix?.code || billing.pixCode || billing.brCode || billing.url || '',
+        pix_qrcode: billing.pix?.qrCodeUrl || billing.qrCode || '',
+        raw: billing
+    };
+}
+
 app.post('/api/public/bookings', async (req, res) => {
     try {
         const { client_name, client_phone, client_notes, vehicle_id, vehicle_name, services_ids, services_names, booking_date, booking_time, total_price, deposit_price } = req.body;
@@ -151,10 +212,143 @@ app.post('/api/public/bookings', async (req, res) => {
             deposit_price: deposit_price || 0
         });
 
-        res.json({ success: true, booking: newBooking });
+        // Verifica se o AbacatePay está ativo para gerar cobrança PIX automática
+        let abacatepayData = null;
+        try {
+            const config = await db.getConfig();
+            if (config.abacatepay_enabled && config.abacatepay_api_key) {
+                const chargeAmount = config.abacatepay_charge_type === 'full' ? (newBooking.total_price || newBooking.deposit_price) : (newBooking.deposit_price || newBooking.total_price / 2);
+                const host = `${req.protocol}://${req.get('host')}`;
+                
+                const abpRes = await createAbacatePayBilling({
+                    apiKey: config.abacatepay_api_key,
+                    booking: newBooking,
+                    amount: chargeAmount,
+                    chargeType: config.abacatepay_charge_type || 'deposit',
+                    host
+                });
+
+                if (abpRes) {
+                    abacatepayData = abpRes;
+                    await db.updateBookingPayment(newBooking.id, {
+                        payment_id: abpRes.payment_id,
+                        payment_status: 'pendente',
+                        pix_qrcode: abpRes.pix_qrcode,
+                        pix_copia_cola: abpRes.pix_copia_cola,
+                        pix_url: abpRes.pix_url
+                    });
+                    newBooking.payment_id = abpRes.payment_id;
+                    newBooking.pix_copia_cola = abpRes.pix_copia_cola;
+                    newBooking.pix_qrcode = abpRes.pix_qrcode;
+                    newBooking.pix_url = abpRes.pix_url;
+                }
+            }
+        } catch (gatewayErr) {
+            console.warn('Aviso: Não foi possível gerar PIX no AbacatePay (mantendo fluxo normal):', gatewayErr.message);
+        }
+
+        res.json({ 
+            success: true, 
+            booking: newBooking,
+            abacatepay: abacatepayData
+        });
     } catch (err) {
         console.error('Erro ao salvar agendamento:', err);
         res.status(500).json({ success: false, error: 'Erro ao registrar agendamento' });
+    }
+});
+
+// Endpoint para consultar status do pagamento em tempo real
+app.get('/api/public/bookings/:id/payment-status', async (req, res) => {
+    try {
+        const booking = await db.getBookingById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ success: false, error: 'Agendamento não encontrado' });
+        }
+        res.json({
+            success: true,
+            id: booking.id,
+            status: booking.status,
+            payment_status: booking.payment_status || 'pendente',
+            isPaid: booking.payment_status === 'pago' || booking.status === 'confirmado' || booking.status === 'concluido'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Webhook para receber confirmação de pagamento do AbacatePay
+app.post('/api/webhooks/abacatepay', async (req, res) => {
+    try {
+        const payload = req.body;
+        console.log('[Webhook AbacatePay Recebido]:', JSON.stringify(payload));
+
+        const event = payload.event || payload.type || '';
+        const data = payload.data || payload;
+
+        const isPaid = event.includes('paid') || event.includes('PAID') || event.includes('confirmed') || data.status === 'PAID' || data.status === 'CONFIRMED' || data.status === 'COMPLETED';
+
+        let bookingId = null;
+        if (data.metadata && data.metadata.booking_id) {
+            bookingId = parseInt(data.metadata.booking_id);
+        } else if (data.products && data.products[0] && data.products[0].externalId) {
+            bookingId = parseInt(data.products[0].externalId.replace('booking-', ''));
+        }
+
+        const billingId = data.id || data.billingId || data._id;
+
+        if (isPaid) {
+            let booking = null;
+            if (bookingId) {
+                booking = await db.getBookingById(bookingId);
+            }
+            if (!booking && billingId) {
+                booking = await db.getBookingByPaymentId(billingId);
+            }
+
+            if (booking) {
+                await db.updateBookingPayment(booking.id, {
+                    payment_status: 'pago',
+                    status: 'confirmado'
+                });
+                console.log(`✅ [Webhook AbacatePay] Agendamento #${booking.id} (${booking.client_name}) foi PAGO e CONFIRMADO com sucesso!`);
+            }
+        }
+
+        return res.json({ success: true, message: 'Webhook processado com sucesso' });
+    } catch (err) {
+        console.error('Erro ao processar Webhook AbacatePay:', err);
+        return res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Teste de conexão com AbacatePay
+app.post('/api/admin/abacatepay/test-connection', requireAdminAuth, async (req, res) => {
+    try {
+        const { api_key } = req.body;
+        const config = await db.getConfig();
+        const keyToTest = (api_key || config.abacatepay_api_key || '').trim();
+
+        if (!keyToTest) {
+            return res.status(400).json({ success: false, error: 'Chave de API do AbacatePay não informada.' });
+        }
+
+        const response = await fetch('https://api.abacatepay.com/v1/billing/list', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${keyToTest}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok && (data.data !== undefined || data.success !== false)) {
+            return res.json({ success: true, message: 'Conexão com AbacatePay validada com sucesso! API Key ativa.' });
+        } else {
+            return res.status(400).json({ success: false, error: data.error || data.message || 'Chave de API inválida ou não autorizada pelo AbacatePay.' });
+        }
+    } catch (err) {
+        return res.status(500).json({ success: false, error: 'Erro ao testar conexão com AbacatePay: ' + err.message });
     }
 });
 
