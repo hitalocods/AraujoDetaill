@@ -653,33 +653,58 @@
             box-shadow: var(--shadow);
         }
 
-        /* ---------- horários ---------- */
-        .time-scroll {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 8px 4px 18px;
-            scrollbar-width: none;
+        /* ---------- horários (colunas) ---------- */
+        .time-scroll, .time-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 10px 0 18px;
+            max-width: 420px;
+            margin: 0 auto;
+            overflow-x: visible;
         }
 
-        .time-scroll::-webkit-scrollbar {
-            display: none;
+        @media (max-width: 380px) {
+            .time-scroll, .time-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .time-chip {
+                padding: 11px 4px !important;
+                font-size: 13.5px !important;
+            }
+        }
+
+        @media (max-width: 310px) {
+            .time-scroll, .time-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .time-chip {
-            flex: 0 0 auto;
-            padding: 12px 20px;
-            border-radius: 999px;
+            padding: 14px 10px;
+            border-radius: 18px;
             border: 1.5px solid var(--line);
             background: var(--white);
             font-weight: 700;
-            font-size: 14px;
+            font-size: 14.5px;
             cursor: pointer;
-            transition: all .3s var(--ease);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all .25s var(--ease);
+            user-select: none;
+            box-sizing: border-box;
+            width: 100%;
         }
 
-        .time-chip:hover {
+        .time-chip:hover:not(.disabled) {
             border-color: var(--spark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         .time-chip.selected {
@@ -687,6 +712,7 @@
             color: var(--spark);
             border-color: transparent;
             box-shadow: var(--shadow);
+            transform: translateY(-1px);
         }
 
         .time-chip.disabled {
@@ -699,20 +725,12 @@
             text-decoration: line-through;
         }
 
-        .time-chip.expired {
-            opacity: .38;
-            background: #f1f5f9;
-            color: #64748b;
-            border-color: #cbd5e1;
-        }
-
         .time-chip .chip-status {
-            font-size: 9px;
+            font-size: 9.5px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            opacity: 0.85;
-            margin-top: -2px;
+            opacity: 0.9;
         }
 
         /* ---------- formulário ---------- */
@@ -1042,7 +1060,7 @@
             <div class="eyebrow" style="text-align:center; margin-bottom:10px; display:block;">Etapa 4</div>
             <h2 class="step-title">Escolha o horário</h2>
             <p class="step-sub" id="dateChosenLabel">Horários disponíveis</p>
-            <div class="time-scroll" id="timeField"></div>
+            <div class="time-scroll time-grid" id="timeField"></div>
             <div class="btn-row">
                 <button class="btn ghost" onclick="goTo(2)">Voltar</button>
                 <button class="btn" id="toStep4" onclick="goTo(4)" disabled>Continuar</button>
@@ -1432,19 +1450,11 @@
 
             const field = document.getElementById('timeField');
 
-            // Fallback inteligente para horários caso a conexão falhe
-            const now = new Date();
-            const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const currentHourMinute = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-            const fallbackSlots = ALL_TIMES.map(t => {
-                const isPast = (state.date === todayIso && t <= currentHourMinute);
-                return {
-                    time: t,
-                    available: !isPast,
-                    reason: isPast ? 'Horário encerrado' : 'Livre'
-                };
-            });
+            const fallbackSlots = ALL_TIMES.map(t => ({
+                time: t,
+                available: true,
+                reason: 'Livre'
+            }));
 
             const slotsToRender = SERVER_SLOTS.length > 0 ? SERVER_SLOTS : fallbackSlots;
             const hasAnyAvailable = slotsToRender.some(s => s.available);
@@ -1452,14 +1462,13 @@
             field.innerHTML = slotsToRender.map(slot => {
                 const isSelected = state.time === slot.time;
                 if (!slot.available) {
-                    const isPastTime = slot.reason === 'Horário encerrado' || (slot.reason && slot.reason.toLowerCase().includes('passou'));
-                    const badgeText = isPastTime ? 'Encerrado' : (slot.reason === 'Horário bloqueado' ? 'Bloqueado' : 'Ocupado');
-                    return `<div class="time-chip disabled ${isPastTime ? 'expired' : ''}" style="display:flex; flex-direction:column; align-items:center; gap:2px;" title="${slot.reason || 'Indisponível'}">
+                    const badgeText = slot.reason === 'Horário bloqueado' ? 'Bloqueado' : 'Ocupado';
+                    return `<div class="time-chip disabled" title="${slot.reason || 'Indisponível'}">
                         <span>${slot.time}</span>
                         <span class="chip-status">${badgeText}</span>
                     </div>`;
                 }
-                return `<div class="time-chip ${isSelected ? 'selected' : ''}" onclick="pickTime('${slot.time}')" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                return `<div class="time-chip ${isSelected ? 'selected' : ''}" onclick="pickTime('${slot.time}')">
                     <span>${slot.time}</span>
                     <span class="chip-status" style="${isSelected ? 'color:var(--spark);' : 'color:#10b981;'}">Livre</span>
                 </div>`;
@@ -1474,7 +1483,7 @@
                 }
             }
 
-            // Exibe mensagem informativa se todos os horários do dia estiverem encerrados ou ocupados
+            // Exibe mensagem informativa se todos os horários do dia estiverem ocupados
             const warningElId = 'noSlotsWarning';
             let warningEl = document.getElementById(warningElId);
             if (!hasAnyAvailable) {
@@ -1484,7 +1493,7 @@
                     warningEl.style.cssText = 'background:#fff1f2; border:1.5px solid #fecdd3; color:#e11d48; padding:12px 16px; border-radius:18px; font-size:13px; font-weight:600; text-align:center; margin-top:14px;';
                     field.parentNode.appendChild(warningEl);
                 }
-                warningEl.innerHTML = '⚠️ Não há mais horários disponíveis para este dia. Por favor, selecione outra data no calendário.';
+                warningEl.innerHTML = '⚠️ Não há horários disponíveis para este dia. Por favor, selecione outra data no calendário.';
             } else if (warningEl) {
                 warningEl.remove();
             }
