@@ -5,7 +5,7 @@ const path = require('path');
 const { db, initPostgresTables } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'araujo123';
 
 app.use(cors());
@@ -79,6 +79,30 @@ app.get('/api/public/config', async (req, res) => {
     }
 });
 
+// Helper para obter data e horário oficial de Brasília (Brasil)
+function getNowBrazil() {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    const parts = formatter.formatToParts(now);
+    const getPart = type => parts.find(p => p.type === type)?.value;
+    const year = getPart('year');
+    const month = getPart('month');
+    const day = getPart('day');
+    const hour = getPart('hour');
+    const minute = getPart('minute');
+    const todayStr = `${year}-${month}-${day}`;
+    const currentTimeStr = `${hour}:${minute}`;
+    return { todayStr, currentTimeStr };
+}
+
 app.get('/api/public/available-slots', async (req, res) => {
     res.set({
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -89,6 +113,13 @@ app.get('/api/public/available-slots', async (req, res) => {
     try {
         const { date } = req.query;
         if (!date) return res.status(400).json({ success: false, error: 'Data não informada' });
+
+        const { todayStr, currentTimeStr } = getNowBrazil();
+
+        // Se a data já passou, dia completamente indisponível
+        if (date < todayStr) {
+            return res.json({ success: true, isFullDayBlocked: true, slots: [] });
+        }
 
         const dateObj = new Date(date + 'T00:00:00');
         const dow = dateObj.getDay(); // 0=Domingo, 1=Segunda, etc.
@@ -109,11 +140,32 @@ app.get('/api/public/available-slots', async (req, res) => {
         const blockedTimes = blocked.filter(b => b.block_date === date && b.block_time).map(b => b.block_time);
         const bookedTimes = bookings.map(b => b.booking_time);
 
-        const slots = DEFAULT_TIMES.map(time => ({
-            time,
-            available: !blockedTimes.includes(time) && !bookedTimes.includes(time),
-            reason: blockedTimes.includes(time) ? 'Horário bloqueado' : (bookedTimes.includes(time) ? 'Já agendado' : 'Livre')
-        }));
+        // Encerra horários que já passaram para o dia de hoje (igual sistema de agendamento de arena)
+        const slots = DEFAULT_TIMES.map(time => {
+            const isPastTime = (date === todayStr && time <= currentTimeStr);
+            const isBlocked = blockedTimes.includes(time);
+            const isBooked = bookedTimes.includes(time);
+
+            let available = true;
+            let reason = 'Livre';
+
+            if (isPastTime) {
+                available = false;
+                reason = 'Horário encerrado';
+            } else if (isBlocked) {
+                available = false;
+                reason = 'Horário bloqueado';
+            } else if (isBooked) {
+                available = false;
+                reason = 'Já agendado';
+            }
+
+            return {
+                time,
+                available,
+                reason
+            };
+        });
 
         res.json({ success: true, isFullDayBlocked: false, slots });
     } catch (err) {
@@ -189,6 +241,15 @@ app.post('/api/public/bookings', async (req, res) => {
 
         if (!client_name || !client_phone || !booking_date || !booking_time) {
             return res.status(400).json({ success: false, error: 'Campos obrigatórios ausentes' });
+        }
+
+        // Validação contra agendamentos de horários que já passaram (estilo arena)
+        const { todayStr, currentTimeStr } = getNowBrazil();
+        if (booking_date < todayStr || (booking_date === todayStr && booking_time <= currentTimeStr)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Este horário já encerrou e não pode mais ser agendado. Por favor, escolha outro horário ou outra data.' 
+            });
         }
 
         // Validação anti-colisão de agendamento em tempo real
