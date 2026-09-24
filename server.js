@@ -380,6 +380,36 @@ app.put('/api/admin/config', requireAdminAuth, async (req, res) => {
     }
 });
 
+// Salvar dia de vencimento da Licença Atlas (5, 15 ou 20) com 1 clique
+app.post('/api/admin/atlas/due-day', requireAdminAuth, async (req, res) => {
+    try {
+        const { due_day } = req.body;
+        const dayNum = parseInt(due_day);
+        if (![5, 15, 20].includes(dayNum)) {
+            return res.status(400).json({ success: false, error: 'O dia de vencimento deve ser 5, 15 ou 20.' });
+        }
+        const updated = await db.updateConfig({ atlas_due_day: dayNum });
+        res.json({ success: true, due_day: dayNum, config: updated });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Salvar / atualizar link de pagamento do Mercado Livre / Mercado Pago da Licença Atlas
+app.post('/api/admin/atlas/payment-url', requireAdminAuth, async (req, res) => {
+    try {
+        const { payment_url } = req.body;
+        const cleanUrl = (payment_url || '').trim();
+        if (!cleanUrl) {
+            return res.status(400).json({ success: false, error: 'Link de pagamento não informado.' });
+        }
+        const updated = await db.updateConfig({ atlas_payment_url: cleanUrl });
+        res.json({ success: true, payment_url: cleanUrl, config: updated });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // Serviços (CRUD)
 app.get('/api/admin/services', requireAdminAuth, async (req, res) => {
     try {
