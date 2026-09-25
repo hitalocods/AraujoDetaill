@@ -2028,39 +2028,7 @@
         <!-- MAIN CONTENT -->
         <main class="main-content">
 
-            <!-- BANNER 1: ESCOLHA DE MELHOR DIA DE VENCIMENTO (5, 15 ou 20) -->
-            <div class="atlas-chooser-banner" id="atlasDueChooserBanner" style="display:none;">
-                <div class="atlas-chooser-left">
-                    <div class="atlas-icon-box">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <div>
-                        <div class="atlas-tag-row">
-                            <span class="atlas-tag">Atlas Software</span>
-                            <span class="atlas-subtag">Configuração da Licença</span>
-                        </div>
-                        <h3 class="atlas-title">Escolha o melhor dia de pagamento da sua mensalidade</h3>
-                        <p class="atlas-desc">Defina qual o melhor dia do mês para o pagamento da sua licença e hospedagem. Ao escolher, o painel programa os avisos inteligentes e mantém seu sistema 100% ativo.</p>
-                    </div>
-                </div>
-                <div class="atlas-chooser-actions">
-                    <span class="atlas-chooser-lbl">Selecione o melhor dia:</span>
-                    <div class="atlas-day-buttons">
-                        <button type="button" class="btn-day-opt" id="btnChooserDay5" onclick="selectAtlasDueDay(5)">
-                            <strong>Dia 05</strong>
-                            <small>Início do mês</small>
-                        </button>
-                        <button type="button" class="btn-day-opt" id="btnChooserDay15" onclick="selectAtlasDueDay(15)">
-                            <strong>Dia 15</strong>
-                            <small>Meio do mês</small>
-                        </button>
-                        <button type="button" class="btn-day-opt" id="btnChooserDay20" onclick="selectAtlasDueDay(20)">
-                            <strong>Dia 20</strong>
-                            <small>Fim do mês</small>
-                        </button>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- BANNER 2: AVISO DE VENCIMENTO (1 DIA ANTES, NO DIA OU VENCIDO) -->
             <div class="due-alert-banner" id="atlasDueAlertBanner" style="display:none;">
@@ -2082,25 +2050,18 @@
                         </div>
                         <h2 class="due-alert-title" id="atlasDueAlertTitle">Aviso de Vencimento da Mensalidade</h2>
                         <p class="due-alert-desc" id="atlasDueAlertDesc">
-                            A sua mensalidade vence amanhã. Realize o pagamento pelo Mercado Pago / Mercado Livre para manter seu painel, banco de dados Neon e agendamentos online ativos sem interrupções.
+                            A sua mensalidade vence amanhã. Realize o pagamento via PIX ou cartão (qualquer banco) para manter seu painel, banco de dados Neon e agendamentos online ativos sem interrupções.
                         </p>
                     </div>
                 </div>
 
                 <div class="due-alert-actions">
-                    <a href="https://link.mercadopago.com.br/atlassoftware" id="atlasAlertPayBtn" target="_blank" rel="noopener noreferrer" class="btn-due-pay">
+                    <a href="https://link.mercadopago.com.br/atlassoftware" id="atlasAlertPayBtn" onclick="handleAtlasMercadoPagoCheckout(event)" target="_blank" rel="noopener noreferrer" class="btn-due-pay">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="2" y="5" width="20" height="14" rx="2"/>
                             <line x1="2" y1="10" x2="22" y2="10"/>
                         </svg>
-                        <span id="atlasAlertPayBtnText">Pagar via Mercado Pago</span>
-                    </a>
-
-                    <a href="https://wa.me/5586999540408?text=Ol%C3%A1!%20Segue%20o%20comprovante%20de%20pagamento%20da%20mensalidade%20da%20licen%C3%A7a%20Atlas%20do%20painel%20Ara%C3%BAjo%20Detail." target="_blank" rel="noopener noreferrer" class="btn-due-whatsapp">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                        </svg>
-                        <span>Enviar Comprovante</span>
+                        <span id="atlasAlertPayBtnText">Pagar Licença Atlas</span>
                     </a>
                 </div>
             </div>
@@ -2504,57 +2465,27 @@
                             </div>
                             <div>
                                 <span class="panel-title">Licença Atlas Software</span>
-                                <div style="font-size:11.5px; color:var(--slate);">Vencimento, Gateway Mercado Pago e Assinatura</div>
+                                <div style="font-size:11.5px; color:var(--slate);">Vencimento, Gateway e Assinatura</div>
                             </div>
                         </div>
                         <span class="atlas-badge-pill" id="tabConfigAtlasBadge">Ativa</span>
                     </div>
 
                     <div style="display:flex; flex-direction:column; gap:16px;">
-                        <!-- SELETOR DO MELHOR DIA DE VENCIMENTO -->
                         <div>
-                            <label style="font-size:13px; font-weight:700; color:var(--ink); display:block; margin-bottom:6px;">
-                                📅 Melhor Dia de Pagamento da Mensalidade:
+                            <label style="font-size:13px; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">
+                                📅 Vencimento da Mensalidade:
                             </label>
-                            <p style="font-size:12px; color:var(--slate); margin-bottom:10px;">
-                                O sistema avisa automaticamente 1 dia antes da data selecionada.
+                            <p style="font-size:13px; color:var(--slate);">
+                                Fixado para <strong>todo dia 20</strong> do mês. Valor: <strong>R$ 50,00</strong>.
                             </p>
-                            <div class="atlas-day-buttons">
-                                <button type="button" class="btn-day-opt" id="btnTabConfigDay5" onclick="selectAtlasDueDay(5)">
-                                    <strong style="font-size:15px;">Dia 05</strong>
-                                    <small>Início do mês</small>
-                                </button>
-                                <button type="button" class="btn-day-opt" id="btnTabConfigDay15" onclick="selectAtlasDueDay(15)">
-                                    <strong style="font-size:15px;">Dia 15</strong>
-                                    <small>Meio do mês</small>
-                                </button>
-                                <button type="button" class="btn-day-opt" id="btnTabConfigDay20" onclick="selectAtlasDueDay(20)">
-                                    <strong style="font-size:15px;">Dia 20</strong>
-                                    <small>Fim do mês</small>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- LINK DO GATEWAY MERCADO PAGO / MERCADO LIVRE -->
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label style="font-size:13px; font-weight:700; color:var(--ink);">
-                                💳 Link do Gateway de Pagamento (Mercado Livre / Mercado Pago)
-                            </label>
-                            <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
-                                <input type="url" id="cfgAtlasPaymentUrl" placeholder="https://link.mercadopago.com.br/..." style="flex:1; min-width:200px;">
-                                <button type="button" class="btn-act btn-sm" onclick="saveAtlasPaymentUrlFromTabConfig()">Salvar Link</button>
-                            </div>
                         </div>
 
                         <!-- AÇÕES DIRETAS -->
-                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
-                            <a href="https://link.mercadopago.com.br/atlassoftware" id="tabConfigPayBtn" target="_blank" rel="noopener noreferrer" class="btn-due-pay" style="flex:1; justify-content:center;">
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <a href="https://link.mercadopago.com.br/atlassoftware" id="tabConfigPayBtn" onclick="handleAtlasMercadoPagoCheckout(event)" target="_blank" rel="noopener noreferrer" class="btn-due-pay" style="flex:1; justify-content:center;">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                                <span>Pagar Fatura Mercado Pago</span>
-                            </a>
-                            <a href="https://wa.me/5586999540408?text=Ol%C3%A1!%20Segue%20o%20comprovante%20de%20pagamento%20da%20mensalidade%20da%20licen%C3%A7a%20Atlas%20do%20painel%20Ara%C3%BAjo%20Detail." target="_blank" rel="noopener noreferrer" class="btn-due-whatsapp" style="flex:1; justify-content:center;">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                                <span>Enviar Comprovante</span>
+                                <span>Pagar Licença Atlas</span>
                             </a>
                         </div>
                     </div>
@@ -3075,8 +3006,8 @@
         </div>
     </div>
 
-    <!-- Modal Licença Atlas Software (Controle de Vencimento & Checkout Mercado Livre) -->
-    <div class="modal-overlay" id="modalAtlasLicense">
+    <!-- Modal Licença Atlas Software (Controle de Vencimento & Checkout Online) -->
+    <div class="modal-overlay" id="modalAtlasLicense" onclick="if(event.target === this) closeModals()">
         <div class="modal-box" style="max-width:560px;">
             <div class="modal-head">
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -3092,89 +3023,97 @@
             </div>
 
             <div class="atlas-modal-body">
-                <!-- STATUS DA LICENÇA -->
-                <div class="atlas-card-status">
-                    <div class="atlas-status-left">
-                        <span class="atlas-status-tag" id="modalAtlasStatusTag">
-                            <span class="pulse-atlas-dot" id="modalAtlasDot"></span>
-                            Licença Ativa
-                        </span>
-                        <div class="atlas-license-key mono" id="modalAtlasKey">ATLAS-CORE-DETAIL-2026</div>
-                        <div class="atlas-license-owner" id="modalAtlasOwner">Araújo Detail - Carlos Araújo</div>
-                    </div>
-                    <div class="atlas-status-right">
-                        <span class="atlas-amount-lbl">Mensalidade</span>
-                        <span class="atlas-amount-val" id="modalAtlasAmount">R$ 97,00</span>
-                    </div>
-                </div>
-
-                <!-- SELETOR DE MELHOR DIA DE PAGAMENTO -->
-                <div class="atlas-day-selection-card">
-                    <div class="atlas-day-card-head">
-                        <div>
-                            <strong style="font-size:14px; color:var(--ink);">📅 Melhor Dia de Pagamento</strong>
-                            <p style="font-size:12px; color:var(--slate);">Clique para definir ou alterar o dia da sua mensalidade:</p>
+                <!-- VIEW 1: RESUMO NORMAL -->
+                <div id="atlasNormalView">
+                    <!-- STATUS DA LICENÇA -->
+                    <div class="atlas-card-status">
+                        <div class="atlas-status-left">
+                            <span class="atlas-status-tag" id="modalAtlasStatusTag">
+                                <span class="pulse-atlas-dot" id="modalAtlasDot"></span>
+                                Licença Ativa
+                            </span>
+                            <div class="atlas-license-key mono" id="modalAtlasKey">ATLAS-CORE-DETAIL-2026</div>
+                            <div class="atlas-license-owner" id="modalAtlasOwner">Araújo Detail</div>
                         </div>
-                        <span class="atlas-current-day-badge" id="modalCurrentDayBadge">Dia 15</span>
-                    </div>
-                    <div class="atlas-day-buttons modal-day-buttons">
-                        <button type="button" class="btn-day-opt" id="btnModalDay5" onclick="selectAtlasDueDay(5)">
-                            <span class="day-num">05</span>
-                            <span class="day-lbl">Todo dia 5</span>
-                        </button>
-                        <button type="button" class="btn-day-opt" id="btnModalDay15" onclick="selectAtlasDueDay(15)">
-                            <span class="day-num">15</span>
-                            <span class="day-lbl">Todo dia 15</span>
-                        </button>
-                        <button type="button" class="btn-day-opt" id="btnModalDay20" onclick="selectAtlasDueDay(20)">
-                            <span class="day-num">20</span>
-                            <span class="day-lbl">Todo dia 20</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- PRÓXIMO VENCIMENTO & CONTAGEM -->
-                <div class="atlas-next-due-box" id="modalNextDueBox">
-                    <div class="next-due-left">
-                        <span style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--slate);">Próximo Vencimento:</span>
-                        <div style="font-size:15px; font-weight:700; color:var(--ink);" id="modalNextDueDate">Carregando...</div>
-                    </div>
-                    <div class="next-due-badge" id="modalNextDueBadge">
-                        Calculando...
-                    </div>
-                </div>
-
-                <!-- BOTÕES DE PAGAMENTO & WHATSAPP -->
-                <div class="atlas-payment-actions">
-                    <a href="https://link.mercadopago.com.br/atlassoftware" id="modalAtlasPayBtn" target="_blank" rel="noopener noreferrer" class="btn-modal-mp">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <line x1="2" y1="10" x2="22" y2="10"/>
-                        </svg>
-                        <span>Pagar Fatura via Mercado Pago / Mercado Livre</span>
-                    </a>
-
-                    <a href="https://wa.me/5586999540408?text=Ol%C3%A1!%20Segue%20o%20comprovante%20de%20pagamento%20da%20mensalidade%20da%20licen%C3%A7a%20Atlas%20do%20painel%20Ara%C3%BAjo%20Detail." target="_blank" rel="noopener noreferrer" class="btn-modal-wpp">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                        </svg>
-                        <span>Enviar Comprovante (WhatsApp Atlas)</span>
-                    </a>
-                </div>
-
-                <!-- OPÇÃO DE CONFIGURAR LINK DO MERCADO PAGO -->
-                <div class="atlas-edit-url-toggle">
-                    <button type="button" class="btn-toggle-link" onclick="toggleAtlasUrlConfig()">
-                        ⚙️ Alterar Link de Pagamento do Mercado Livre
-                    </button>
-                    <div id="atlasUrlConfigBox" style="display:none; margin-top:10px;">
-                        <div class="form-group" style="margin-bottom:8px;">
-                            <label style="font-size:12px;">Link de Checkout Mercado Pago / Mercado Livre</label>
-                            <input type="url" id="modalAtlasUrlInput" placeholder="https://link.mercadopago.com.br/..." style="font-size:13px;">
+                        <div class="atlas-status-right">
+                            <span class="atlas-amount-lbl">Mensalidade</span>
+                            <span class="atlas-amount-val" id="modalAtlasAmount">R$ 50,00</span>
                         </div>
-                        <button type="button" class="btn-act btn-sm" onclick="saveAtlasPaymentUrlFromModal()" style="width:100%; justify-content:center;">
-                            Salvar Novo Link de Pagamento
+                    </div>
+
+                    <!-- PRÓXIMO VENCIMENTO & CONTAGEM -->
+                    <div class="atlas-next-due-box" id="modalNextDueBox">
+                        <div class="next-due-left">
+                            <span style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--slate);">Vencimento (Todo dia 20):</span>
+                            <div style="font-size:15px; font-weight:700; color:var(--ink);" id="modalNextDueDate">Carregando...</div>
+                        </div>
+                        <div class="next-due-badge" id="modalNextDueBadge">
+                            Calculando...
+                        </div>
+                    </div>
+
+                    <!-- AVISO DE MÊS JÁ PAGO (ATLAS) -->
+                    <div id="modalPaidThisMonthNotice" style="display:none; font-size:12.5px; color:#27ae60; font-weight:600; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.3); border-radius:12px; padding:10px 14px; align-items:center; gap:8px;">
+                        <span style="font-size:16px;">✓</span>
+                        <span>Mensalidade deste mês quitada com sucesso. A próxima cobrança ocorrerá apenas no próximo mês.</span>
+                    </div>
+
+                    <!-- BOTÃO PAGAR LICENÇA ATLAS (GERA PIX NA HORA) -->
+                    <div class="atlas-payment-actions" style="margin-top:14px;">
+                        <button type="button" id="modalAtlasPayBtn" onclick="generateAtlasPixPayment(event)" class="btn-modal-mp" style="width:100%; border:none; cursor:pointer;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                <line x1="2" y1="10" x2="22" y2="10"/>
+                            </svg>
+                            <span id="modalAtlasPayBtnText">Pagar Licença Atlas</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: TELA DO PIX COM QR CODE GERADO NA HORA -->
+                <div id="atlasPixView" style="display:none; flex-direction:column; gap:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                        <button type="button" onclick="backToAtlasNormalView()" style="background:none; border:none; color:var(--spark); font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
+                            ← Voltar
+                        </button>
+                        <span style="font-size:14px; font-weight:700; color:var(--ink);" id="atlasPixViewAmount">R$ 50,00</span>
+                    </div>
+
+                    <!-- Carregando PIX -->
+                    <div id="atlasPixLoading" style="display:none; text-align:center; padding:35px 0;">
+                        <div style="width:32px; height:32px; border:3px solid rgba(0,0,0,0.08); border-top-color:var(--spark); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;"></div>
+                        <p style="font-size:13px; color:var(--slate); font-weight:500;">Gerando QR Code Pix oficial...</p>
+                    </div>
+
+                    <!-- Conteúdo do PIX -->
+                    <div id="atlasPixContent" style="display:none; text-align:center;">
+                        <div style="background:#fff; border-radius:14px; padding:14px; display:inline-block; box-shadow:0 4px 18px rgba(0,0,0,0.08); border:1px solid var(--border); margin-bottom:12px;">
+                            <img id="atlasPixQrImg" src="" alt="QR Code Pix" style="width:240px; height:240px; display:block; image-rendering:pixelated; margin:0 auto;">
+                        </div>
+                        <p style="font-size:12.5px; color:var(--slate); margin:0 0 10px 0;">
+                            Aponte a câmera do banco para o QR Code acima ou <strong>Copie o Pix</strong>:
+                        </p>
+
+                        <!-- Pix Copia e Cola -->
+                        <div style="position:relative;">
+                            <input type="text" id="atlasPixCodeInput" readonly style="width:100%; font-family:monospace; font-size:11px; padding:12px 105px 12px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-alt); color:var(--ink);">
+                            <button type="button" id="atlasCopyPixBtn" onclick="copyAtlasPixCode()" style="position:absolute; right:5px; top:5px; bottom:5px; padding:0 14px; background:var(--spark); color:#fff; border:none; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer;">
+                                Copiar Pix
+                            </button>
+                        </div>
+
+                        <!-- Status em tempo real -->
+                        <div id="atlasPixStatusBox" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; font-size:12px; font-weight:600; color:var(--slate);">
+                            <span class="pulse-atlas-dot warning" id="atlasPixDot"></span>
+                            <span id="atlasPixStatusText">Aguardando pagamento... (Aprova na hora)</span>
+                        </div>
+
+                        <!-- Sucesso pós-pagamento -->
+                        <div id="atlasPixSuccessBox" style="display:none; background:rgba(46,204,113,0.12); border:1px solid rgba(46,204,113,0.3); border-radius:12px; padding:14px; margin-top:12px; text-align:center; color:#27ae60; font-weight:700;">
+                            <div style="font-size:24px; margin-bottom:4px;">✓</div>
+                            <div>Pagamento Aprovado com Sucesso!</div>
+                            <div style="font-size:11.5px; font-weight:500; color:var(--slate); margin-top:2px;">Sua mensalidade Atlas foi renovada.</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3328,6 +3267,8 @@
 
         function closeModals() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            if (typeof stopAtlasPixPolling === 'function') stopAtlasPixPolling();
+            if (typeof backToAtlasNormalView === 'function') backToAtlasNormalView();
         }
 
         // ================= FINANCEIRO =================
@@ -4421,78 +4362,128 @@
         let cachedAtlasConfig = {
             atlas_license_key: 'ATLAS-CORE-DETAIL-2026',
             atlas_license_status: 'Ativa',
-            atlas_license_owner: 'Araújo Detail - Carlos Araújo',
-            atlas_due_day: null,
+            atlas_license_owner: 'Araújo Detail',
+            atlas_due_day: 20,
             atlas_payment_url: 'https://link.mercadopago.com.br/atlassoftware',
-            atlas_license_amount: 97.00
+            atlas_license_amount: 50.00,
+            atlas_last_paid_month: '2026-09'
         };
 
         // Calcula com precisão a situação do vencimento da licença
-        function getAtlasDueCalculation(dueDay) {
+        function getAtlasDueCalculation(dueDay, lastPaidMonth) {
             if (!dueDay) {
                 return {
                     status: 'no_due_day',
                     daysRemaining: null,
                     nextDueDateStr: 'Não configurado',
-                    dueDay: null
+                    dueDay: null,
+                    isPaidThisMonth: false
                 };
             }
 
             const dayNum = parseInt(dueDay);
             const now = new Date();
             const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth();
+            const currentMonth = now.getMonth(); // 0 a 11 (8 = Setembro, 9 = Outubro)
             const currentDay = now.getDate();
-
-            // Data de vencimento no mês corrente
-            let targetDate = new Date(currentYear, currentMonth, dayNum);
-            
-            // Diferença em dias neste mês
-            const diffDays = dayNum - currentDay;
+            const currentYearMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
             const MONTH_NAMES = [
                 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
                 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
             ];
 
-            const dueDateFormatted = `${String(dayNum).padStart(2, '0')} de ${MONTH_NAMES[targetDate.getMonth()]} de ${currentYear}`;
+            // Verifica se o mês atual (ou superior) já está quitado
+            const isPaidThisMonth = Boolean(lastPaidMonth && lastPaidMonth >= currentYearMonth);
 
+            let targetYear = currentYear;
+            let targetMonth = currentMonth;
+
+            if (isPaidThisMonth) {
+                // Já pago este mês! O próximo ciclo de cobrança é no MÊS SEGUINTE
+                targetMonth = currentMonth + 1;
+                if (targetMonth > 11) {
+                    targetMonth = 0;
+                    targetYear++;
+                }
+            }
+
+            const targetDate = new Date(targetYear, targetMonth, dayNum);
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const todayMidnight = new Date(currentYear, currentMonth, currentDay).getTime();
+            const targetMidnight = new Date(targetYear, targetMonth, dayNum).getTime();
+            const diffDays = Math.round((targetMidnight - todayMidnight) / msPerDay);
+
+            const dueDateFormatted = `${String(dayNum).padStart(2, '0')} de ${MONTH_NAMES[targetMonth]} de ${targetYear}`;
+
+            if (isPaidThisMonth) {
+                // Mês atual quitado: aviso de 1 dia antes só dispara quando faltar 1 dia para a data do próximo mês!
+                if (diffDays === 1) {
+                    return {
+                        status: 'due_tomorrow',
+                        daysRemaining: 1,
+                        nextDueDateStr: dueDateFormatted,
+                        dueDay: dayNum,
+                        targetDate,
+                        isPaidThisMonth: true
+                    };
+                } else if (diffDays === 0) {
+                    return {
+                        status: 'due_today',
+                        daysRemaining: 0,
+                        nextDueDateStr: dueDateFormatted,
+                        dueDay: dayNum,
+                        targetDate,
+                        isPaidThisMonth: true
+                    };
+                } else {
+                    return {
+                        status: 'paid_current_month',
+                        daysRemaining: diffDays,
+                        nextDueDateStr: dueDateFormatted,
+                        dueDay: dayNum,
+                        targetDate,
+                        isPaidThisMonth: true
+                    };
+                }
+            }
+
+            // Caso o mês atual NÃO tenha sido pago:
             if (diffDays === 1) {
-                // EXATAMENTE 1 DIA ANTES DO VENCIMENTO
                 return {
                     status: 'due_tomorrow',
                     daysRemaining: 1,
                     nextDueDateStr: dueDateFormatted,
                     dueDay: dayNum,
-                    targetDate
+                    targetDate,
+                    isPaidThisMonth: false
                 };
             } else if (diffDays === 0) {
-                // NO DIA DO VENCIMENTO
                 return {
                     status: 'due_today',
                     daysRemaining: 0,
                     nextDueDateStr: dueDateFormatted,
                     dueDay: dayNum,
-                    targetDate
+                    targetDate,
+                    isPaidThisMonth: false
                 };
             } else if (diffDays < 0) {
-                // JÁ PASSOU DA DATA NO MÊS ATUAL
-                const daysOverdue = Math.abs(diffDays);
                 return {
                     status: 'overdue',
-                    daysOverdue,
+                    daysOverdue: Math.abs(diffDays),
                     nextDueDateStr: dueDateFormatted,
                     dueDay: dayNum,
-                    targetDate
+                    targetDate,
+                    isPaidThisMonth: false
                 };
             } else {
-                // MAIS DE 1 DIA ANTES DO VENCIMENTO (diffDays > 1)
                 return {
                     status: 'upcoming',
                     daysRemaining: diffDays,
                     nextDueDateStr: dueDateFormatted,
                     dueDay: dayNum,
-                    targetDate
+                    targetDate,
+                    isPaidThisMonth: false
                 };
             }
         }
@@ -4505,8 +4496,9 @@
 
             const c = cachedAtlasConfig;
             const dueDay = c.atlas_due_day ? parseInt(c.atlas_due_day) : null;
+            const lastPaid = c.atlas_last_paid_month || null;
             const payUrl = c.atlas_payment_url || 'https://link.mercadopago.com.br/atlassoftware';
-            const calc = getAtlasDueCalculation(dueDay);
+            const calc = getAtlasDueCalculation(dueDay, lastPaid);
 
             // 1. Atualiza botões da Sidebar e Mobile Header
             const sidebarBadge = document.getElementById('sidebarAtlasBadge');
@@ -4541,6 +4533,13 @@
                 }
                 if (mobileText) mobileText.textContent = `Vencido (Dia ${dueDay})`;
                 if (mobileDot) mobileDot.className = 'pulse-atlas-dot danger';
+            } else if (calc.status === 'paid_current_month') {
+                if (sidebarBadge) {
+                    sidebarBadge.textContent = `Ativa • Dia ${dueDay}`;
+                    sidebarBadge.className = 'atlas-badge-pill';
+                }
+                if (mobileText) mobileText.textContent = `Licença Dia ${dueDay}`;
+                if (mobileDot) mobileDot.className = 'pulse-atlas-dot';
             } else {
                 if (sidebarBadge) {
                     sidebarBadge.textContent = `Ativa • Dia ${dueDay}`;
@@ -4561,6 +4560,7 @@
             }
 
             // 3. Banner de Alerta de Vencimento (1 dia antes, no dia ou vencido)
+            // Se o mês atual já está pago, este banner fica OCULTO até faltar 1 dia para o próximo mês!
             const alertBanner = document.getElementById('atlasDueAlertBanner');
             const alertBadgeText = document.getElementById('atlasDueBadgeText');
             const alertTitle = document.getElementById('atlasDueAlertTitle');
@@ -4573,25 +4573,25 @@
                     alertBanner.style.display = 'flex';
                     alertBanner.classList.remove('danger');
                     if (alertBadgeText) alertBadgeText.innerHTML = `<span class="pulse-due-dot warning"></span> Vence Amanhã • Dia ${dueDay}`;
-                    if (alertTitle) alertTitle.textContent = 'Aviso de Vencimento da Mensalidade Atlas';
-                    if (alertDesc) alertDesc.innerHTML = `A sua mensalidade vence <strong>amanhã, dia ${dueDay}</strong>. Realize o pagamento pelo Mercado Pago / Mercado Livre para manter a plataforma, banco de dados Neon e agendamentos funcionando normalmente.`;
-                    if (alertPayBtnText) alertPayBtnText.textContent = 'Pagar via Mercado Pago';
+                    if (alertTitle) alertTitle.textContent = 'Aviso de Vencimento da Licença Atlas';
+                    if (alertDesc) alertDesc.innerHTML = `A sua mensalidade vence <strong>amanhã, dia ${dueDay}</strong> (${calc.nextDueDateStr}). Realize o pagamento via PIX ou cartão (qualquer banco) para manter seu painel e agendamentos funcionando normalmente.`;
+                    if (alertPayBtnText) alertPayBtnText.textContent = 'Pagar Licença Atlas';
                 } else if (calc.status === 'due_today') {
                     alertBanner.style.display = 'flex';
                     alertBanner.classList.remove('danger');
                     if (alertBadgeText) alertBadgeText.innerHTML = `<span class="pulse-due-dot danger"></span> Vencimento Hoje • Dia ${dueDay}`;
                     if (alertTitle) alertTitle.textContent = 'Vencimento Hoje da Licença Atlas';
-                    if (alertDesc) alertDesc.innerHTML = `A sua mensalidade vence <strong>hoje, dia ${dueDay}</strong>. Evite bloqueio temporário do painel realizando o pagamento pelo Mercado Pago e enviando o comprovante.`;
-                    if (alertPayBtnText) alertPayBtnText.textContent = 'Pagar Fatura Hoje';
+                    if (alertDesc) alertDesc.innerHTML = `A sua mensalidade vence <strong>hoje, dia ${dueDay}</strong>. Evite bloqueio temporário do painel realizando o pagamento via PIX ou cartão (qualquer banco).`;
+                    if (alertPayBtnText) alertPayBtnText.textContent = 'Pagar Licença Atlas';
                 } else if (calc.status === 'overdue') {
                     alertBanner.style.display = 'flex';
                     alertBanner.classList.add('danger');
                     if (alertBadgeText) alertBadgeText.innerHTML = `<span class="pulse-due-dot danger"></span> Vencida desde o dia ${dueDay}`;
                     if (alertTitle) alertTitle.textContent = 'Mensalidade Atlas Vencida';
-                    if (alertDesc) alertDesc.innerHTML = `A sua mensalidade venceu no <strong>dia ${dueDay}</strong>. Para evitar suspensão dos agendamentos online e serviços do painel, realize a quitação online e envie o comprovante.`;
-                    if (alertPayBtnText) alertPayBtnText.textContent = 'Quitar Fatura Agora';
+                    if (alertDesc) alertDesc.innerHTML = `A sua mensalidade venceu no <strong>dia ${dueDay}</strong>. Para evitar suspensão dos agendamentos online e serviços do painel, realize a quitação online via PIX ou cartão (qualquer banco).`;
+                    if (alertPayBtnText) alertPayBtnText.textContent = 'Pagar Licença Atlas';
                 } else {
-                    // diffDays > 1 (faltam mais de 1 dia) ou não configurado
+                    // Mês pago ou faltam mais de 1 dia: BANNER OCULTO
                     alertBanner.style.display = 'none';
                 }
 
@@ -4609,10 +4609,11 @@
             const modalCurrentDayBadge = document.getElementById('modalCurrentDayBadge');
             const modalPayBtn = document.getElementById('modalAtlasPayBtn');
             const modalUrlInput = document.getElementById('modalAtlasUrlInput');
+            const modalPaidNotice = document.getElementById('modalPaidThisMonthNotice');
 
             if (modalKey) modalKey.textContent = c.atlas_license_key || 'ATLAS-CORE-DETAIL-2026';
-            if (modalOwner) modalOwner.textContent = c.atlas_license_owner || 'Araújo Detail - Carlos Araújo';
-            if (modalAmount) modalAmount.textContent = `R$ ${parseFloat(c.atlas_license_amount || 97).toFixed(2).replace('.', ',')}`;
+            if (modalOwner) modalOwner.textContent = c.atlas_license_owner || 'Araújo Detail';
+            if (modalAmount) modalAmount.textContent = `R$ ${parseFloat(c.atlas_license_amount || 50).toFixed(2).replace('.', ',')}`;
             if (modalPayBtn) modalPayBtn.href = payUrl;
             if (modalUrlInput) modalUrlInput.value = payUrl;
 
@@ -4624,10 +4625,17 @@
                 modalNextDueDate.textContent = calc.nextDueDateStr;
             }
 
+            if (modalPaidNotice) {
+                modalPaidNotice.style.display = calc.isPaidThisMonth ? 'flex' : 'none';
+            }
+
             if (modalNextDueBadge) {
                 if (calc.status === 'no_due_day') {
                     modalNextDueBadge.textContent = 'Escolha um dia abaixo';
                     modalNextDueBadge.className = 'next-due-badge warning';
+                } else if (calc.status === 'paid_current_month') {
+                    modalNextDueBadge.textContent = 'Mensalidade em Dia ✓';
+                    modalNextDueBadge.className = 'next-due-badge';
                 } else if (calc.status === 'due_tomorrow') {
                     modalNextDueBadge.textContent = 'Vence Amanhã!';
                     modalNextDueBadge.className = 'next-due-badge warning';
@@ -4643,20 +4651,7 @@
                 }
             }
 
-            // 5. Destaca os botões de seleção de dia (5, 15, 20)
-            [5, 15, 20].forEach(day => {
-                const isSelected = dueDay === day;
-                ['btnChooserDay', 'btnModalDay', 'btnTabConfigDay'].forEach(prefix => {
-                    const btn = document.getElementById(prefix + day);
-                    if (btn) {
-                        if (isSelected) {
-                            btn.classList.add('selected');
-                        } else {
-                            btn.classList.remove('selected');
-                        }
-                    }
-                });
-            });
+
 
             // 6. Atualiza Aba de Configurações
             const cfgPayUrlInput = document.getElementById('cfgAtlasPaymentUrl');
@@ -4677,6 +4672,137 @@
                     tabConfigBadge.className = 'atlas-badge-pill';
                 }
             }
+        }
+
+        // Controle e Polling do Pix Oficial da Licença Atlas
+        let atlasPixPollTimer = null;
+
+        function stopAtlasPixPolling() {
+            if (atlasPixPollTimer) {
+                clearInterval(atlasPixPollTimer);
+                atlasPixPollTimer = null;
+            }
+        }
+
+        function backToAtlasNormalView() {
+            stopAtlasPixPolling();
+            const nv = document.getElementById('atlasNormalView');
+            const pv = document.getElementById('atlasPixView');
+            if (nv) nv.style.display = 'block';
+            if (pv) pv.style.display = 'none';
+        }
+
+        // Gera o QR Code Pix Instantâneo via AbacatePay ao Clicar em Pagar
+        async function generateAtlasPixPayment(e) {
+            if (e) e.preventDefault();
+            stopAtlasPixPolling();
+            openAtlasModal();
+
+            const normalView = document.getElementById('atlasNormalView');
+            const pixView = document.getElementById('atlasPixView');
+            const loading = document.getElementById('atlasPixLoading');
+            const content = document.getElementById('atlasPixContent');
+            const successBox = document.getElementById('atlasPixSuccessBox');
+            const statusBox = document.getElementById('atlasPixStatusBox');
+            const statusText = document.getElementById('atlasPixStatusText');
+
+            if (normalView) normalView.style.display = 'none';
+            if (pixView) pixView.style.display = 'flex';
+            if (loading) loading.style.display = 'block';
+            if (content) content.style.display = 'none';
+            if (successBox) successBox.style.display = 'none';
+            if (statusBox) statusBox.style.display = 'flex';
+            if (statusText) statusText.textContent = 'Aguardando pagamento... (Aprova na hora)';
+
+            try {
+                const res = await authFetch('/api/admin/atlas/generate-pix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.success && data.qr_code_base64) {
+                    const img = document.getElementById('atlasPixQrImg');
+                    const input = document.getElementById('atlasPixCodeInput');
+                    const amountSpan = document.getElementById('atlasPixViewAmount');
+
+                    if (img) img.src = data.qr_code_base64.startsWith('data:') ? data.qr_code_base64 : `data:image/png;base64,${data.qr_code_base64}`;
+                    if (input) input.value = data.qr_code || '';
+                    if (amountSpan) amountSpan.textContent = `Valor: R$ ${parseFloat(data.amount || 50).toFixed(2).replace('.', ',')}`;
+
+                    if (loading) loading.style.display = 'none';
+                    if (content) content.style.display = 'block';
+
+                    startAtlasPixPolling(data.payment_id);
+                } else {
+                    alert(data.error || 'Erro ao gerar Pix.');
+                    backToAtlasNormalView();
+                }
+            } catch (err) {
+                console.error('Erro ao gerar Pix:', err);
+                alert('Erro ao conectar com o gateway para gerar Pix.');
+                backToAtlasNormalView();
+            }
+        }
+
+        // Verifica a cada 3.5s se o Pix foi pago no banco
+        function startAtlasPixPolling(paymentId) {
+            stopAtlasPixPolling();
+            if (!paymentId) return;
+
+            atlasPixPollTimer = setInterval(async () => {
+                try {
+                    const res = await authFetch(`/api/admin/atlas/check-pix/${paymentId}`);
+                    const data = await res.json();
+                    if (data.success && data.status === 'approved') {
+                        stopAtlasPixPolling();
+                        const statusBox = document.getElementById('atlasPixStatusBox');
+                        const successBox = document.getElementById('atlasPixSuccessBox');
+                        if (statusBox) statusBox.style.display = 'none';
+                        if (successBox) successBox.style.display = 'block';
+
+                        if (data.config) {
+                            cachedAtlasConfig = { ...cachedAtlasConfig, ...data.config };
+                        }
+                        showToast('✓ Pagamento Pix aprovado com sucesso!');
+                        setTimeout(() => {
+                            updateAtlasUI();
+                            backToAtlasNormalView();
+                        }, 2500);
+                    }
+                } catch (err) {
+                    console.warn('[Pix Poll Warning]:', err);
+                }
+            }, 3500);
+        }
+
+        // Copiar Código Pix Copia e Cola com 1 Clique
+        function copyAtlasPixCode() {
+            const input = document.getElementById('atlasPixCodeInput');
+            const btn = document.getElementById('atlasCopyPixBtn');
+            if (!input || !input.value) return;
+
+            navigator.clipboard.writeText(input.value).then(() => {
+                if (btn) {
+                    const orig = btn.textContent;
+                    btn.textContent = '✓ Copiado!';
+                    btn.style.background = '#27ae60';
+                    setTimeout(() => {
+                        btn.textContent = orig;
+                        btn.style.background = 'var(--spark)';
+                    }, 2200);
+                }
+                showToast('✓ Código Pix copiado! Abra o app do seu banco e pague na opção Pix Copia e Cola.');
+            }).catch(() => {
+                input.select();
+                document.execCommand('copy');
+                showToast('✓ Código Pix copiado!');
+            });
+        }
+
+        // Dispara o fluxo de Pix caso seja chamado por outros botões do painel
+        function handleAtlasMercadoPagoCheckout(e) {
+            if (e) e.preventDefault();
+            generateAtlasPixPayment(e);
         }
 
         // Abre o Modal da Licença Atlas
@@ -4714,74 +4840,7 @@
             }
         }
 
-        // Salva Novo Link de Pagamento do Mercado Pago via Modal
-        async function saveAtlasPaymentUrlFromModal() {
-            const urlInput = document.getElementById('modalAtlasUrlInput');
-            const newUrl = (urlInput.value || '').trim();
-            if (!newUrl) {
-                alert('Por favor, informe a URL do Mercado Pago / Mercado Livre.');
-                return;
-            }
 
-            try {
-                const res = await authFetch('/api/admin/atlas/payment-url', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ payment_url: newUrl })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    cachedAtlasConfig.atlas_payment_url = newUrl;
-                    updateAtlasUI();
-                    showToast('Link do Mercado Pago atualizado com sucesso!');
-                    const cfgBox = document.getElementById('atlasUrlConfigBox');
-                    if (cfgBox) cfgBox.style.display = 'none';
-                } else {
-                    alert(data.error || 'Erro ao atualizar link de pagamento.');
-                }
-            } catch (err) {
-                console.error('Erro saveAtlasPaymentUrlFromModal:', err);
-                showToast('Erro ao atualizar link.');
-            }
-        }
-
-        // Salva Novo Link de Pagamento do Mercado Pago via Tab Config
-        async function saveAtlasPaymentUrlFromTabConfig() {
-            const urlInput = document.getElementById('cfgAtlasPaymentUrl');
-            const newUrl = (urlInput.value || '').trim();
-            if (!newUrl) {
-                alert('Por favor, informe a URL do Mercado Pago / Mercado Livre.');
-                return;
-            }
-
-            try {
-                const res = await authFetch('/api/admin/atlas/payment-url', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ payment_url: newUrl })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    cachedAtlasConfig.atlas_payment_url = newUrl;
-                    updateAtlasUI();
-                    showToast('Link de pagamento salvo com sucesso!');
-                } else {
-                    alert(data.error || 'Erro ao atualizar link.');
-                }
-            } catch (err) {
-                console.error('Erro saveAtlasPaymentUrlFromTabConfig:', err);
-                showToast('Erro ao atualizar link.');
-            }
-        }
-
-        // Toggle do campo de configuração de URL no modal
-        function toggleAtlasUrlConfig() {
-            const box = document.getElementById('atlasUrlConfigBox');
-            if (!box) return;
-            box.style.display = box.style.display === 'none' ? 'block' : 'none';
-        }
 
         // Busca as configurações da licença no backend
         async function loadAtlasLicense() {

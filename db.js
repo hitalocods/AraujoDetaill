@@ -30,10 +30,11 @@ const DEFAULT_DATA = {
         whatsapp_number: "5599984937614",
         atlas_license_key: "ATLAS-CORE-DETAIL-2026",
         atlas_license_status: "Ativa",
-        atlas_license_owner: "Araújo Detail - Carlos Araújo",
-        atlas_due_day: null,
+        atlas_license_owner: "Araújo Detail",
+        atlas_due_day: 20,
         atlas_payment_url: "https://link.mercadopago.com.br/atlassoftware",
-        atlas_license_amount: 97.00,
+        atlas_license_amount: 50.00,
+        atlas_last_paid_month: "2026-09",
         abacatepay_api_key: "",
         abacatepay_enabled: false,
         abacatepay_mode: "production",
@@ -200,10 +201,11 @@ async function initPostgresTables() {
             await client.query(`
                 ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_key VARCHAR(255) DEFAULT 'ATLAS-CORE-DETAIL-2026';
                 ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_status VARCHAR(100) DEFAULT 'Ativa';
-                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_owner VARCHAR(255) DEFAULT 'Araújo Detail - Carlos Araújo';
-                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_due_day INTEGER;
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_owner VARCHAR(255) DEFAULT 'Araújo Detail';
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_due_day INTEGER DEFAULT 20;
                 ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_payment_url TEXT DEFAULT 'https://link.mercadopago.com.br/atlassoftware';
-                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_amount NUMERIC(10, 2) DEFAULT 97.00;
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_license_amount NUMERIC(10, 2) DEFAULT 50.00;
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_last_paid_month VARCHAR(20) DEFAULT '2026-09';
                 ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_api_key TEXT DEFAULT '';
                 ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_enabled BOOLEAN DEFAULT false;
                 ALTER TABLE business_config ADD COLUMN IF NOT EXISTS abacatepay_mode VARCHAR(50) DEFAULT 'production';
@@ -277,7 +279,7 @@ const db = {
     async updateConfig({
         pix_key, pix_bank, pix_name, whatsapp_number,
         atlas_license_key, atlas_license_status, atlas_license_owner,
-        atlas_due_day, atlas_payment_url, atlas_license_amount,
+        atlas_due_day, atlas_payment_url, atlas_license_amount, atlas_last_paid_month,
         abacatepay_api_key, abacatepay_enabled, abacatepay_mode, abacatepay_charge_type
     }) {
         const current = await this.getConfig();
@@ -288,10 +290,11 @@ const db = {
             whatsapp_number: whatsapp_number !== undefined ? whatsapp_number : (current.whatsapp_number || '5599984937614'),
             atlas_license_key: atlas_license_key !== undefined ? atlas_license_key : (current.atlas_license_key || 'ATLAS-CORE-DETAIL-2026'),
             atlas_license_status: atlas_license_status !== undefined ? atlas_license_status : (current.atlas_license_status || 'Ativa'),
-            atlas_license_owner: atlas_license_owner !== undefined ? atlas_license_owner : (current.atlas_license_owner || 'Araújo Detail - Carlos Araújo'),
-            atlas_due_day: atlas_due_day !== undefined ? (atlas_due_day ? parseInt(atlas_due_day) : null) : (current.atlas_due_day !== undefined ? current.atlas_due_day : null),
+            atlas_license_owner: atlas_license_owner !== undefined ? atlas_license_owner : (current.atlas_license_owner || 'Araújo Detail'),
+            atlas_due_day: atlas_due_day !== undefined ? (atlas_due_day ? parseInt(atlas_due_day) : 20) : (current.atlas_due_day !== undefined ? current.atlas_due_day : 20),
             atlas_payment_url: atlas_payment_url !== undefined ? atlas_payment_url : (current.atlas_payment_url || 'https://link.mercadopago.com.br/atlassoftware'),
-            atlas_license_amount: atlas_license_amount !== undefined ? parseFloat(atlas_license_amount) : (current.atlas_license_amount !== undefined ? parseFloat(current.atlas_license_amount) : 97.00),
+            atlas_license_amount: atlas_license_amount !== undefined ? parseFloat(atlas_license_amount) : (current.atlas_license_amount !== undefined ? parseFloat(current.atlas_license_amount) : 50.00),
+            atlas_last_paid_month: atlas_last_paid_month !== undefined ? atlas_last_paid_month : (current.atlas_last_paid_month || '2026-09'),
             abacatepay_api_key: abacatepay_api_key !== undefined ? abacatepay_api_key : (current.abacatepay_api_key || ''),
             abacatepay_enabled: abacatepay_enabled !== undefined ? Boolean(abacatepay_enabled) : Boolean(current.abacatepay_enabled),
             abacatepay_mode: abacatepay_mode !== undefined ? abacatepay_mode : (current.abacatepay_mode || 'production'),
@@ -306,13 +309,15 @@ const db = {
                          atlas_license_key = $5, atlas_license_status = $6, atlas_license_owner = $7,
                          abacatepay_api_key = $8, abacatepay_enabled = $9, abacatepay_mode = $10, abacatepay_charge_type = $11,
                          atlas_due_day = $12, atlas_payment_url = $13, atlas_license_amount = $14,
+                         atlas_last_paid_month = $15,
                          updated_at = CURRENT_TIMESTAMP 
                      WHERE id = 1 RETURNING *`,
                     [
                         updated.pix_key, updated.pix_bank, updated.pix_name, updated.whatsapp_number,
                         updated.atlas_license_key, updated.atlas_license_status, updated.atlas_license_owner,
                         updated.abacatepay_api_key, updated.abacatepay_enabled, updated.abacatepay_mode, updated.abacatepay_charge_type,
-                        updated.atlas_due_day, updated.atlas_payment_url, updated.atlas_license_amount
+                        updated.atlas_due_day, updated.atlas_payment_url, updated.atlas_license_amount,
+                        updated.atlas_last_paid_month
                     ]
                 );
                 if (res.rows.length > 0) return res.rows[0];
