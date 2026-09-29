@@ -129,65 +129,8 @@ app.get('/api/public/available-slots', async (req, res) => {
 });
 
 // ==========================================
-// INTEGRAÇÃO GATEWAY ABACATEPAY (PIX)
+// AGENDAMENTOS PÚBLICOS
 // ==========================================
-
-async function createAbacatePayBilling({ apiKey, booking, amount, chargeType, host }) {
-    if (!apiKey) throw new Error('Chave de API do AbacatePay não configurada.');
-
-    const cleanPhone = (booking.client_phone || '').replace(/\D/g, '');
-    const priceInCents = Math.max(100, Math.round(amount * 100)); // em centavos (mínimo R$ 1,00)
-
-    const payload = {
-        frequency: "ONE_TIME",
-        methods: ["PIX"],
-        products: [
-            {
-                externalId: `booking-${booking.id}`,
-                name: `${chargeType === 'full' ? 'Pagamento Total' : 'Sinal (50%)'} - Araújo Detail`,
-                description: `${booking.services_names || 'Serviço'} - ${booking.vehicle_name || 'Veículo'} (${booking.booking_date} às ${booking.booking_time})`,
-                quantity: 1,
-                price: priceInCents
-            }
-        ],
-        returnUrl: `${host}/?bookingId=${booking.id}`,
-        completionUrl: `${host}/?bookingId=${booking.id}&paid=true`,
-        customer: {
-            name: booking.client_name,
-            cellphone: cleanPhone.length >= 10 ? cleanPhone : '86999999999',
-            email: `${(booking.client_name || 'cliente').toLowerCase().replace(/[^a-z0-9]/g, '') || 'cliente'}@araujodetail.com.br`
-        },
-        metadata: {
-            booking_id: String(booking.id),
-            client_name: booking.client_name,
-            booking_date: booking.booking_date,
-            booking_time: booking.booking_time
-        }
-    };
-
-    const response = await fetch('https://api.abacatepay.com/v1/billing/create', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${apiKey.trim()}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    if (!response.ok || (data.error && !data.data)) {
-        throw new Error(data.error || data.message || 'Erro ao comunicar com a API do AbacatePay');
-    }
-
-    const billing = data.data || data;
-    return {
-        payment_id: billing.id || billing._id || `abp_${Date.now()}`,
-        pix_url: billing.url || '',
-        pix_copia_cola: billing.pix?.code || billing.pixCode || billing.brCode || billing.url || '',
-        pix_qrcode: billing.pix?.qrCodeUrl || billing.qrCode || '',
-        raw: billing
-    };
-}
 
 app.post('/api/public/bookings', async (req, res) => {
     try {
@@ -218,45 +161,9 @@ app.post('/api/public/bookings', async (req, res) => {
             deposit_price: deposit_price || 0
         });
 
-        // Verifica se o AbacatePay está ativo para gerar cobrança PIX automática
-        let abacatepayData = null;
-        try {
-            const config = await db.getConfig();
-            if (config.abacatepay_enabled && config.abacatepay_api_key) {
-                const chargeAmount = config.abacatepay_charge_type === 'full' ? (newBooking.total_price || newBooking.deposit_price) : (newBooking.deposit_price || newBooking.total_price / 2);
-                const host = `${req.protocol}://${req.get('host')}`;
-                
-                const abpRes = await createAbacatePayBilling({
-                    apiKey: config.abacatepay_api_key,
-                    booking: newBooking,
-                    amount: chargeAmount,
-                    chargeType: config.abacatepay_charge_type || 'deposit',
-                    host
-                });
-
-                if (abpRes) {
-                    abacatepayData = abpRes;
-                    await db.updateBookingPayment(newBooking.id, {
-                        payment_id: abpRes.payment_id,
-                        payment_status: 'pendente',
-                        pix_qrcode: abpRes.pix_qrcode,
-                        pix_copia_cola: abpRes.pix_copia_cola,
-                        pix_url: abpRes.pix_url
-                    });
-                    newBooking.payment_id = abpRes.payment_id;
-                    newBooking.pix_copia_cola = abpRes.pix_copia_cola;
-                    newBooking.pix_qrcode = abpRes.pix_qrcode;
-                    newBooking.pix_url = abpRes.pix_url;
-                }
-            }
-        } catch (gatewayErr) {
-            console.warn('Aviso: Não foi possível gerar PIX no AbacatePay (mantendo fluxo normal):', gatewayErr.message);
-        }
-
         res.json({ 
             success: true, 
-            booking: newBooking,
-            abacatepay: abacatepayData
+            booking: newBooking
         });
     } catch (err) {
         console.error('Erro ao salvar agendamento:', err);
@@ -283,80 +190,7 @@ app.get('/api/public/bookings/:id/payment-status', async (req, res) => {
     }
 });
 
-// Webhook para receber confirmação de pagamento do AbacatePay
-app.post('/api/webhooks/abacatepay', async (req, res) => {
-    try {
-        const payload = req.body;
-        console.log('[Webhook AbacatePay Recebido]:', JSON.stringify(payload));
 
-        const event = payload.event || payload.type || '';
-        const data = payload.data || payload;
-
-        const isPaid = event.includes('paid') || event.includes('PAID') || event.includes('confirmed') || data.status === 'PAID' || data.status === 'CONFIRMED' || data.status === 'COMPLETED';
-
-        let bookingId = null;
-        if (data.metadata && data.metadata.booking_id) {
-            bookingId = parseInt(data.metadata.booking_id);
-        } else if (data.products && data.products[0] && data.products[0].externalId) {
-            bookingId = parseInt(data.products[0].externalId.replace('booking-', ''));
-        }
-
-        const billingId = data.id || data.billingId || data._id;
-
-        if (isPaid) {
-            let booking = null;
-            if (bookingId) {
-                booking = await db.getBookingById(bookingId);
-            }
-            if (!booking && billingId) {
-                booking = await db.getBookingByPaymentId(billingId);
-            }
-
-            if (booking) {
-                await db.updateBookingPayment(booking.id, {
-                    payment_status: 'pago',
-                    status: 'confirmado'
-                });
-                console.log(`✅ [Webhook AbacatePay] Agendamento #${booking.id} (${booking.client_name}) foi PAGO e CONFIRMADO com sucesso!`);
-            }
-        }
-
-        return res.json({ success: true, message: 'Webhook processado com sucesso' });
-    } catch (err) {
-        console.error('Erro ao processar Webhook AbacatePay:', err);
-        return res.status(500).json({ success: false, error: err.message });
-    }
-});
-
-// Teste de conexão com AbacatePay
-app.post('/api/admin/abacatepay/test-connection', requireAdminAuth, async (req, res) => {
-    try {
-        const { api_key } = req.body;
-        const config = await db.getConfig();
-        const keyToTest = (api_key || config.abacatepay_api_key || '').trim();
-
-        if (!keyToTest) {
-            return res.status(400).json({ success: false, error: 'Chave de API do AbacatePay não informada.' });
-        }
-
-        const response = await fetch('https://api.abacatepay.com/v1/billing/list', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${keyToTest}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-        if (response.ok && (data.data !== undefined || data.success !== false)) {
-            return res.json({ success: true, message: 'Conexão com AbacatePay validada com sucesso! API Key ativa.' });
-        } else {
-            return res.status(400).json({ success: false, error: data.error || data.message || 'Chave de API inválida ou não autorizada pelo AbacatePay.' });
-        }
-    } catch (err) {
-        return res.status(500).json({ success: false, error: 'Erro ao testar conexão com AbacatePay: ' + err.message });
-    }
-});
 
 // ==========================================
 // API ADMINISTRATIVA (Protegida por Senha)
@@ -411,70 +245,79 @@ app.post('/api/admin/atlas/payment-url', requireAdminAuth, async (req, res) => {
     }
 });
 
-// Gerar Pagamento PIX Instantâneo Oficial via AbacatePay (QR Code e Copia e Cola na hora)
+
+// Gerar PIX direto via Mercado Pago Payments API (QR Code + Copia e Cola)
 app.post('/api/admin/atlas/generate-pix', requireAdminAuth, async (req, res) => {
     try {
-        const apiKey = process.env.ABACATEPAY_API_KEY;
+        const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
         const config = await db.getConfig();
         const amount = parseFloat(config.atlas_license_amount || 50.00);
-        const amountInCents = Math.round(amount * 100);
 
-        if (!apiKey) {
-            return res.status(400).json({ success: false, error: 'Chave da AbacatePay não configurada no servidor.' });
+        if (!token) {
+            return res.status(400).json({ success: false, error: 'Token do Mercado Pago não configurado no servidor.' });
         }
 
-        const abRes = await fetch('https://api.abacatepay.com/v2/transparents/create', {
+        const idempotencyKey = `atlas-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+        const mpRes = await fetch('https://api.mercadopago.com/v1/payments', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey.trim()}`,
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${token.trim()}`,
+                'Content-Type': 'application/json',
+                'X-Idempotency-Key': idempotencyKey
             },
             body: JSON.stringify({
-                method: 'PIX',
-                data: {
-                    amount: amountInCents,
-                    description: 'Licença Atlas Software - Araújo Detail'
+                transaction_amount: amount,
+                description: 'Licença Atlas Software - Araújo Detail',
+                payment_method_id: 'pix',
+                payer: {
+                    email: 'licenca@araujodetail.com.br',
+                    first_name: 'Araújo',
+                    last_name: 'Detail'
                 }
             })
         });
 
-        const json = await abRes.json();
-        if (abRes.ok && json.success && json.data) {
-            const data = json.data;
+        const mpData = await mpRes.json();
+
+        if (mpRes.ok && mpData.id && mpData.point_of_interaction) {
+            const poi = mpData.point_of_interaction;
+            const txData = poi.transaction_data || {};
             return res.json({
                 success: true,
-                payment_id: data.id,
-                status: data.status,
-                qr_code: data.brCode,
-                qr_code_base64: data.brCodeBase64,
+                payment_id: String(mpData.id),
+                status: mpData.status,
+                qr_code: txData.qr_code || '',
+                qr_code_base64: txData.qr_code_base64 || '',
                 amount: amount
             });
         } else {
-            console.error('[AbacatePay Pix Error]:', json);
-            return res.status(500).json({ success: false, error: json.error || 'Erro ao gerar Pix na AbacatePay.' });
+            console.error('[MP PIX Error]:', mpData);
+            return res.status(500).json({ success: false, error: mpData.message || mpData.cause?.[0]?.description || 'Erro ao gerar PIX no Mercado Pago.' });
         }
     } catch (err) {
-        console.error('Erro ao gerar Pix AbacatePay:', err);
+        console.error('Erro ao gerar PIX MP:', err);
         return res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// Verificar status do pagamento Pix via AbacatePay
+// Verificar status do pagamento PIX via Mercado Pago
 app.get('/api/admin/atlas/check-pix/:id', requireAdminAuth, async (req, res) => {
     try {
-        const apiKey = process.env.ABACATEPAY_API_KEY;
+        const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
         const { id } = req.params;
-        if (!apiKey || !id) {
+        if (!token || !id) {
             return res.status(400).json({ success: false, error: 'Parâmetros inválidos.' });
         }
 
-        const abRes = await fetch(`https://api.abacatepay.com/v2/transparents/check?id=${encodeURIComponent(id)}`, {
-            headers: { 'Authorization': `Bearer ${apiKey.trim()}` }
+        const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
+            headers: { 'Authorization': `Bearer ${token.trim()}` }
         });
-        const json = await abRes.json();
-        if (abRes.ok && json.success && json.data) {
-            const st = (json.data.status || '').toUpperCase();
-            if (st === 'PAID') {
+        const mpData = await mpRes.json();
+
+        if (mpRes.ok && mpData.id) {
+            const st = (mpData.status || '').toLowerCase();
+            if (st === 'approved') {
                 const now = new Date();
                 const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
                 const updatedConfig = await db.updateConfig({ atlas_last_paid_month: ym });
@@ -482,79 +325,12 @@ app.get('/api/admin/atlas/check-pix/:id', requireAdminAuth, async (req, res) => 
             }
             return res.json({ success: true, status: st });
         }
-        return res.status(400).json({ success: false, error: 'Cobrança não encontrada na AbacatePay.' });
+        return res.status(400).json({ success: false, error: 'Pagamento não encontrado no Mercado Pago.' });
     } catch (err) {
         return res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// Gerar Preferência de Pagamento oficial do Mercado Pago com as chaves protegidas
-app.post('/api/admin/atlas/mercadopago-checkout', requireAdminAuth, async (req, res) => {
-    try {
-        const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
-        const config = await db.getConfig();
-        const amount = parseFloat(config.atlas_license_amount || 50.00);
-
-        if (!token) {
-            return res.json({ 
-                success: true, 
-                checkout_url: config.atlas_payment_url || 'https://link.mercadopago.com.br/atlassoftware' 
-            });
-        }
-
-        const host = `${req.protocol}://${req.get('host')}`;
-        const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
-
-        const preferencePayload = {
-            items: [
-                {
-                    title: "Licença Atlas Software - Araújo Detail",
-                    description: "Mensalidade do sistema de gestão e agendamento online",
-                    quantity: 1,
-                    currency_id: "BRL",
-                    unit_price: amount
-                }
-            ]
-        };
-
-        if (!isLocalhost && host.startsWith('https://')) {
-            preferencePayload.back_urls = {
-                success: `${host}/admin?paid=atlas_success`,
-                failure: `${host}/admin?paid=atlas_failure`,
-                pending: `${host}/admin?paid=atlas_pending`
-            };
-            preferencePayload.auto_return = "approved";
-        }
-
-        const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token.trim()}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(preferencePayload)
-        });
-
-        const mpData = await mpRes.json();
-        if (mpRes.ok && (mpData.init_point || mpData.sandbox_init_point)) {
-            const checkoutUrl = mpData.init_point || mpData.sandbox_init_point;
-            return res.json({ success: true, checkout_url: checkoutUrl, preference_id: mpData.id });
-        } else {
-            console.warn('[MercadoPago Preference Fallback]:', mpData);
-            return res.json({ 
-                success: true, 
-                checkout_url: config.atlas_payment_url || 'https://link.mercadopago.com.br/atlassoftware' 
-            });
-        }
-    } catch (err) {
-        console.error('Erro ao gerar preferência Mercado Pago:', err);
-        const config = await db.getConfig();
-        return res.json({ 
-            success: true, 
-            checkout_url: config.atlas_payment_url || 'https://link.mercadopago.com.br/atlassoftware' 
-        });
-    }
-});
 
 // Marcar mês atual como pago para a Licença Atlas
 app.post('/api/admin/atlas/mark-paid', requireAdminAuth, async (req, res) => {
