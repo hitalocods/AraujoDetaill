@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f0ea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Araújo Detail | Agendamento</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,22 +37,27 @@
         }
 
         html {
+            background-color: var(--paper);
+            min-height: 100%;
             scroll-behavior: smooth;
             -webkit-text-size-adjust: 100%;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--paper);
+            background-color: var(--paper);
             color: var(--ink);
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
+            min-height: 100vh;
+            min-height: 100dvh;
             touch-action: manipulation;
         }
 
         input, select, textarea, button {
-            font-size: 16px;
+            font-size: 16px !important;
             touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
         }
 
         .disp {
@@ -765,10 +773,12 @@
             outline: none;
             background: transparent;
             font-family: 'Inter', sans-serif;
-            font-size: 15px;
+            font-size: 16px !important;
             color: var(--ink);
-            padding: 6px 0 14px;
+            padding: 8px 0 14px;
             resize: none;
+            touch-action: manipulation;
+            box-sizing: border-box;
         }
 
         /* ---------- pix ---------- */
@@ -1073,15 +1083,11 @@
             <p class="step-sub">Pra confirmarmos seu agendamento</p>
             <div class="field-blob">
                 <label>Nome completo</label>
-                <input type="text" id="clientName" placeholder="Como podemos te chamar?">
+                <input type="text" id="clientName" placeholder="Como podemos te chamar?" autocomplete="name">
             </div>
             <div class="field-blob">
                 <label>WhatsApp</label>
-                <input type="tel" id="clientPhone" placeholder="(86) 9 9999-9999">
-            </div>
-            <div class="field-blob">
-                <label>Observações (opcional)</label>
-                <textarea id="clientNotes" rows="2" placeholder="Detalhe extra do veículo ou preferência..."></textarea>
+                <input type="tel" id="clientPhone" placeholder="(86) 99999-9999" autocomplete="tel">
             </div>
             <div class="btn-row">
                 <button class="btn ghost" onclick="goTo(3)">Voltar</button>
@@ -1123,7 +1129,7 @@
             <div class="summary" id="summaryBox"></div>
             <div class="btn-row">
                 <button class="btn ghost" onclick="goTo(4)">Voltar</button>
-                <button class="btn" onclick="confirmBooking()">Confirmar pelo WhatsApp</button>
+                <button class="btn" id="btnConfirmBooking" onclick="confirmBooking()">Confirmar pelo WhatsApp</button>
             </div>
         </section>
 
@@ -1136,8 +1142,13 @@
                     </svg>
                 </div>
                 <h2 class="step-title">Quase lá!</h2>
-                <p class="step-sub">Sua solicitação foi aberta no WhatsApp. É só enviar a mensagem e mandar o
-                    comprovante do sinal pra confirmar com a Araújo Detail.</p>
+                <p class="step-sub">Sua solicitação foi preparada. Clique no botão abaixo para abrir a conversa no WhatsApp e enviar os detalhes do agendamento.</p>
+                <div class="btn-row" style="margin-bottom:16px;">
+                    <a id="btnWhatsAppDirect" class="btn" href="#" style="background:#25d366; color:#ffffff; display:inline-flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; padding:16px 36px; box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.45); font-size:15.5px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        <span>Abrir no WhatsApp</span>
+                    </a>
+                </div>
                 <div class="btn-row">
                     <button class="btn ghost" onclick="resetFlow()">Fazer novo agendamento</button>
                 </div>
@@ -1149,10 +1160,6 @@
     <footer>
         Araújo Detail · Lavagem &amp; Estética Automotiva · Zona Sul, Teresina-PI<br>
         <a href="https://www.instagram.com/araujodetailofc" target="_blank">@araujodetailofc</a>
-        <div style="margin-top:14px; opacity:.7;">
-            Desenvolvido por Atlas Software · <a href="https://www.instagram.com/atlassoftware_/"
-                target="_blank">Instagram</a>
-        </div>
     </footer>
 
     <script>
@@ -1506,18 +1513,43 @@
         }
 
         /* ---------------- dados (etapa 5) ---------------- */
-        document.getElementById('clientName').addEventListener('input', checkFormValid);
-        document.getElementById('clientPhone').addEventListener('input', checkFormValid);
+        const phoneInput = document.getElementById('clientPhone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                if (v.length > 11) v = v.slice(0, 11);
+                if (v.length > 6) {
+                    v = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+                } else if (v.length > 2) {
+                    v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+                } else if (v.length > 0) {
+                    v = `(${v}`;
+                }
+                e.target.value = v;
+                checkFormValid();
+            });
+        }
+
+        const nameInput = document.getElementById('clientName');
+        if (nameInput) {
+            nameInput.addEventListener('input', checkFormValid);
+        }
+
         function checkFormValid() {
-            state.name = document.getElementById('clientName').value.trim();
-            state.phone = document.getElementById('clientPhone').value.trim();
-            state.notes = document.getElementById('clientNotes').value.trim();
-            document.getElementById('toStep5').disabled = !(state.name.length > 1 && state.phone.length >= 8);
+            state.name = (document.getElementById('clientName')?.value || '').trim();
+            const phoneEl = document.getElementById('clientPhone');
+            const rawPhone = phoneEl ? phoneEl.value.replace(/\D/g, '') : '';
+            state.phone = phoneEl ? phoneEl.value.trim() : '';
+            state.notes = ''; // Simplificado sem campos desnecessários
+
+            const toStep5Btn = document.getElementById('toStep5');
+            if (toStep5Btn) {
+                toStep5Btn.disabled = !(state.name.length >= 2 && rawPhone.length >= 10);
+            }
         }
 
         /* ---------------- confirmação (etapa 6) ---------------- */
         function renderSummary() {
-            state.notes = document.getElementById('clientNotes').value.trim();
             document.getElementById('pixKeyVal').textContent = PIX_CONFIG.key;
             document.getElementById('pixBankDisplay').textContent = PIX_CONFIG.bank;
             document.getElementById('pixNameDisplay').textContent = PIX_CONFIG.name;
@@ -1548,7 +1580,6 @@
     <div class="summary-row"><span class="k">Horário</span><span class="v">${state.time}</span></div>
     <div class="summary-row"><span class="k">Nome</span><span class="v">${state.name}</span></div>
     <div class="summary-row"><span class="k">WhatsApp</span><span class="v">${state.phone}</span></div>
-    ${state.notes ? `<div class="summary-row"><span class="k">Obs.</span><span class="v">${state.notes}</span></div>` : ''}
     <div class="summary-total"><span class="k">Total estimado</span><span class="v">R$ ${total.toFixed(2).replace('.', ',')}</span></div>
     <div class="summary-total deposit"><span class="k">Sinal 50%</span><span class="v">R$ ${deposit}</span></div>
   `;
@@ -1565,6 +1596,13 @@
         }
 
         async function confirmBooking() {
+            const btn = document.getElementById('btnConfirmBooking');
+            if (btn) {
+                btn.disabled = true;
+                btn.dataset.originalText = btn.innerHTML;
+                btn.innerHTML = '<span>Processando agendamento...</span>';
+            }
+
             const selectedServices = [];
             CATALOG.forEach(c => {
                 c.items.forEach(i => {
@@ -1578,13 +1616,8 @@
             
             const total = selectedServices.reduce((sum, s) => sum + getServicePriceForVehicle(s, state.vehicle), 0);
             const deposit = (total / 2).toFixed(2).replace('.', ',');
-            
-            const svcsList = selectedServices.map(s => {
-                const p = getServicePriceForVehicle(s, state.vehicle);
-                return `- ${s.name}: R$ ${p.toFixed(2).replace('.', ',')}`;
-            }).join('%0A');
 
-            // Salva no banco de dados (Neon / Backend com verificação anti-colisão)
+            // Salva no banco de dados com verificação anti-colisão
             try {
                 const res = await fetch('/api/public/bookings', {
                     method: 'POST',
@@ -1592,7 +1625,7 @@
                     body: JSON.stringify({
                         client_name: state.name,
                         client_phone: state.phone,
-                        client_notes: state.notes,
+                        client_notes: state.notes || '',
                         vehicle_id: state.vehicle,
                         vehicle_name: veh ? veh.name : '',
                         services_ids: state.services,
@@ -1607,29 +1640,67 @@
                 const data = await res.json();
                 if (!res.ok || !data.success) {
                     alert(data.error || 'Ops! Este horário acabou de ser preenchido. Por favor, escolha outro horário.');
-                    goTo(3); // Volta para a escolha de horário com slots atualizados
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = btn.dataset.originalText || 'Confirmar pelo WhatsApp';
+                    }
+                    goTo(3);
                     return;
                 }
             } catch (e) {
-                console.error('Erro ao registrar agendamento no servidor:', e);
+                console.error('Aviso ao registrar agendamento no servidor:', e);
             }
 
-            const msg = `Olá, Araújo Detail! Quero agendar:%0A%0A` +
-                `Serviços:%0A${svcsList}%0A%0A` +
-                `Veículo: ${veh ? veh.name : '-'}%0A` +
-                `Dia: ${dateLabel}%0A` +
-                `Horário: ${state.time}%0A%0A` +
-                `Total: R$ ${total.toFixed(2).replace('.', ',')}%0A` +
-                `Sinal (50%25): R$ ${deposit}%0A%0A` +
-                `Nome: ${state.name}%0A` +
-                (state.notes ? `Obs: ${state.notes}%0A` : '') +
-                `%0AJá estou enviando o sinal via PIX para confirmação!`;
+            // Monta mensagem estruturada e elegante para o WhatsApp
+            const svcsFormatted = selectedServices.map(s => {
+                const p = getServicePriceForVehicle(s, state.vehicle);
+                return `• ${s.name}: R$ ${p.toFixed(2).replace('.', ',')}`;
+            }).join('\n');
 
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
-            document.getElementById('step-done').classList.add('active');
-            document.getElementById('step-5').classList.remove('active');
-            
-            // Notificação na tela do cliente se suportado
+            const rawMsg = [
+                `Olá, Araújo Detail! Quero agendar:`,
+                ``,
+                `*Serviços:*`,
+                svcsFormatted,
+                ``,
+                `*Veículo:* ${veh ? veh.name : '-'}`,
+                `*Dia:* ${dateLabel}`,
+                `*Horário:* ${state.time}`,
+                ``,
+                `*Total:* R$ ${total.toFixed(2).replace('.', ',')}`,
+                `*Sinal (50%):* R$ ${deposit}`,
+                ``,
+                `*Nome:* ${state.name}`,
+                `*WhatsApp:* ${state.phone}`,
+                ``,
+                `Já estou enviando o comprovante do sinal via PIX para confirmação!`
+            ].join('\n');
+
+            let cleanPhone = String(WHATSAPP_NUMBER).replace(/\D/g, '');
+            if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+                cleanPhone = '55' + cleanPhone;
+            }
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(rawMsg)}`;
+
+            // Atualiza link direto de fallback na tela final
+            const btnDirect = document.getElementById('btnWhatsAppDirect');
+            if (btnDirect) {
+                btnDirect.href = whatsappUrl;
+                btnDirect.target = '_blank';
+                btnDirect.rel = 'noopener noreferrer';
+            }
+
+            // Transiciona para a tela de conclusão (sem tela branca)
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            const doneStep = document.getElementById('step-done');
+            if (doneStep) doneStep.classList.add('active');
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = btn.dataset.originalText || 'Confirmar pelo WhatsApp';
+            }
+
+            // Notificação local se suportada
             if ('Notification' in window && Notification.permission === 'granted') {
                 try {
                     new Notification('✅ Agendamento Solicitado - Araújo Detail', {
@@ -1639,21 +1710,27 @@
                 } catch (e) {}
             }
 
-            // Oculta rodapé (about/desenvolvedor) e barra superior na tela final
-            const footerEl = document.querySelector('footer');
-            if (footerEl) footerEl.style.display = 'none';
+            // Oculta barra superior na tela final
             const spineEl = document.querySelector('.spine-wrap');
             if (spineEl) spineEl.style.display = 'none';
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Redireciona diretamente para o aplicativo do WhatsApp no mobile (sem aba em branco about:blank)
+            try {
+                window.location.href = whatsappUrl;
+            } catch (err) {
+                console.error('Redirecionamento automático falhou:', err);
+            }
         }
 
         function resetFlow() {
             state.services = []; state.vehicle = null; state.date = null; state.time = null;
             state.name = ''; state.phone = ''; state.notes = '';
-            document.getElementById('clientName').value = '';
-            document.getElementById('clientPhone').value = '';
-            document.getElementById('clientNotes').value = '';
+            const nameEl = document.getElementById('clientName');
+            if (nameEl) nameEl.value = '';
+            const phoneEl = document.getElementById('clientPhone');
+            if (phoneEl) phoneEl.value = '';
             document.getElementById('toStep1').disabled = true;
             document.getElementById('toStep2').disabled = true;
             document.getElementById('toStep3').disabled = true;
@@ -1662,9 +1739,6 @@
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
             document.getElementById('step-hero').classList.add('active');
             
-            // Restaura rodapé e barra
-            const footerEl = document.querySelector('footer');
-            if (footerEl) footerEl.style.display = 'block';
             const spineEl = document.querySelector('.spine-wrap');
             if (spineEl) spineEl.style.display = 'block';
 

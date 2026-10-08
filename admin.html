@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f0ea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Araújo Detail — Painel Administrativo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,12 +38,19 @@
             touch-action: manipulation;
         }
 
+        html {
+            background-color: var(--paper);
+            min-height: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--paper);
+            background-color: var(--paper);
             color: var(--ink);
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
+            min-height: 100dvh;
             overflow-x: hidden;
             touch-action: manipulation;
         }
