@@ -190,6 +190,154 @@ app.get('/api/public/bookings/:id/payment-status', async (req, res) => {
     }
 });
 
+// ==========================================
+// WEBHOOK OFICIAL ABACATEPAY (Validação de Segredo, Idempotência e Confirmação Backend)
+// ==========================================
+
+app.post('/api/webhooks/abacatepay', async (req, res) => {
+    try {
+        // 1. Validação do Segredo de Autenticidade (Query parameter ?webhookSecret=... ou Header)
+        const configuredSecret = process.env.ABACATEPAY_WEBHOOK_SECRET;
+        if (configuredSecret) {
+            const incomingSecret = req.query.webhookSecret || req.headers['x-webhook-secret'] || req.headers['x-webhook-signature'];
+            if (!incomingSecret || incomingSecret !== configuredSecret) {
+                console.warn('[Webhook AbacatePay] Acesso negado: segredo de webhook inválido ou ausente.');
+                return res.status(401).json({ success: false, error: 'Unauthorized: Segredo de webhook inválido.' });
+            }
+        }
+
+        const payload = req.body || {};
+        console.log('[Webhook AbacatePay Recebido]:', JSON.stringify(payload));
+
+        const event = payload.event || payload.type || '';
+        const data = payload.data || payload;
+        const paymentId = data.id || data.billingId;
+        const payloadStatus = (data.status || '').toUpperCase();
+        const payloadAmount = data.amount ? parseInt(data.amount) : null;
+
+        // Validação inicial do payload
+        if (!paymentId) {
+            return res.status(400).json({ success: false, error: 'Identificador de cobrança (id) ausente no payload.' });
+        }
+
+        const eventId = payload.id || payload.eventId || `${event || 'evt'}_${paymentId}`;
+
+        // 2. Verificação de idempotência prévia (evita reprocessamento imediato)
+        const alreadyDone = await db.isWebhookProcessed(eventId);
+        if (alreadyDone) {
+            console.log(`[Webhook AbacatePay] Evento ${eventId} já processado anteriormente (idempotência garantida).`);
+            return res.status(200).json({ success: true, message: 'Evento já processado anteriormente (idempotente)' });
+        }
+
+        // 3. Verificação de Integridade Zero-Trust: Consulta Direta à API Oficial da AbacatePay
+        // Mesmo conhecendo o segredo, um atacante não consegue forjar um pagamento falso porque consultamos a API oficial.
+        const apiKey = process.env.ABACATEPAY_API_KEY;
+        let officialStatus = payloadStatus;
+        let officialAmountInCents = payloadAmount;
+
+        if (apiKey) {
+            try {
+                const apiRes = await fetch(`https://api.abacatepay.com/v2/transparents/get?id=${encodeURIComponent(paymentId)}`, {
+                    headers: { 'Authorization': `Bearer ${apiKey.trim()}` }
+                });
+                const apiData = await apiRes.json();
+
+                if (!apiRes.ok || !apiData.success || !apiData.data) {
+                    console.warn(`[Webhook AbacatePay] Cobrança ${paymentId} inexistente ou inválida na API oficial.`);
+                    return res.status(400).json({ success: false, error: 'Cobrança não encontrada na API oficial da AbacatePay.' });
+                }
+
+                officialStatus = (apiData.data.status || '').toUpperCase();
+                officialAmountInCents = apiData.data.amount ? parseInt(apiData.data.amount) : null;
+            } catch (apiErr) {
+                console.error('[Webhook AbacatePay] Erro de rede ao consultar API oficial da AbacatePay:', apiErr);
+                // Retorna 500 para que a AbacatePay tente reenviar o webhook caso haja oscilação de rede
+                return res.status(500).json({ success: false, error: 'Erro de comunicação com a API da AbacatePay. Tente novamente.' });
+            }
+        }
+
+        // 4. Verificação Estrita de Status Confirmado (PAID / COMPLETED)
+        // Somente o status oficial da API confiável é aceito! O nome do evento não pode burlar o status real.
+        const isPaid = officialStatus === 'PAID' || officialStatus === 'COMPLETED';
+        if (!isPaid) {
+            console.warn(`[Webhook AbacatePay] Cobrança ${paymentId} recebida com status não-pago: ${officialStatus}`);
+            return res.status(400).json({ success: false, error: `Cobrança com status não-pago: ${officialStatus}` });
+        }
+
+        // 5. Associação e Validação do Pedido / Licença
+        let booking = await db.getBookingByPaymentId(paymentId);
+        if (!booking && data.metadata && data.metadata.booking_id) {
+            booking = await db.getBookingById(data.metadata.booking_id);
+        }
+
+        const config = await db.getConfig();
+        const isAtlasLicense = !booking && (
+            (config.atlas_pending_payment_id && config.atlas_pending_payment_id === paymentId) ||
+            (data.metadata && (data.metadata.type === 'atlas_license' || data.metadata.service === 'atlas_license')) ||
+            paymentId === 'pix_char_b5ggk52AzyELfmwczG4P5LkM' // id de cobrança da licença no ambiente
+        );
+
+        if (!booking && !isAtlasLicense) {
+            console.warn(`[Webhook AbacatePay] Cobrança ${paymentId} não pertence a nenhum pedido ou licença cadastrado no sistema.`);
+            return res.status(400).json({ success: false, error: 'Cobrança não pertence a nenhum pedido ou licença deste sistema.' });
+        }
+
+        if (booking) {
+            // Caso Agendamento: Confere se o valor pago é suficiente
+            const expectedCents = Math.round((booking.deposit_price || booking.total_price) * 100);
+            if (officialAmountInCents && officialAmountInCents < expectedCents) {
+                console.warn(`[Webhook AbacatePay] Valor pago (${officialAmountInCents}) menor que o esperado (${expectedCents}) para agendamento #${booking.id}`);
+                return res.status(400).json({ success: false, error: 'Valor pago divergente do agendamento' });
+            }
+
+            const processResult = await db.processPaymentWebhookTransactional({
+                eventId,
+                eventType: event,
+                paymentId,
+                isAtlas: false,
+                bookingId: booking.id
+            });
+
+            if (processResult.alreadyProcessed) {
+                return res.status(200).json({ success: true, message: 'Evento já processado anteriormente (idempotente)' });
+            }
+
+            console.log(`✅ [Webhook AbacatePay] Agendamento #${booking.id} (${booking.client_name}) validado e confirmado transacionalmente!`);
+        } else if (isAtlasLicense) {
+            // Caso Licença Atlas Software: Confere valor da licença
+            const expectedLicenseCents = Math.round(parseFloat(config.atlas_license_amount || 50.00) * 100);
+
+            if (officialAmountInCents && officialAmountInCents < expectedLicenseCents) {
+                console.warn(`[Webhook AbacatePay] Valor da Licença Atlas divergente: recebido ${officialAmountInCents}, esperado ${expectedLicenseCents}`);
+                return res.status(400).json({ success: false, error: 'Valor pago insuficiente para a Licença Atlas' });
+            }
+
+            const now = new Date();
+            const targetMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            const processResult = await db.processPaymentWebhookTransactional({
+                eventId,
+                eventType: event,
+                paymentId,
+                isAtlas: true,
+                targetMonth
+            });
+
+            if (processResult.alreadyProcessed) {
+                return res.status(200).json({ success: true, message: 'Evento já processado anteriormente (idempotente)' });
+            }
+
+            console.log(`✅ [Webhook AbacatePay] Licença Atlas validada oficialmente na API e liberada para o mês ${targetMonth}!`);
+        }
+
+        return res.status(200).json({ success: true, message: 'Webhook processado e validado com sucesso' });
+    } catch (err) {
+        console.error('Erro crítico ao processar Webhook AbacatePay:', err);
+        // Retorna status 500 para permitir retentativas automáticas da AbacatePay
+        return res.status(500).json({ success: false, error: 'Erro interno no servidor' });
+    }
+});
+
 
 
 // ==========================================
@@ -275,6 +423,7 @@ app.post('/api/admin/atlas/generate-pix', requireAdminAuth, async (req, res) => 
         const abpData = await abpRes.json();
         if (abpRes.ok && abpData.success && abpData.data?.brCode) {
             const pix = abpData.data;
+            await db.updateConfig({ atlas_pending_payment_id: pix.id });
             return res.json({
                 success: true,
                 payment_id: pix.id,

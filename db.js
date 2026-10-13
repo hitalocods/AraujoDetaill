@@ -219,6 +219,16 @@ async function initPostgresTables() {
                 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pix_qrcode TEXT;
                 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pix_copia_cola TEXT;
                 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pix_url TEXT;
+
+                ALTER TABLE business_config ADD COLUMN IF NOT EXISTS atlas_pending_payment_id VARCHAR(255);
+
+                CREATE TABLE IF NOT EXISTS processed_webhooks (
+                    id SERIAL PRIMARY KEY,
+                    event_id VARCHAR(255) UNIQUE NOT NULL,
+                    event_type VARCHAR(100),
+                    payment_id VARCHAR(255),
+                    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
             `);
 
             // Garante coluna prices em services
@@ -280,7 +290,8 @@ const db = {
         pix_key, pix_bank, pix_name, whatsapp_number,
         atlas_license_key, atlas_license_status, atlas_license_owner,
         atlas_due_day, atlas_payment_url, atlas_license_amount, atlas_last_paid_month,
-        abacatepay_api_key, abacatepay_enabled, abacatepay_mode, abacatepay_charge_type
+        abacatepay_api_key, abacatepay_enabled, abacatepay_mode, abacatepay_charge_type,
+        atlas_pending_payment_id
     }) {
         const current = await this.getConfig();
         const updated = {
@@ -298,7 +309,8 @@ const db = {
             abacatepay_api_key: abacatepay_api_key !== undefined ? abacatepay_api_key : (current.abacatepay_api_key || ''),
             abacatepay_enabled: abacatepay_enabled !== undefined ? Boolean(abacatepay_enabled) : Boolean(current.abacatepay_enabled),
             abacatepay_mode: abacatepay_mode !== undefined ? abacatepay_mode : (current.abacatepay_mode || 'production'),
-            abacatepay_charge_type: abacatepay_charge_type !== undefined ? abacatepay_charge_type : (current.abacatepay_charge_type || 'deposit')
+            abacatepay_charge_type: abacatepay_charge_type !== undefined ? abacatepay_charge_type : (current.abacatepay_charge_type || 'deposit'),
+            atlas_pending_payment_id: atlas_pending_payment_id !== undefined ? atlas_pending_payment_id : current.atlas_pending_payment_id
         };
 
         if (!useLocalDb && pool) {
@@ -309,7 +321,7 @@ const db = {
                          atlas_license_key = $5, atlas_license_status = $6, atlas_license_owner = $7,
                          abacatepay_api_key = $8, abacatepay_enabled = $9, abacatepay_mode = $10, abacatepay_charge_type = $11,
                          atlas_due_day = $12, atlas_payment_url = $13, atlas_license_amount = $14,
-                         atlas_last_paid_month = $15,
+                         atlas_last_paid_month = $15, atlas_pending_payment_id = $16,
                          updated_at = CURRENT_TIMESTAMP 
                      WHERE id = 1 RETURNING *`,
                     [
@@ -317,7 +329,7 @@ const db = {
                         updated.atlas_license_key, updated.atlas_license_status, updated.atlas_license_owner,
                         updated.abacatepay_api_key, updated.abacatepay_enabled, updated.abacatepay_mode, updated.abacatepay_charge_type,
                         updated.atlas_due_day, updated.atlas_payment_url, updated.atlas_license_amount,
-                        updated.atlas_last_paid_month
+                        updated.atlas_last_paid_month, updated.atlas_pending_payment_id
                     ]
                 );
                 if (res.rows.length > 0) return res.rows[0];
@@ -935,6 +947,125 @@ const db = {
             completedBookings,
             expenses: filteredExpenses
         };
+    },
+
+    // Idempotência Transacional de Webhooks AbacatePay
+    async claimWebhookEvent(eventId, eventType = '', paymentId = '') {
+        if (!eventId) return false;
+        if (!useLocalDb && pool) {
+            const res = await pool.query(
+                'INSERT INTO processed_webhooks (event_id, event_type, payment_id) VALUES ($1, $2, $3) ON CONFLICT (event_id) DO NOTHING RETURNING id',
+                [String(eventId), eventType, String(paymentId)]
+            );
+            return res.rows.length > 0;
+        }
+        const data = getLocalData();
+        data.processed_webhooks = data.processed_webhooks || [];
+        if (data.processed_webhooks.includes(String(eventId))) {
+            return false;
+        }
+        data.processed_webhooks.push(String(eventId));
+        saveLocalData(data);
+        return true;
+    },
+
+    async isWebhookProcessed(eventId) {
+        if (!eventId) return false;
+        if (!useLocalDb && pool) {
+            try {
+                const res = await pool.query('SELECT id FROM processed_webhooks WHERE event_id = $1 LIMIT 1', [String(eventId)]);
+                return res.rows.length > 0;
+            } catch (e) { }
+        }
+        const data = getLocalData();
+        data.processed_webhooks = data.processed_webhooks || [];
+        return data.processed_webhooks.includes(String(eventId));
+    },
+
+    async markWebhookProcessed(eventId, eventType = '', paymentId = '') {
+        if (!eventId) return;
+        if (!useLocalDb && pool) {
+            try {
+                await pool.query(
+                    'INSERT INTO processed_webhooks (event_id, event_type, payment_id) VALUES ($1, $2, $3) ON CONFLICT (event_id) DO NOTHING',
+                    [String(eventId), eventType, String(paymentId)]
+                );
+                return;
+            } catch (e) { }
+        }
+        const data = getLocalData();
+        data.processed_webhooks = data.processed_webhooks || [];
+        if (!data.processed_webhooks.includes(String(eventId))) {
+            data.processed_webhooks.push(String(eventId));
+            saveLocalData(data);
+        }
+    },
+
+    // Executa a confirmação do pagamento e gravação do evento em uma transação atômica única
+    async processPaymentWebhookTransactional({ eventId, eventType, paymentId, isAtlas, bookingId, targetMonth }) {
+        if (!eventId) return { success: false, error: 'Event ID ausente' };
+
+        if (!useLocalDb && pool) {
+            const client = await pool.connect();
+            try {
+                await client.query('BEGIN');
+
+                // 1. Grava o evento na tabela de idempotência com lock exclusivo
+                const claimRes = await client.query(
+                    'INSERT INTO processed_webhooks (event_id, event_type, payment_id) VALUES ($1, $2, $3) ON CONFLICT (event_id) DO NOTHING RETURNING id',
+                    [String(eventId), eventType, String(paymentId)]
+                );
+
+                if (claimRes.rows.length === 0) {
+                    await client.query('ROLLBACK');
+                    return { success: true, alreadyProcessed: true };
+                }
+
+                // 2. Atualiza a licença ou agendamento na mesma transação
+                if (isAtlas) {
+                    await client.query(
+                        'UPDATE business_config SET atlas_last_paid_month = $1, atlas_pending_payment_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = 1',
+                        [targetMonth]
+                    );
+                } else if (bookingId) {
+                    await client.query(
+                        `UPDATE bookings SET payment_status = 'pago', status = 'confirmado', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                        [bookingId]
+                    );
+                }
+
+                await client.query('COMMIT');
+                return { success: true, alreadyProcessed: false };
+            } catch (err) {
+                await client.query('ROLLBACK');
+                throw err;
+            } finally {
+                client.release();
+            }
+        }
+
+        // Fallback local caso Postgres não esteja ativo
+        const data = getLocalData();
+        data.processed_webhooks = data.processed_webhooks || [];
+        if (data.processed_webhooks.includes(String(eventId))) {
+            return { success: true, alreadyProcessed: true };
+        }
+
+        if (isAtlas) {
+            data.business_config = data.business_config || {};
+            data.business_config.atlas_last_paid_month = targetMonth;
+            data.business_config.atlas_pending_payment_id = null;
+        } else if (bookingId) {
+            const b = (data.bookings || []).find(item => item.id === bookingId);
+            if (b) {
+                b.payment_status = 'pago';
+                b.status = 'confirmado';
+            }
+        }
+
+        data.processed_webhooks.push(String(eventId));
+        saveLocalData(data);
+        return { success: true, alreadyProcessed: false };
     }
 };
 
