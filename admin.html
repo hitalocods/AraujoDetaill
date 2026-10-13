@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f2f0ea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -31,7 +32,9 @@
             --ease: cubic-bezier(.22, 1, .36, 1);
         }
 
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -56,7 +59,10 @@
         }
 
         /* Previne zoom automático do iOS/Android em campos de formulário */
-        input, select, textarea, button {
+        input,
+        select,
+        textarea,
+        button {
             font-size: 16px;
             touch-action: manipulation;
             -webkit-text-size-adjust: 100%;
@@ -121,6 +127,7 @@
                 opacity: 0;
                 transform: scale(0.94);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
@@ -391,7 +398,8 @@
             gap: 8px;
         }
 
-        .side-foot a, .side-foot button {
+        .side-foot a,
+        .side-foot button {
             color: var(--ink);
             font-weight: 600;
             display: inline-flex;
@@ -1149,7 +1157,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .data-table th, .data-table td {
+            .data-table th,
+            .data-table td {
                 padding: 10px 8px;
             }
         }
@@ -1170,15 +1179,18 @@
             transition: all 0.2s var(--ease);
             white-space: nowrap;
         }
+
         .notif-toggle-btn.granted {
             background: rgba(34, 197, 94, 0.12);
             border-color: var(--green);
             color: #15803d;
         }
+
         .notif-toggle-btn:hover {
             transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
+
         .notif-dot {
             width: 8px;
             height: 8px;
@@ -1186,15 +1198,28 @@
             background: var(--slate);
             transition: background 0.3s;
         }
+
         .notif-toggle-btn.granted .notif-dot {
             background: var(--green);
             box-shadow: 0 0 8px var(--green);
             animation: pulse-green 2s infinite;
         }
+
         @keyframes pulse-green {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.3); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+            0% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
         }
 
         .notif-banner {
@@ -1209,6 +1234,7 @@
             gap: 16px;
             flex-wrap: wrap;
         }
+
         .notif-banner-icon {
             width: 42px;
             height: 42px;
@@ -1233,7 +1259,7 @@
             border: 1.5px solid var(--spark);
             border-radius: 18px;
             padding: 18px 20px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
             max-width: 380px;
             width: calc(100% - 48px);
             animation: slideInUp 0.4s var(--ease);
@@ -1241,15 +1267,25 @@
             flex-direction: column;
             gap: 10px;
         }
+
         @keyframes slideInUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
+
         .alert-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .alert-title {
             color: var(--spark);
             font-weight: 700;
@@ -1258,14 +1294,17 @@
             align-items: center;
             gap: 6px;
         }
+
         .alert-body {
             font-size: 13px;
             line-height: 1.5;
             color: var(--mist);
         }
+
         .alert-body strong {
             color: #fff;
         }
+
         .alert-actions {
             display: flex;
             gap: 8px;
@@ -1273,7 +1312,8 @@
         }
 
         /* ================= ATLAS LICENSE & DUE DATE STYLES ================= */
-        .pulse-atlas-dot, .pulse-due-dot {
+        .pulse-atlas-dot,
+        .pulse-due-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -1283,34 +1323,69 @@
             animation: pulseAtlasGreen 1.8s infinite;
         }
 
-        .pulse-due-dot.warning, .pulse-atlas-dot.warning {
+        .pulse-due-dot.warning,
+        .pulse-atlas-dot.warning {
             background: #f39c12;
             box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7);
             animation: pulseAtlasOrange 1.8s infinite;
         }
 
-        .pulse-due-dot.danger, .pulse-atlas-dot.danger {
+        .pulse-due-dot.danger,
+        .pulse-atlas-dot.danger {
             background: var(--red);
             box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
             animation: pulseAtlasRed 1.8s infinite;
         }
 
         @keyframes pulseAtlasGreen {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(46, 204, 113, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(46, 204, 113, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+            }
         }
 
         @keyframes pulseAtlasOrange {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(243, 156, 18, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(243, 156, 18, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+            }
         }
 
         @keyframes pulseAtlasRed {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
         }
 
         /* Nav Sidebar Atlas Button */
@@ -1492,7 +1567,8 @@
             transform: translateY(-2px);
         }
 
-        .btn-day-opt.active, .btn-day-opt.selected {
+        .btn-day-opt.active,
+        .btn-day-opt.selected {
             background: var(--spark) !important;
             border-color: var(--spark) !important;
             color: var(--ink) !important;
@@ -1500,7 +1576,8 @@
             box-shadow: 0 4px 15px rgba(217, 138, 61, 0.4);
         }
 
-        .btn-day-opt.active small, .btn-day-opt.selected small {
+        .btn-day-opt.active small,
+        .btn-day-opt.selected small {
             color: var(--ink) !important;
             opacity: 0.85;
             font-weight: 600;
@@ -1903,24 +1980,34 @@
         }
 
         @media (max-width: 768px) {
-            .atlas-chooser-banner, .due-alert-banner {
+
+            .atlas-chooser-banner,
+            .due-alert-banner {
                 padding: 16px;
                 gap: 14px;
             }
-            .due-alert-left, .atlas-chooser-left {
+
+            .due-alert-left,
+            .atlas-chooser-left {
                 flex-direction: column;
                 gap: 10px;
             }
-            .due-alert-actions, .atlas-chooser-actions {
+
+            .due-alert-actions,
+            .atlas-chooser-actions {
                 width: 100%;
                 flex-direction: column;
                 align-items: stretch;
             }
-            .btn-due-pay, .btn-due-whatsapp, .btn-day-opt {
+
+            .btn-due-pay,
+            .btn-due-whatsapp,
+            .btn-day-opt {
                 width: 100%;
                 justify-content: center;
                 text-align: center;
             }
+
             .modal-day-buttons {
                 grid-template-columns: 1fr;
             }
@@ -1960,8 +2047,15 @@
         }
 
         @keyframes lockCardPop {
-            from { opacity: 0; transform: scale(0.93); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.93);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .atlas-lock-icon {
@@ -2056,9 +2150,14 @@
             <p class="login-sub">Digite a senha de administrador da Araújo Detail</p>
             <form onsubmit="handleLogin(event)">
                 <div class="login-input-wrap">
-                    <input type="password" id="adminPasswordInput" placeholder="Senha do Administrador" required autofocus>
+                    <input type="password" id="adminPasswordInput" placeholder="Senha do Administrador" required
+                        autofocus>
                     <button type="button" class="login-eye" onclick="togglePasswordVisibility()">
-                        <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
                     </button>
                 </div>
                 <button type="submit" class="login-btn" id="loginSubmitBtn">Entrar no Painel</button>
@@ -2078,7 +2177,8 @@
                 <span class="pulse-atlas-dot" id="mobileAtlasDot"></span>
                 <span id="mobileAtlasText">Licença Atlas</span>
             </button>
-            <button class="notif-toggle-btn" id="notifMobileBtn" onclick="requestNotificationPermission()" title="Ativar Notificações no Celular">
+            <button class="notif-toggle-btn" id="notifMobileBtn" onclick="requestNotificationPermission()"
+                title="Ativar Notificações no Celular">
                 <span class="notif-dot"></span>
                 <span id="notifMobileText">Alertas</span>
             </button>
@@ -2107,35 +2207,59 @@
 
             <nav class="nav-menu">
                 <button class="nav-btn active" onclick="switchTab('financeiro')">
-                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
                     Financeiro & Visão Geral
                 </button>
                 <button class="nav-btn" onclick="switchTab('agendamentos')">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" />
+                    </svg>
                     Agendamentos
                 </button>
                 <button class="nav-btn" onclick="switchTab('servicos')">
-                    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2Z" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2Z" />
+                    </svg>
                     Serviços & Veículos
                 </button>
                 <button class="nav-btn" onclick="switchTab('horarios')">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
                     Agenda & Bloqueios
                 </button>
                 <button class="nav-btn" onclick="switchTab('funcionarios')">
-                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
                     Funcionários & Comissões
                 </button>
                 <button class="nav-btn" onclick="switchTab('estoque')">
-                    <svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                    </svg>
                     Estoque & Despesas
                 </button>
                 <button class="nav-btn" onclick="switchTab('config')">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
                     Chave PIX & Dados
                 </button>
                 <button class="nav-btn nav-btn-atlas" onclick="openAtlasModal()" id="sidebarAtlasBtn">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
                     <span style="flex:1; text-align:left;">Licença Atlas</span>
                     <span class="atlas-badge-pill" id="sidebarAtlasBadge">Ativa</span>
                 </button>
@@ -2143,11 +2267,19 @@
 
             <div class="side-foot">
                 <a href="/" target="_blank">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
                     Abrir Página do Cliente
                 </a>
                 <button class="logout-btn" onclick="handleLogout()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
                     Sair do Painel
                 </button>
             </div>
@@ -2162,10 +2294,12 @@
             <div class="due-alert-banner" id="atlasDueAlertBanner" style="display:none;">
                 <div class="due-alert-left">
                     <div class="due-alert-icon" id="atlasAlertIcon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
                         </svg>
                     </div>
                     <div class="due-alert-info">
@@ -2174,22 +2308,27 @@
                                 <span class="pulse-due-dot warning" id="atlasDueDot"></span>
                                 Vence Amanhã
                             </span>
-                            <span style="font-size: 11.5px; color: var(--mist); font-weight: 500;">Licença Atlas Software & Manutenção</span>
+                            <span style="font-size: 11.5px; color: var(--mist); font-weight: 500;">Licença Atlas
+                                Software & Manutenção</span>
                         </div>
                         <h2 class="due-alert-title" id="atlasDueAlertTitle">Aviso de Vencimento da Mensalidade</h2>
                         <p class="due-alert-desc" id="atlasDueAlertDesc">
-                            A sua mensalidade vence amanhã. Realize o pagamento via PIX ou cartão (qualquer banco) para manter seu painel, banco de dados Neon e agendamentos online ativos sem interrupções.
+                            A sua mensalidade vence amanhã. Realize o pagamento via PIX ou cartão (qualquer banco) para
+                            manter seu painel, banco de dados Neon e agendamentos online ativos sem interrupções.
                         </p>
                     </div>
                 </div>
 
                 <div class="due-alert-actions">
-                    <a href="https://link.mercadopago.com.br/atlassoftware" id="atlasAlertPayBtn" onclick="handleAtlasMercadoPagoCheckout(event)" target="_blank" rel="noopener noreferrer" class="btn-due-pay">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <line x1="2" y1="10" x2="22" y2="10"/>
+                    <a href="javascript:void(0)" id="atlasAlertPayBtn"
+                        onclick="handleAtlasPixCheckout(event)"
+                        class="btn-due-pay">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
                         </svg>
-                        <span id="atlasAlertPayBtnText">Pagar Licença Atlas</span>
+                        <span id="atlasAlertPayBtnText">Pagar Licença Atlas (Pix)</span>
                     </a>
                 </div>
             </div>
@@ -2217,11 +2356,11 @@
                         <button class="pill-btn" onclick="setFinPeriod('week')">7 Dias</button>
                         <button class="pill-btn active" onclick="setFinPeriod('month')">Este Mês</button>
                     </div>
-                    
+
                     <div class="custom-date-box">
                         <span>Dia:</span>
                         <input type="date" id="finSpecificDate" onchange="filterBySpecificDate()">
-                        
+
                         <span>Período:</span>
                         <input type="date" id="finStartDate">
                         <span>à</span>
@@ -2256,7 +2395,8 @@
                 <div class="panel">
                     <div class="panel-head">
                         <span class="panel-title">Atendimentos Concluídos no Período</span>
-                        <button class="btn-act btn-sm" onclick="switchTab('agendamentos')">Ver Todos os Agendamentos</button>
+                        <button class="btn-act btn-sm" onclick="switchTab('agendamentos')">Ver Todos os
+                            Agendamentos</button>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -2271,7 +2411,9 @@
                                 </tr>
                             </thead>
                             <tbody id="finCompletedTable">
-                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2286,7 +2428,8 @@
                         <p>Acompanhe solicitações de clientes ou crie agendamentos manuais.</p>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button class="btn-act btn-sm" style="background:var(--mid);" onclick="testNotification()">🔔 Testar Notificação</button>
+                        <button class="btn-act btn-sm" style="background:var(--mid);" onclick="testNotification()">🔔
+                            Testar Notificação</button>
                         <button class="btn-act" onclick="openNewBookingModal()">+ Novo Agendamento Manual</button>
                     </div>
                 </div>
@@ -2296,20 +2439,25 @@
                     <div style="display:flex; align-items:center; gap:14px;">
                         <div class="notif-banner-icon">🔔</div>
                         <div>
-                            <strong style="font-size:14.5px; display:block; margin-bottom:2px;">Notificações Automáticas no Celular / Tela</strong>
-                            <p style="font-size:12.5px; color:var(--slate); margin:0;">Receba um alerta sonoro e notificação formatada com todos os dados do agendamento quando um cliente marcar.</p>
+                            <strong style="font-size:14.5px; display:block; margin-bottom:2px;">Notificações Automáticas
+                                no Celular / Tela</strong>
+                            <p style="font-size:12.5px; color:var(--slate); margin:0;">Receba um alerta sonoro e
+                                notificação formatada com todos os dados do agendamento quando um cliente marcar.</p>
                         </div>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                        <button class="btn-act btn-sm" id="btnEnableNotifBanner" onclick="requestNotificationPermission()">Ativar Notificações</button>
-                        <button class="btn-act btn-sm" style="background:var(--mid);" onclick="testNotification()">Testar Alerta</button>
+                        <button class="btn-act btn-sm" id="btnEnableNotifBanner"
+                            onclick="requestNotificationPermission()">Ativar Notificações</button>
+                        <button class="btn-act btn-sm" style="background:var(--mid);"
+                            onclick="testNotification()">Testar Alerta</button>
                     </div>
                 </div>
 
                 <div class="panel">
                     <div class="panel-head">
                         <span class="panel-title">Fila de Agendamentos</span>
-                        <select id="bookingStatusFilter" onchange="renderBookingsTable()" style="padding:7px 12px; border-radius:8px; border:1px solid var(--line); font-size:12.5px; background:var(--paper);">
+                        <select id="bookingStatusFilter" onchange="renderBookingsTable()"
+                            style="padding:7px 12px; border-radius:8px; border:1px solid var(--line); font-size:12.5px; background:var(--paper);">
                             <option value="todos">Todos os Status</option>
                             <option value="pendente">Pendentes</option>
                             <option value="confirmado">Confirmados</option>
@@ -2332,7 +2480,9 @@
                                 </tr>
                             </thead>
                             <tbody id="bookingsTable">
-                                <tr><td colspan="8" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="8" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2347,8 +2497,10 @@
                         <p>Cadastre, edite valores, nomes e gerencie categorias livremente.</p>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%; max-width:400px;">
-                        <button class="btn-act" style="flex:1;" onclick="openServiceModal()">+ Adicionar Serviço</button>
-                        <button class="btn-act" style="flex:1; background:var(--mid);" onclick="openVehicleModal()">+ Adicionar Veículo</button>
+                        <button class="btn-act" style="flex:1;" onclick="openServiceModal()">+ Adicionar
+                            Serviço</button>
+                        <button class="btn-act" style="flex:1; background:var(--mid);" onclick="openVehicleModal()">+
+                            Adicionar Veículo</button>
                     </div>
                 </div>
 
@@ -2369,7 +2521,9 @@
                                 </tr>
                             </thead>
                             <tbody id="servicesTable">
-                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2392,7 +2546,9 @@
                                 </tr>
                             </thead>
                             <tbody id="vehiclesTable">
-                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2425,7 +2581,9 @@
                                 </tr>
                             </thead>
                             <tbody id="blockedTable">
-                                <tr><td colspan="5" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="5" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2457,12 +2615,14 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-title">💰 Comissões a Pagar (Valores a Receber)</span>
-                            <p style="font-size:12px; color:var(--slate); margin-top:2px;">Calculado automaticamente com base nos agendamentos concluídos pelo profissional.</p>
+                            <p style="font-size:12px; color:var(--slate); margin-top:2px;">Calculado automaticamente com
+                                base nos agendamentos concluídos pelo profissional.</p>
                         </div>
                     </div>
                     <div class="emp-payout-grid" id="empPayoutGrid">
                         <!-- Gerado dinamicamente via JS -->
-                        <div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--slate);">Carregando valores a receber...</div>
+                        <div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--slate);">Carregando
+                            valores a receber...</div>
                     </div>
                 </div>
 
@@ -2483,7 +2643,9 @@
                                 </tr>
                             </thead>
                             <tbody id="employeesTable">
-                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2499,7 +2661,8 @@
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%; max-width:400px;">
                         <button class="btn-act" style="flex:1;" onclick="openInventoryModal()">+ Novo Produto</button>
-                        <button class="btn-act" style="flex:1; background:var(--red);" onclick="openExpenseModal()">+ Lançar Despesa</button>
+                        <button class="btn-act" style="flex:1; background:var(--red);" onclick="openExpenseModal()">+
+                            Lançar Despesa</button>
                     </div>
                 </div>
 
@@ -2521,7 +2684,9 @@
                                 </tr>
                             </thead>
                             <tbody id="inventoryTable">
-                                <tr><td colspan="7" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="7" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2544,7 +2709,9 @@
                                 </tr>
                             </thead>
                             <tbody id="expensesTable">
-                                <tr><td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td></tr>
+                                <tr>
+                                    <td colspan="6" style="text-align:center; color:var(--slate);">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -2564,7 +2731,8 @@
                     <form onsubmit="saveBusinessConfig(event)">
                         <div class="form-group">
                             <label>Chave PIX</label>
-                            <input type="text" id="cfgPixKey" required placeholder="Ex: 86999999999 ou seu CPF/CNPJ/E-mail">
+                            <input type="text" id="cfgPixKey" required
+                                placeholder="Ex: 86999999999 ou seu CPF/CNPJ/E-mail">
                         </div>
                         <div class="form-group">
                             <label>Banco</label>
@@ -2578,7 +2746,8 @@
                             <label>Número do WhatsApp Comercial (com DDD, somente números)</label>
                             <input type="text" id="cfgWhatsapp" required placeholder="Ex: 5586900000000">
                         </div>
-                        <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:10px;">
+                        <button type="submit" class="btn-act"
+                            style="width:100%; justify-content:center; margin-top:10px;">
                             Salvar Alterações
                         </button>
                     </form>
@@ -2589,11 +2758,15 @@
                     <div class="panel-head">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <div class="modal-atlas-icon" style="width:36px; height:36px;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
                             </div>
                             <div>
                                 <span class="panel-title">Licença Atlas Software</span>
-                                <div style="font-size:11.5px; color:var(--slate);">Vencimento, Gateway e Assinatura</div>
+                                <div style="font-size:11.5px; color:var(--slate);">Vencimento, Gateway e Assinatura
+                                </div>
                             </div>
                         </div>
                         <span class="atlas-badge-pill" id="tabConfigAtlasBadge">Ativa</span>
@@ -2601,7 +2774,8 @@
 
                     <div style="display:flex; flex-direction:column; gap:16px;">
                         <div>
-                            <label style="font-size:13px; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">
+                            <label
+                                style="font-size:13px; font-weight:700; color:var(--ink); display:block; margin-bottom:4px;">
                                 📅 Vencimento da Mensalidade:
                             </label>
                             <p style="font-size:13px; color:var(--slate);">
@@ -2611,9 +2785,15 @@
 
                         <!-- AÇÕES DIRETAS -->
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <a href="https://link.mercadopago.com.br/atlassoftware" id="tabConfigPayBtn" onclick="handleAtlasMercadoPagoCheckout(event)" target="_blank" rel="noopener noreferrer" class="btn-due-pay" style="flex:1; justify-content:center;">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                                <span>Pagar Licença Atlas</span>
+                            <a href="javascript:void(0)" id="tabConfigPayBtn"
+                                onclick="handleAtlasPixCheckout(event)"
+                                class="btn-due-pay" style="flex:1; justify-content:center;">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                                    <line x1="2" y1="10" x2="22" y2="10" />
+                                </svg>
+                                <span>Pagar Licença Atlas (Pix)</span>
                             </a>
                         </div>
                     </div>
@@ -2707,7 +2887,8 @@
                     <input type="text" id="nbNotes" placeholder="Detalhes opcionais do atendimento">
                 </div>
 
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Cadastrar Agendamento</button>
+                <button type="submit" class="btn-act"
+                    style="width:100%; justify-content:center; margin-top:8px;">Cadastrar Agendamento</button>
             </form>
         </div>
     </div>
@@ -2750,7 +2931,8 @@
                 <!-- PREÇOS DINÂMICOS POR TIPO DE VEÍCULO -->
                 <div class="form-group" style="margin-top:6px;">
                     <label style="color:var(--spark); font-weight:700;">Preços por Porte de Veículo (R$)</label>
-                    <div id="svcVehiclePricesContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; background:var(--paper); padding:12px; border-radius:12px; border:1px solid var(--line);">
+                    <div id="svcVehiclePricesContainer"
+                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; background:var(--paper); padding:12px; border-radius:12px; border:1px solid var(--line);">
                         <!-- Gerado dinamicamente via JS com base nos veículos cadastrados -->
                     </div>
                 </div>
@@ -2761,7 +2943,8 @@
                         Serviço Ativo para Clientes
                     </label>
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Serviço</button>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar
+                    Serviço</button>
             </form>
         </div>
     </div>
@@ -2808,7 +2991,8 @@
                         Categoria Ativa
                     </label>
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Categoria</button>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar
+                    Categoria</button>
             </form>
         </div>
     </div>
@@ -2868,7 +3052,8 @@
                     <input type="text" id="blockReason" placeholder="Ex: Folga semanal, manutenção, feriado">
                 </div>
 
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Confirmar Bloqueio</button>
+                <button type="submit" class="btn-act"
+                    style="width:100%; justify-content:center; margin-top:8px;">Confirmar Bloqueio</button>
             </form>
         </div>
     </div>
@@ -2908,7 +3093,8 @@
                 <!-- PREÇOS DE COMISSÃO POR PORTE DE VEÍCULO -->
                 <div class="form-group" id="empVehicleRatesGroup">
                     <label style="color:var(--spark); font-weight:700;">Comissão a Pagar por Veículo (R$)</label>
-                    <div id="empVehicleRatesContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; background:var(--paper); padding:12px; border-radius:12px; border:1px solid var(--line);">
+                    <div id="empVehicleRatesContainer"
+                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; background:var(--paper); padding:12px; border-radius:12px; border:1px solid var(--line);">
                         <!-- Gerado dinamicamente via JS -->
                     </div>
                 </div>
@@ -2924,7 +3110,8 @@
                         Funcionário Ativo
                     </label>
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Funcionário</button>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar
+                    Funcionário</button>
             </form>
         </div>
     </div>
@@ -2935,11 +3122,12 @@
             <div class="modal-head">
                 <div>
                     <span class="modal-title" id="empStatementTitle">Extrato de Serviços</span>
-                    <p style="font-size:12px; color:var(--slate); margin-top:2px;" id="empStatementSub">Detalhamento dos atendimentos e comissões</p>
+                    <p style="font-size:12px; color:var(--slate); margin-top:2px;" id="empStatementSub">Detalhamento dos
+                        atendimentos e comissões</p>
                 </div>
                 <button class="modal-close" onclick="closeModals()">✕</button>
             </div>
-            
+
             <div class="table-responsive" style="max-height:360px; overflow-y:auto; margin-bottom:14px;">
                 <table class="data-table">
                     <thead>
@@ -2957,10 +3145,13 @@
                 </table>
             </div>
 
-            <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div
+                style="background:var(--paper); border:1.5px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <div>
-                    <span style="font-size:12px; color:var(--slate); font-weight:700; text-transform:uppercase;">Total a Pagar / Repassar</span>
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:#27ae60;" id="empStatementTotalPayout">R$ 0,00</div>
+                    <span style="font-size:12px; color:var(--slate); font-weight:700; text-transform:uppercase;">Total a
+                        Pagar / Repassar</span>
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:#27ae60;"
+                        id="empStatementTotalPayout">R$ 0,00</div>
                 </div>
                 <button class="btn-act btn-sm" onclick="closeModals()">Fechar Extrato</button>
             </div>
@@ -3009,7 +3200,8 @@
                     <label>Custo Unitário de Compra (R$)</label>
                     <input type="number" step="0.1" id="invCost" required placeholder="45.00">
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar no Estoque</button>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar
+                    no Estoque</button>
             </form>
         </div>
     </div>
@@ -3030,11 +3222,13 @@
                 </div>
                 <div class="form-group">
                     <label style="display:flex; align-items:center; gap:8px; text-transform:none; cursor:pointer;">
-                        <input type="checkbox" id="stockAddLogExpense" checked style="width:16px; height:16px; min-height:auto;">
+                        <input type="checkbox" id="stockAddLogExpense" checked
+                            style="width:16px; height:16px; min-height:auto;">
                         Registrar automaticamente como despesa no financeiro
                     </label>
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Confirmar Entrada</button>
+                <button type="submit" class="btn-act"
+                    style="width:100%; justify-content:center; margin-top:8px;">Confirmar Entrada</button>
             </form>
         </div>
     </div>
@@ -3076,7 +3270,8 @@
                     <label>Observações</label>
                     <input type="text" id="expNotes" placeholder="Detalhes opcionais">
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Registrar Despesa</button>
+                <button type="submit" class="btn-act"
+                    style="width:100%; justify-content:center; margin-top:8px;">Registrar Despesa</button>
             </form>
         </div>
     </div>
@@ -3129,7 +3324,8 @@
                         <option value="">Nenhum profissional vinculado</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar Alterações</button>
+                <button type="submit" class="btn-act" style="width:100%; justify-content:center; margin-top:8px;">Salvar
+                    Alterações</button>
             </form>
         </div>
     </div>
@@ -3140,9 +3336,10 @@
             <!-- VIEW 1: AVISO DE BLOQUEIO -->
             <div id="atlasLockOverview">
                 <div class="atlas-lock-icon">
-                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.3">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
                 </div>
                 <div class="atlas-lock-badge">
@@ -3151,23 +3348,30 @@
                 </div>
                 <h2 class="atlas-lock-title">Licença Atlas Vencida</h2>
                 <p class="atlas-lock-desc">
-                    A sua mensalidade de manutenção do sistema venceu no <strong id="atlasLockDueDaySpan">dia 20</strong> (<span id="atlasLockOverdueDaysSpan">em atraso</span>). Para restabelecer o acesso ao painel de agendamentos e faturamento, efetue a quitação via Pix. A aprovação e liberação ocorrem em tempo real.
+                    A sua mensalidade de manutenção do sistema venceu no <strong id="atlasLockDueDaySpan">dia
+                        20</strong> (<span id="atlasLockOverdueDaysSpan">em atraso</span>). Para restabelecer o acesso
+                    ao painel de agendamentos e faturamento, efetue a quitação via Pix. A aprovação e liberação ocorrem
+                    em tempo real.
                 </p>
 
                 <div class="atlas-lock-price-box">
                     <span style="font-size:13px; color:#94a3b8; font-weight:600;">Valor da Mensalidade:</span>
-                    <strong style="font-size:20px; color:#f59e0b; font-family:'Space Grotesk',sans-serif;" id="atlasLockAmountSpan">R$ 50,00</strong>
+                    <strong style="font-size:20px; color:#f59e0b; font-family:'Space Grotesk',sans-serif;"
+                        id="atlasLockAmountSpan">R$ 50,00</strong>
                 </div>
 
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <button type="button" class="atlas-lock-btn" onclick="generateAtlasLockPixPayment(event)">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <line x1="2" y1="10" x2="22" y2="10"/>
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
                         </svg>
                         <span>Pagar via Pix e Liberar Agora</span>
                     </button>
-                    <a href="https://wa.me/5599984937614?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20a%20minha%20mensalidade%20da%20Licen%C3%A7a%20Atlas." target="_blank" rel="noopener noreferrer" style="color:#94a3b8; font-size:12.5px; text-decoration:none; padding:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                    <a href="https://wa.me/5599984937614?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20a%20minha%20mensalidade%20da%20Licen%C3%A7a%20Atlas."
+                        target="_blank" rel="noopener noreferrer"
+                        style="color:#94a3b8; font-size:12.5px; text-decoration:none; padding:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
                         <span>Precisa de suporte? Falar no WhatsApp</span>
                     </a>
                 </div>
@@ -3175,8 +3379,10 @@
 
             <!-- VIEW 2: PIX DIRETO NA TELA DE BLOQUEIO -->
             <div id="atlasLockPixView" style="display:none; flex-direction:column; gap:14px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-                    <button type="button" onclick="backToAtlasLockOverview()" style="background:none; border:none; color:#f59e0b; font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                    <button type="button" onclick="backToAtlasLockOverview()"
+                        style="background:none; border:none; color:#f59e0b; font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
                         ← Voltar
                     </button>
                     <span style="font-size:14px; font-weight:700; color:#fff;" id="atlasLockPixAmount">R$ 50,00</span>
@@ -3184,35 +3390,44 @@
 
                 <!-- Carregando PIX -->
                 <div id="atlasLockPixLoading" style="display:none; text-align:center; padding:30px 0;">
-                    <div style="width:32px; height:32px; border:3px solid rgba(255,255,255,0.1); border-top-color:#f59e0b; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;"></div>
+                    <div
+                        style="width:32px; height:32px; border:3px solid rgba(255,255,255,0.1); border-top-color:#f59e0b; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;">
+                    </div>
                     <p style="font-size:13px; color:#94a3b8; font-weight:500;">Gerando QR Code Pix oficial...</p>
                 </div>
 
                 <!-- Conteúdo do PIX -->
                 <div id="atlasLockPixContent" style="display:none; text-align:center;">
-                    <div style="background:#fff; border-radius:14px; padding:12px; display:inline-block; box-shadow:0 4px 18px rgba(0,0,0,0.3); margin-bottom:12px;">
-                        <img id="atlasLockPixQrImg" src="" alt="QR Code Pix" style="width:230px; height:230px; display:block; image-rendering:pixelated; margin:0 auto;">
+                    <div
+                        style="background:#fff; border-radius:14px; padding:12px; display:inline-block; box-shadow:0 4px 18px rgba(0,0,0,0.3); margin-bottom:12px;">
+                        <img id="atlasLockPixQrImg" src="" alt="QR Code Pix"
+                            style="width:230px; height:230px; display:block; image-rendering:pixelated; margin:0 auto;">
                     </div>
                     <p style="font-size:12.5px; color:#94a3b8; margin:0 0 10px 0;">
                         Escaneie com o app do seu banco ou copie a chave:
                     </p>
 
                     <div style="position:relative;">
-                        <input type="text" id="atlasLockPixCodeInput" readonly style="width:100%; font-family:monospace; font-size:11px; padding:12px 105px 12px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:#0c1013; color:#fff; box-sizing:border-box;">
-                        <button type="button" id="atlasLockCopyPixBtn" onclick="copyAtlasLockPixCode()" style="position:absolute; right:5px; top:5px; bottom:5px; padding:0 14px; background:#d98a3d; color:#fff; border:none; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer;">
+                        <input type="text" id="atlasLockPixCodeInput" readonly
+                            style="width:100%; font-family:monospace; font-size:11px; padding:12px 105px 12px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:#0c1013; color:#fff; box-sizing:border-box;">
+                        <button type="button" id="atlasLockCopyPixBtn" onclick="copyAtlasLockPixCode()"
+                            style="position:absolute; right:5px; top:5px; bottom:5px; padding:0 14px; background:#d98a3d; color:#fff; border:none; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer;">
                             Copiar Pix
                         </button>
                     </div>
 
-                    <div id="atlasLockPixStatusBox" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; font-size:12px; font-weight:600; color:#94a3b8;">
+                    <div id="atlasLockPixStatusBox"
+                        style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; font-size:12px; font-weight:600; color:#94a3b8;">
                         <span class="pulse-atlas-dot warning"></span>
                         <span>Aguardando pagamento... (Liberação instantânea)</span>
                     </div>
 
-                    <div id="atlasLockPixSuccessBox" style="display:none; background:rgba(46,204,113,0.15); border:1px solid rgba(46,204,113,0.4); border-radius:12px; padding:14px; margin-top:12px; text-align:center; color:#2ecc71; font-weight:700;">
+                    <div id="atlasLockPixSuccessBox"
+                        style="display:none; background:rgba(46,204,113,0.15); border:1px solid rgba(46,204,113,0.4); border-radius:12px; padding:14px; margin-top:12px; text-align:center; color:#2ecc71; font-weight:700;">
                         <div style="font-size:24px; margin-bottom:4px;">✓</div>
                         <div>Pagamento Confirmado!</div>
-                        <div style="font-size:11.5px; font-weight:500; color:#94a3b8; margin-top:2px;">Desbloqueando o sistema agora...</div>
+                        <div style="font-size:11.5px; font-weight:500; color:#94a3b8; margin-top:2px;">Desbloqueando o
+                            sistema agora...</div>
                     </div>
                 </div>
             </div>
@@ -3225,11 +3440,15 @@
             <div class="modal-head">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="modal-atlas-icon">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.3">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
                     </div>
                     <div>
                         <span class="modal-title">Licença Atlas Software</span>
-                        <p style="font-size:12px; color:var(--slate); margin-top:2px;">Controle de assinatura, vencimento e gateway</p>
+                        <p style="font-size:12px; color:var(--slate); margin-top:2px;">Controle de assinatura,
+                            vencimento e gateway</p>
                     </div>
                 </div>
                 <button class="modal-close" onclick="closeModals()">✕</button>
@@ -3257,8 +3476,11 @@
                     <!-- PRÓXIMO VENCIMENTO & CONTAGEM -->
                     <div class="atlas-next-due-box" id="modalNextDueBox">
                         <div class="next-due-left">
-                            <span style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--slate);">Vencimento (Todo dia 20):</span>
-                            <div style="font-size:15px; font-weight:700; color:var(--ink);" id="modalNextDueDate">Carregando...</div>
+                            <span
+                                style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--slate);">Vencimento
+                                (Todo dia 20):</span>
+                            <div style="font-size:15px; font-weight:700; color:var(--ink);" id="modalNextDueDate">
+                                Carregando...</div>
                         </div>
                         <div class="next-due-badge" id="modalNextDueBadge">
                             Calculando...
@@ -3266,42 +3488,54 @@
                     </div>
 
                     <!-- AVISO DE MÊS JÁ PAGO (ATLAS) -->
-                    <div id="modalPaidThisMonthNotice" style="display:none; font-size:12.5px; color:#27ae60; font-weight:600; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.3); border-radius:12px; padding:10px 14px; align-items:center; gap:8px;">
+                    <div id="modalPaidThisMonthNotice"
+                        style="display:none; font-size:12.5px; color:#27ae60; font-weight:600; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.3); border-radius:12px; padding:10px 14px; align-items:center; gap:8px;">
                         <span style="font-size:16px;">✓</span>
-                        <span>Mensalidade deste mês quitada com sucesso. A próxima cobrança ocorrerá apenas no próximo mês.</span>
+                        <span>Mensalidade deste mês quitada com sucesso. A próxima cobrança ocorrerá apenas no próximo
+                            mês.</span>
                     </div>
 
-                    <!-- BOTÃO PAGAR LICENÇA ATLAS (GERA PIX NA HORA) -->
+                    <!-- BOTÃO PAGAR LICENÇA ATLAS (GERA PIX NA HORA VIA ABACATEPAY) -->
                     <div class="atlas-payment-actions" style="margin-top:14px;">
-                        <button type="button" id="modalAtlasPayBtn" onclick="generateAtlasPixPayment(event)" class="btn-modal-mp" style="width:100%; border:none; cursor:pointer;">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="5" width="20" height="14" rx="2"/>
-                                <line x1="2" y1="10" x2="22" y2="10"/>
+                        <button type="button" id="modalAtlasPayBtn" onclick="generateAtlasPixPayment(event)"
+                            class="btn-modal-mp" style="width:100%; border:none; cursor:pointer;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                <line x1="2" y1="10" x2="22" y2="10" />
                             </svg>
-                            <span id="modalAtlasPayBtnText">Pagar Licença Atlas</span>
+                            <span id="modalAtlasPayBtnText">Pagar via Pix (Aprova na Hora)</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- VIEW 2: TELA DO PIX COM QR CODE GERADO NA HORA -->
                 <div id="atlasPixView" style="display:none; flex-direction:column; gap:14px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
-                        <button type="button" onclick="backToAtlasNormalView()" style="background:none; border:none; color:var(--spark); font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                        <button type="button" onclick="backToAtlasNormalView()"
+                            style="background:none; border:none; color:var(--spark); font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
                             ← Voltar
                         </button>
-                        <span style="font-size:14px; font-weight:700; color:var(--ink);" id="atlasPixViewAmount">R$ 50,00</span>
+                        <span style="font-size:14px; font-weight:700; color:var(--ink);" id="atlasPixViewAmount">R$
+                            50,00</span>
                     </div>
 
                     <!-- Carregando PIX -->
                     <div id="atlasPixLoading" style="display:none; text-align:center; padding:35px 0;">
-                        <div style="width:32px; height:32px; border:3px solid rgba(0,0,0,0.08); border-top-color:var(--spark); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;"></div>
-                        <p style="font-size:13px; color:var(--slate); font-weight:500;">Gerando QR Code Pix oficial...</p>
+                        <div
+                            style="width:32px; height:32px; border:3px solid rgba(0,0,0,0.08); border-top-color:var(--spark); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;">
+                        </div>
+                        <p style="font-size:13px; color:var(--slate); font-weight:500;">Gerando QR Code Pix oficial...
+                        </p>
                     </div>
 
                     <!-- Conteúdo do PIX -->
                     <div id="atlasPixContent" style="display:none; text-align:center;">
-                        <div style="background:#fff; border-radius:14px; padding:14px; display:inline-block; box-shadow:0 4px 18px rgba(0,0,0,0.08); border:1px solid var(--border); margin-bottom:12px;">
-                            <img id="atlasPixQrImg" src="" alt="QR Code Pix" style="width:240px; height:240px; display:block; image-rendering:pixelated; margin:0 auto;">
+                        <div
+                            style="background:#fff; border-radius:14px; padding:14px; display:inline-block; box-shadow:0 4px 18px rgba(0,0,0,0.08); border:1px solid var(--border); margin-bottom:12px;">
+                            <img id="atlasPixQrImg" src="" alt="QR Code Pix"
+                                style="width:240px; height:240px; display:block; image-rendering:pixelated; margin:0 auto;">
                         </div>
                         <p style="font-size:12.5px; color:var(--slate); margin:0 0 10px 0;">
                             Aponte a câmera do banco para o QR Code acima ou <strong>Copie o Pix</strong>:
@@ -3309,23 +3543,28 @@
 
                         <!-- Pix Copia e Cola -->
                         <div style="position:relative;">
-                            <input type="text" id="atlasPixCodeInput" readonly style="width:100%; font-family:monospace; font-size:11px; padding:12px 105px 12px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-alt); color:var(--ink);">
-                            <button type="button" id="atlasCopyPixBtn" onclick="copyAtlasPixCode()" style="position:absolute; right:5px; top:5px; bottom:5px; padding:0 14px; background:var(--spark); color:#fff; border:none; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer;">
+                            <input type="text" id="atlasPixCodeInput" readonly
+                                style="width:100%; font-family:monospace; font-size:11px; padding:12px 105px 12px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-alt); color:var(--ink);">
+                            <button type="button" id="atlasCopyPixBtn" onclick="copyAtlasPixCode()"
+                                style="position:absolute; right:5px; top:5px; bottom:5px; padding:0 14px; background:var(--spark); color:#fff; border:none; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer;">
                                 Copiar Pix
                             </button>
                         </div>
 
                         <!-- Status em tempo real -->
-                        <div id="atlasPixStatusBox" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; font-size:12px; font-weight:600; color:var(--slate);">
+                        <div id="atlasPixStatusBox"
+                            style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; font-size:12px; font-weight:600; color:var(--slate);">
                             <span class="pulse-atlas-dot warning" id="atlasPixDot"></span>
                             <span id="atlasPixStatusText">Aguardando pagamento... (Aprova na hora)</span>
                         </div>
 
                         <!-- Sucesso pós-pagamento -->
-                        <div id="atlasPixSuccessBox" style="display:none; background:rgba(46,204,113,0.12); border:1px solid rgba(46,204,113,0.3); border-radius:12px; padding:14px; margin-top:12px; text-align:center; color:#27ae60; font-weight:700;">
+                        <div id="atlasPixSuccessBox"
+                            style="display:none; background:rgba(46,204,113,0.12); border:1px solid rgba(46,204,113,0.3); border-radius:12px; padding:14px; margin-top:12px; text-align:center; color:#27ae60; font-weight:700;">
                             <div style="font-size:24px; margin-bottom:4px;">✓</div>
                             <div>Pagamento Aprovado com Sucesso!</div>
-                            <div style="font-size:11.5px; font-weight:500; color:var(--slate); margin-top:2px;">Sua mensalidade Atlas foi renovada.</div>
+                            <div style="font-size:11.5px; font-weight:500; color:var(--slate); margin-top:2px;">Sua
+                                mensalidade Atlas foi renovada.</div>
                         </div>
                     </div>
                 </div>
@@ -3823,7 +4062,7 @@
         async function saveService(e) {
             e.preventDefault();
             const id = document.getElementById('svcId').value;
-            
+
             const prices = {};
             document.querySelectorAll('.svc-veh-price-input').forEach(inp => {
                 const vehKey = inp.getAttribute('data-veh');
@@ -4152,7 +4391,7 @@
                 payoutGrid.innerHTML = cachedEmployees.map(emp => {
                     const empBookings = periodBookings.filter(b => b.employee_id === emp.id && b.status === 'concluido');
                     const totalRevenue = empBookings.reduce((sum, b) => sum + parseFloat(b.total_price || 0), 0);
-                    
+
                     const totalCommission = empBookings.reduce((sum, b) => {
                         let comm = parseFloat(b.commission_amount || 0);
                         if (!comm || comm === 0) {
@@ -4315,7 +4554,7 @@
             e.preventDefault();
             const id = document.getElementById('empId').value;
             const commType = document.getElementById('empCommType').value;
-            
+
             const commission_rates = {};
             document.querySelectorAll('.emp-veh-rate-input').forEach(inp => {
                 const vehKey = inp.getAttribute('data-veh');
@@ -4809,7 +5048,7 @@
                 }
 
                 if (alertPayBtn) {
-                    alertPayBtn.href = payUrl;
+                    alertPayBtn.href = 'javascript:void(0)';
                 }
             }
 
@@ -4963,7 +5202,7 @@
 
                     startAtlasPixPolling(data.payment_id);
                 } else {
-                    alert(data.error || 'Erro ao gerar Pix no Mercado Pago.');
+                    alert(data.error || 'Erro ao gerar cobrança Pix.');
                     backToAtlasNormalView();
                 }
             } catch (err) {
@@ -5083,7 +5322,7 @@
 
                     startAtlasLockPixPolling(data.payment_id);
                 } else {
-                    alert(data.error || 'Erro ao gerar Pix no Mercado Pago.');
+                    alert(data.error || 'Erro ao gerar cobrança Pix.');
                     backToAtlasLockOverview();
                 }
             } catch (err) {
@@ -5149,11 +5388,12 @@
         }
 
         // Dispara o fluxo de Pix caso chamado por banners
-        function handleAtlasMercadoPagoCheckout(e) {
+        function handleAtlasPixCheckout(e) {
             if (e) e.preventDefault();
             openAtlasModal();
             generateAtlasPixPayment(e);
         }
+        window.handleAtlasPixCheckout = handleAtlasPixCheckout;
 
         // Abre o Modal da Licença Atlas
         function openAtlasModal() {
@@ -5351,23 +5591,23 @@
             playNotificationSound();
 
             if ('vibrate' in navigator) {
-                try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
+                try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) { }
             }
 
-            const title = isTest 
-                ? '🔔 Notificação Araújo Detail' 
+            const title = isTest
+                ? '🔔 Notificação Araújo Detail'
                 : '🚗 NOVO AGENDAMENTO RECEBIDO!';
 
             const totalVal = parseFloat(b.total_price || 0).toFixed(2).replace('.', ',');
             const depositVal = parseFloat(b.deposit_price || (b.total_price ? b.total_price / 2 : 0)).toFixed(2).replace('.', ',');
 
-            const body = 
-`👤 Cliente: ${b.client_name} (${b.client_phone || 'Sem telefone'})
+            const body =
+                `👤 Cliente: ${b.client_name} (${b.client_phone || 'Sem telefone'})
 🚘 Veículo: ${b.vehicle_name || 'Não informado'}
 🛠 Serviços: ${b.services_names || 'Serviço'}
 📅 Data: ${b.booking_date} às ${b.booking_time}
 💰 Total: R$ ${totalVal} (Sinal: R$ ${depositVal})` +
-(b.client_notes ? `\n📝 Obs: ${b.client_notes}` : '');
+                (b.client_notes ? `\n📝 Obs: ${b.client_notes}` : '');
 
             const options = {
                 body: body,

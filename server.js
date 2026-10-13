@@ -246,90 +246,83 @@ app.post('/api/admin/atlas/payment-url', requireAdminAuth, async (req, res) => {
 });
 
 
-// Gerar PIX direto via Mercado Pago Payments API (QR Code + Copia e Cola)
+// Gerar PIX direto via AbacatePay (Transparents API v2)
 app.post('/api/admin/atlas/generate-pix', requireAdminAuth, async (req, res) => {
     try {
-        const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+        const abacateKey = process.env.ABACATEPAY_API_KEY;
         const config = await db.getConfig();
         const amount = parseFloat(config.atlas_license_amount || 50.00);
 
-        if (!token) {
-            return res.status(400).json({ success: false, error: 'Token do Mercado Pago não configurado no servidor.' });
+        if (!abacateKey) {
+            return res.status(400).json({ success: false, error: 'Chave de API do AbacatePay não configurada no servidor.' });
         }
 
-        const idempotencyKey = `atlas-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-        const mpRes = await fetch('https://api.mercadopago.com/v1/payments', {
+        const amountInCents = Math.round(amount * 100);
+        const abpRes = await fetch('https://api.abacatepay.com/v2/transparents/create', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token.trim()}`,
-                'Content-Type': 'application/json',
-                'X-Idempotency-Key': idempotencyKey
+                'Authorization': `Bearer ${abacateKey.trim()}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                transaction_amount: amount,
-                description: 'Licença Atlas Software - Araújo Detail',
-                payment_method_id: 'pix',
-                payer: {
-                    email: 'licenca@araujodetail.com.br',
-                    first_name: 'Araújo',
-                    last_name: 'Detail'
+                method: 'PIX',
+                data: {
+                    amount: amountInCents
                 }
             })
         });
 
-        const mpData = await mpRes.json();
-
-        if (mpRes.ok && mpData.id && mpData.point_of_interaction) {
-            const poi = mpData.point_of_interaction;
-            const txData = poi.transaction_data || {};
+        const abpData = await abpRes.json();
+        if (abpRes.ok && abpData.success && abpData.data?.brCode) {
+            const pix = abpData.data;
             return res.json({
                 success: true,
-                payment_id: String(mpData.id),
-                status: mpData.status,
-                qr_code: txData.qr_code || '',
-                qr_code_base64: txData.qr_code_base64 || '',
+                payment_id: pix.id,
+                status: pix.status,
+                qr_code: pix.brCode,
+                qr_code_base64: pix.brCodeBase64 || '',
                 amount: amount
             });
         } else {
-            console.error('[MP PIX Error]:', mpData);
-            return res.status(500).json({ success: false, error: mpData.message || mpData.cause?.[0]?.description || 'Erro ao gerar PIX no Mercado Pago.' });
+            console.error('[AbacatePay PIX Error]:', abpData);
+            return res.status(500).json({ success: false, error: abpData.error || 'Erro ao gerar PIX no AbacatePay.' });
         }
     } catch (err) {
-        console.error('Erro ao gerar PIX MP:', err);
+        console.error('Erro ao gerar PIX:', err);
         return res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// Verificar status do pagamento PIX via Mercado Pago
+// Verificar status do pagamento PIX via AbacatePay
 app.get('/api/admin/atlas/check-pix/:id', requireAdminAuth, async (req, res) => {
     try {
-        const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
         const { id } = req.params;
-        if (!token || !id) {
+        const abacateKey = process.env.ABACATEPAY_API_KEY;
+
+        if (!abacateKey || !id) {
             return res.status(400).json({ success: false, error: 'Parâmetros inválidos.' });
         }
 
-        const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
-            headers: { 'Authorization': `Bearer ${token.trim()}` }
+        const abpRes = await fetch(`https://api.abacatepay.com/v2/transparents/get?id=${id}`, {
+            headers: { 'Authorization': `Bearer ${abacateKey.trim()}` }
         });
-        const mpData = await mpRes.json();
-
-        if (mpRes.ok && mpData.id) {
-            const st = (mpData.status || '').toLowerCase();
-            if (st === 'approved') {
+        const abpData = await abpRes.json();
+        if (abpRes.ok && abpData.success && abpData.data) {
+            const st = (abpData.data.status || '').toUpperCase();
+            if (st === 'PAID') {
                 const now = new Date();
                 const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
                 const updatedConfig = await db.updateConfig({ atlas_last_paid_month: ym });
                 return res.json({ success: true, status: 'approved', config: updatedConfig });
             }
-            return res.json({ success: true, status: st });
+            return res.json({ success: true, status: st.toLowerCase() });
         }
-        return res.status(400).json({ success: false, error: 'Pagamento não encontrado no Mercado Pago.' });
+        return res.status(400).json({ success: false, error: 'Cobrança não encontrada no AbacatePay.' });
     } catch (err) {
         return res.status(500).json({ success: false, error: err.message });
     }
 });
+
 
 
 // Marcar mês atual como pago para a Licença Atlas
